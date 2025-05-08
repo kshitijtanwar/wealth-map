@@ -1,8 +1,6 @@
-import AuthServiceTest from './components/AuthServicetest';
-
 const App = () => {
     return <div className="text-blue-500">
-        <AuthServiceTest />
+        <h1>Hello World</h1>
     </div>;
 };
 export default App;
