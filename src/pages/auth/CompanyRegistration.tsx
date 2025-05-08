@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import { MapIcon, Upload, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface CompanyRegistrationProps {
     onRegister: () => void;
@@ -12,7 +21,7 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
     onRegister,
     onCancel,
 }) => {
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(2);
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -57,7 +66,7 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                             </div>
                         </div>
 
-                        <form className="space-y-6">
+                        <form className="space-y-5">
                             {step === 1 ? (
                                 <>
                                     <div>
@@ -68,12 +77,11 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                             Company Name
                                         </label>
                                         <div className="mt-1">
-                                            <input
+                                            <Input
                                                 id="company-name"
                                                 name="company-name"
                                                 type="text"
                                                 required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                                             />
                                         </div>
                                     </div>
@@ -85,33 +93,38 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Industry
                                         </label>
-                                        <div className="mt-1">
-                                            <select
+                                        <Select>
+                                            <SelectTrigger
                                                 id="industry"
                                                 name="industry"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                                                className="!w-full mt-1"
                                             >
-                                                <option value="">
-                                                    Select an industry
-                                                </option>
-                                                <option value="real-estate">
-                                                    Real Estate
-                                                </option>
-                                                <option value="financial-services">
-                                                    Financial Services
-                                                </option>
-                                                <option value="banking">
-                                                    Banking
-                                                </option>
-                                                <option value="investment">
-                                                    Investment
-                                                </option>
-                                                <option value="other">
-                                                    Other
-                                                </option>
-                                            </select>
-                                        </div>
+                                                <SelectValue placeholder="Select an industry" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    {[
+                                                        "Real Estate",
+                                                        "Financial Services",
+                                                        "Banking",
+                                                        "Investment",
+                                                        "Other",
+                                                    ].map((industry) => (
+                                                        <SelectItem
+                                                            key={industry}
+                                                            value={industry
+                                                                .toLowerCase()
+                                                                .replace(
+                                                                    /\s+/g,
+                                                                    "-"
+                                                                )}
+                                                        >
+                                                            {industry}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <div>
@@ -121,33 +134,38 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Company Size
                                         </label>
-                                        <div className="mt-1">
-                                            <select
+                                        <Select>
+                                            <SelectTrigger
                                                 id="size"
                                                 name="size"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                                                className="!w-full mt-1"
                                             >
-                                                <option value="">
-                                                    Select company size
-                                                </option>
-                                                <option value="1-10">
-                                                    1-10 employees
-                                                </option>
-                                                <option value="11-50">
-                                                    11-50 employees
-                                                </option>
-                                                <option value="51-200">
-                                                    51-200 employees
-                                                </option>
-                                                <option value="201-500">
-                                                    201-500 employees
-                                                </option>
-                                                <option value="501+">
-                                                    501+ employees
-                                                </option>
-                                            </select>
-                                        </div>
+                                                <SelectValue placeholder="Select company size" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    {[
+                                                        "1-10 employees",
+                                                        "11-50 employees",
+                                                        "51-200 employees",
+                                                        "201-500 employees",
+                                                        "501+ employees",
+                                                    ].map((industry) => (
+                                                        <SelectItem
+                                                            key={industry}
+                                                            value={industry
+                                                                .toLowerCase()
+                                                                .replace(
+                                                                    /\s+/g,
+                                                                    "-"
+                                                                )}
+                                                        >
+                                                            {industry}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <div>
@@ -208,15 +226,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Admin Name
                                         </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="admin-name"
-                                                name="admin-name"
-                                                type="text"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                            />
-                                        </div>
+                                        <Input
+                                            id="admin-name"
+                                            name="admin-name"
+                                            type="text"
+                                            required
+                                        />
                                     </div>
 
                                     <div>
@@ -226,16 +241,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Admin Email
                                         </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="admin-email"
-                                                name="admin-email"
-                                                type="email"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                                placeholder="admin@company.com"
-                                            />
-                                        </div>
+                                        <Input
+                                            id="admin-email"
+                                            name="admin-email"
+                                            type="email"
+                                            required
+                                        />
                                     </div>
 
                                     <div>
@@ -245,15 +256,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Password
                                         </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="password"
-                                                name="password"
-                                                type="password"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                            />
-                                        </div>
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            required
+                                        />
                                     </div>
 
                                     <div>
@@ -263,15 +271,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Confirm Password
                                         </label>
-                                        <div className="mt-1">
-                                            <input
-                                                id="confirm-password"
-                                                name="confirm-password"
-                                                type="password"
-                                                required
-                                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                            />
-                                        </div>
+                                        <Input
+                                            id="confirm-password"
+                                            name="confirm-password"
+                                            type="password"
+                                            required
+                                        />
                                     </div>
                                 </>
                             )}
