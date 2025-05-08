@@ -1,5 +1,6 @@
 import { Mail, Lock, AlertCircle } from "lucide-react";
 import { Button } from "../ui/button";
+import { IconInput } from "../ui/input";
 
 const LoginForm: React.FC = () => {
     const error = false;
@@ -31,20 +32,17 @@ const LoginForm: React.FC = () => {
                             >
                                 Email
                             </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <IconInput
+                                id="email"
+                                name="email"
+                                autoComplete="email"
+                                required
+                                type="email"
+                                placeholder="you@company.com"
+                                icon={
                                     <Mail className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                    placeholder="you@company.com"
-                                />
-                            </div>
+                                }
+                            />
                         </div>
 
                         <div>
@@ -54,20 +52,17 @@ const LoginForm: React.FC = () => {
                             >
                                 Password
                             </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <IconInput
+                                id="password"
+                                name="password"
+                                type="password"
+                                autoComplete="current-password"
+                                required
+                                placeholder="••••••••"
+                                icon={
                                     <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                                }
+                            />
                         </div>
 
                         <div className="flex items-center justify-between">
