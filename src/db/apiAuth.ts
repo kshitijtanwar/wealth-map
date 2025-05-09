@@ -61,6 +61,15 @@ export const authAPI = {
 
             const company = companyResponse.data;
 
+            // const { data: existingEmployee } = await supabase
+            //     .from('employees')
+            //     .select('id')
+            //     .eq('email', data.adminEmail)
+            //     .single();
+
+            // if (existingEmployee) {
+            //     throw new Error('An account with this email already exists.');
+            // }
             // Then create the admin user
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: data.adminEmail,
