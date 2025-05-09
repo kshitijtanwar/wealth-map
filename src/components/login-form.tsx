@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { authService } from "../db/apiAuth.ts";
+import { authAPI } from "../db/apiAuth";
 
 interface FormValues {
     email: string;
@@ -36,10 +36,14 @@ export function LoginForm({
     const handleLogin = async (data: FormValues) => {
         try {
             setIsLoading(true);
-            await authService.signIn(data?.email, data?.password);
-            toast.success("Login successful");
+            const result = await authAPI.signIn(data?.email, data?.password);
+            if (result.success) {
+                toast.success("Login successful");
+            } else {
+                toast.error(result.error || "Login failed. Please check your credentials.");
+            }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             toast.error("Login failed. Please check your credentials.");
         } finally {
             setIsLoading(false);
