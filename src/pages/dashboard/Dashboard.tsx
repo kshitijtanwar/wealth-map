@@ -1,3 +1,11 @@
+import { SectionCards } from "@/components/cards/section-cards";
+
 export default function Dashboard() {
-    return <div>Dashboard</div>;
+    return (
+        <section>
+            <div>
+                <SectionCards />
+            </div>
+        </section>
+    );
 }
