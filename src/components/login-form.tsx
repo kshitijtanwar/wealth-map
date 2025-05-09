@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { authService } from "../db/apiAuth.ts";
 
 interface FormValues {
@@ -16,6 +16,7 @@ export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"form">) {
+    const [isLoading, setIsLoading] = useState(false);
     const {
         register,
         handleSubmit,
@@ -34,11 +35,14 @@ export function LoginForm({
 
     const handleLogin = async (data: FormValues) => {
         try {
+            setIsLoading(true);
             await authService.signIn(data?.email, data?.password);
             toast.success("Login successful");
         } catch (error) {
             console.log(error);
             toast.error("Login failed. Please check your credentials.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -84,7 +88,7 @@ export function LoginForm({
                         })}
                     />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" isLoading={isLoading}>
                     Login
                 </Button>
             </div>

@@ -13,7 +13,7 @@ export const AuthService = {
         adminLastName,
     }: {
         companyName: string;
-        logoUrl: string;
+        logoUrl?: File | undefined;
         adminEmail: string;
         adminPassword: string;
         adminFirstName: string;
