@@ -11,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { authService } from "@/db/apiAuth";
+import { authAPI } from "@/db/apiAuth";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -70,15 +70,34 @@ export function SignUpForm({
     const handleRegister = async (data: FormValues) => {
         try {
             setIsLoading(true);
-            await authService.registerAdminCompany({
-                adminName: data.adminName,
-                email: data.email,
-                adminPassword: data.password,
-                companyName: data.companyName,
+            console.log("Starting registration process...");
+            console.log("Form Data:", data);
+
+            if (data.password !== data.confirmPassword) {
+                toast.error("Passwords do not match");
+                return;
+            }
+            console.log("Calling registerCompanyAndAdmin...");
+
+
+            const result = await authAPI.registerCompanyAndAdmin({
+                name: data.companyName,
                 industry: data.industry,
-                logoUrl: data.logo?.[0],
+                adminEmail: data.email,
+                adminPassword: data.password,
+                adminFirstName: data.adminName.split(' ')[0],
+                adminLastName: data.adminName.split(' ').slice(1).join(' '),
+                size: 'small' // Default value
             });
-            toast.success("Account created successfully!");
+            console.log("Registration result:", result);
+
+            if (result.success) {
+                toast.success("Company registered successfully");
+                // onRegister();
+            } else {
+                console.error("Registration failed:", result.error);
+                toast.error(result.error || "Unknown error occurred");
+            }
         } catch (error) {
             console.log(error);
             toast.error("Failed to create account. Please try again.");
