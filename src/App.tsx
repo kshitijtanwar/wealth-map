@@ -1,34 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/auth/Login";
-import CompanyRegistration from "./pages/auth/CompanyRegistration";
-import { useState } from "react";
-import { Toaster } from "react-hot-toast";
-
+import SignUp from "./pages/auth/SignUp";
+import { Toaster } from "sonner";
 const App = () => {
-    const [isRegistering, setIsRegistering] = useState(false);
-
     return (
         <>
+            <Toaster richColors />
             <Router>
                 <Toaster position="top-right" />
                 <Routes>
-                    <Route
-                        path="/"
-                        element={
-                            isRegistering ? (
-                                <CompanyRegistration
-                                    onRegister={() => {}}
-                                    onCancel={() => setIsRegistering(false)}
-                                />
-                            ) : (
-                                <LoginPage
-                                    onLogin={() => {}}
-                                    onForgotPassword={() => {}}
-                                    onRegister={() => setIsRegistering(true)}
-                                />
-                            )
-                        }
-                    />
+                    <Route path="/" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignUp />} />
                 </Routes>
             </Router>
         </>

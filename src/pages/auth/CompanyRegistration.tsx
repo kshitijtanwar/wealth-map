@@ -425,3 +425,4 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
 };
 
 export default CompanyRegistration;
+
