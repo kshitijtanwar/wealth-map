@@ -1,457 +1,560 @@
-// lib/apiAuth.js
-import { supabase } from "./supabase";
-import { v4 as uuidv4 } from "uuid";
+// src/lib/apiAuth.ts
+import supabase from './supabase';
+import { v4 as uuidv4 } from 'uuid';
 
-export const AuthService = {
-    // Admin Registration
-    async registerAdminCompany({
-        companyName,
-        logoUrl,
-        adminEmail,
-        adminPassword,
-        adminFirstName,
-        adminLastName,
-    }: {
-        companyName: string;
-        logoUrl?: File | undefined;
-        adminEmail: string;
-        adminPassword: string;
-        adminFirstName: string;
-        adminLastName: string;
-    }) {
+
+
+// Types for our application
+interface CompanyRegistrationData {
+    name: string;
+    logo?: string;
+    industry: string;
+    size: string;
+    adminEmail: string;
+    adminPassword: string;
+    adminFirstName: string;
+    adminLastName: string;
+    dataAccessPreferences?: Record<string, any>;
+}
+
+interface EmployeeInvitation {
+    email: string;
+    permissionLevel: 'admin' | 'editor' | 'viewer';
+}
+
+interface EmployeeAccountSetup {
+    token: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    acceptTerms: boolean;
+}
+// Enhanced error handling
+class AuthError extends Error {
+    constructor(message: string, public details?: any) {
+        super(message);
+        this.name = 'AuthError';
+    }
+}
+
+// Auth API object
+export const authAPI = {
+    /**
+     * Register a new company and admin account
+     */
+    async registerCompanyAndAdmin(data: CompanyRegistrationData) {
         try {
-            // Step 1: Create company
-            const { data: company, error: companyError } = await supabase
-                .from("companies")
-                .insert([{ name: companyName, logo_url: logoUrl }])
-                .select()
-                .single();
-
-            if (companyError)
-                throw new Error(
-                    `Company creation failed: ${companyError.message}`
-                );
-
-            // Step 2: Sign up admin user
-            const { data: authData, error: authError } =
-                await supabase.auth.signUp({
-                    email: adminEmail,
-                    password: adminPassword,
-                    options: {
-                        data: {
-                            first_name: adminFirstName,
-                            last_name: adminLastName,
-                            company_id: company.id,
-                            role: "admin",
-                        },
-                    },
-                });
-
-            if (authError)
-                throw new Error(
-                    `Admin registration failed: ${authError.message}`
-                );
-
-            // Step 3: Create profile
-            const { error: profileError } = await supabase
-                .from("profiles")
+            // First create the company
+            const companyResponse = await supabase
+                .from('companies')
                 .insert({
-                    id: authData?.user?.id,
-                    email: adminEmail,
-                    first_name: adminFirstName,
-                    last_name: adminLastName,
-                    company_id: company.id,
-                    role: "admin",
-                    onboarding_completed: true,
+                    name: data.name,
+                    logo_url: data.logo,
+                    industry: data.industry,
+                    size: data.size,
+                    data_access_preferences: data.dataAccessPreferences || {},
+                })
+                .select()
+                .single()
+
+            if (companyResponse.error) throw companyResponse.error;
+
+            const company = companyResponse.data;
+
+            // const { data: existingEmployee } = await supabase
+            //     .from('employees')
+            //     .select('id')
+            //     .eq('email', data.adminEmail)
+            //     .single();
+
+            // if (existingEmployee) {
+            //     throw new Error('An account with this email already exists.');
+            // }
+            // Then create the admin user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: data.adminEmail,
+                password: data.adminPassword,
+                options: {
+                    data: {
+                        first_name: data.adminFirstName,
+                        last_name: data.adminLastName,
+                    },
+                },
+            });
+
+            if (authError || !authData.user) {
+                throw new Error('User creation failed: ' + (authError?.message || 'Unknown error'));
+            }
+
+            // Create employee record first
+            const { error: employeeError } = await supabase
+                .from('employees')
+                .insert({
+                    id: authData.user.id,
+                    email: data.adminEmail,
+                    first_name: data.adminFirstName,
+                    last_name: data.adminLastName,
+                    is_active: true,
+                    terms_accepted_at: new Date().toISOString(),
                 });
 
-            if (profileError)
-                throw new Error(
-                    `Profile creation failed: ${profileError.message}`
-                );
+            if (employeeError) {
+                console.error('Employee creation error:', employeeError);
+                throw new Error('Failed to create employee record');
+            }
+
+            // Then add the admin to the company_employees table
+            const employeeResponse = await supabase
+                .from('company_employees')
+                .insert({
+                    company_id: company.id,
+                    employee_id: authData.user.id,
+                    permission_level: 'admin',
+                    invitation_accepted_at: new Date().toISOString(),
+                    is_active: true,
+                });
+
+            if (employeeResponse.error) {
+                console.error('Company employee association error:', employeeResponse.error);
+                throw new Error('Failed to associate employee with company');
+            }
 
             return {
+                success: true,
                 company,
                 user: authData.user,
-                session: authData.session,
             };
         } catch (error) {
-            console.error("Admin registration error:", error);
-            throw error;
+            console.error('Registration error:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Registration failed',
+            };
         }
     },
 
-    // Employee Invitation
-    async inviteEmployee({
-        adminId,
-        companyId,
-        employeeEmail,
-        role,
-    }: {
-        adminId: string;
-        companyId: string;
-        employeeEmail: string;
-        role: string;
-    }) {
+    /**
+     * Send employee invitation
+     */
+    async inviteEmployee(adminId: string, companyId: string, invitation: EmployeeInvitation) {
         try {
-            // Verify admin has permission
-            const { data: adminProfile, error: adminError } = await supabase
-                .from("profiles")
-                .select("role, company_id")
-                .eq("id", adminId)
-                .single();
-
-            if (adminError)
-                throw new Error(
-                    `Admin verification failed: ${adminError.message}`
-                );
-            if (
-                adminProfile.company_id !== companyId ||
-                adminProfile.role !== "admin"
-            ) {
-                throw new Error(
-                    "Unauthorized: Only company admins can invite employees"
-                );
-            }
-
-            // Create invitation token
+            // Generate a unique token for the invitation
             const token = uuidv4();
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
 
-            // Store invitation
-            const { data: invitation, error: inviteError } = await supabase
-                .from("company_invitations")
-                .insert([
-                    {
-                        company_id: companyId,
-                        email: employeeEmail,
-                        role,
-                        token,
-                        expires_at: expiresAt.toISOString(),
-                        created_by: adminId,
-                    },
-                ])
+            // Check if email already exists in employees
+            const { data: existingEmployee } = await supabase
+                .from('employees')
+                .select('id, email')
+                .eq('email', invitation.email)
+                .single();
+
+            if (existingEmployee) {
+                // Check if already associated with company
+                const { data: existingAssociation } = await supabase
+                    .from('company_employees')
+                    .select()
+                    .eq('company_id', companyId)
+                    .eq('employee_id', existingEmployee.id)
+                    .single();
+
+                if (existingAssociation) {
+                    throw new Error('This employee is already associated with your company');
+                }
+            }
+
+            // Create or update invitation
+            const { data, error } = await supabase
+                .from('employee_invitations')
+                .upsert({
+                    company_id: companyId,
+                    email: invitation.email,
+                    token,
+                    permission_level: invitation.permissionLevel,
+                    invited_by: adminId,
+                    expires_at: expiresAt.toISOString(),
+                    is_used: false,
+                })
                 .select()
                 .single();
 
-            if (inviteError)
-                throw new Error(
-                    `Invitation creation failed: ${inviteError.message}`
-                );
+            if (error) throw error;
 
-            // TODO: Integrate with email service
-            const invitationLink = `${
-                import.meta.env.VITE_SITE_URL
-            }/accept-invite?token=${token}`;
+            // In a real app, you would send an email here
+            // For now, we'll just return the token for testing
+            const invitationLink = `${window.location.origin}/accept-invitation?token=${token}`;
+
+            // TODO: Implement actual email sending
+            console.log('Invitation email would be sent to:', invitation.email);
+            console.log('Invitation link:', invitationLink);
 
             return {
-                invitation,
-                invitationLink,
+                success: true,
+                invitation: data,
+                invitationLink, // Return for testing/demo purposes
             };
         } catch (error) {
-            console.error("Employee invitation error:", error);
-            throw error;
+            console.error('Invitation error:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Invitation failed',
+            };
         }
     },
 
-    // Accept Invitation
-    async acceptInvitation({
-        token,
-        password,
-        firstName,
-        lastName,
-    }: {
-        token: string;
-        password: string;
-        firstName: string;
-        lastName: string;
-    }) {
+    /**
+     * Validate an invitation token
+     */
+    async validateInvitation(token: string) {
         try {
-            // Verify invitation
-            const { data: invitation, error: inviteError } = await supabase
-                .from("company_invitations")
-                .select("*")
-                .eq("token", token)
-                .gte("expires_at", new Date().toISOString())
+            const { data, error } = await supabase
+                .from('employee_invitations')
+                .select(`
+          *,
+          companies (*)
+        `)
+                .eq('token', token)
+                .eq('is_used', false)
+                .gt('expires_at', new Date().toISOString())
                 .single();
 
-            if (inviteError)
-                throw new Error(
-                    `Invitation lookup failed: ${inviteError.message}`
-                );
-            if (!invitation) throw new Error("Invalid or expired invitation");
+            if (error) throw error;
+            if (!data) throw new Error('Invalid or expired invitation');
 
-            // Create user account
-            const { data: authData, error: authError } =
-                await supabase.auth.signUp({
+            return {
+                success: true,
+                invitation: data,
+            };
+        } catch (error) {
+            console.error('Validation error:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Invalid invitation',
+            };
+        }
+    },
+
+    /**
+     * Complete employee account setup
+     */
+    async completeEmployeeSetup(token: string, setupData: EmployeeAccountSetup) {
+        try {
+            // First validate the token
+            const validation = await this.validateInvitation(token);
+            if (!validation.success) throw new Error(validation.error);
+
+            const invitation = validation.invitation;
+
+            // Check if email already exists
+            const { data: existingUser } = await supabase
+                .from('employees')
+                .select('id, email, is_active')
+                .eq('email', invitation.email)
+                .single();
+
+            let userId: string;
+
+            if (existingUser) {
+                userId = existingUser.id;
+                // Update existing employee
+                await supabase
+                    .from('employees')
+                    .update({
+                        password_hash: setupData.password, // Note: In real app, hash before storing
+                        first_name: setupData.firstName,
+                        last_name: setupData.lastName,
+                        terms_accepted_at: setupData.acceptTerms ? new Date().toISOString() : null,
+                        is_active: true,
+                    })
+                    .eq('id', userId);
+            } else {
+                // Create new auth user
+                const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: invitation.email,
-                    password: password,
+                    password: setupData.password,
                     options: {
                         data: {
-                            first_name: firstName,
-                            last_name: lastName,
-                            company_id: invitation.company_id,
-                            role: invitation.role,
+                            first_name: setupData.firstName,
+                            last_name: setupData.lastName,
                         },
                     },
                 });
 
-            if (authError)
-                throw new Error(
-                    `Account creation failed: ${authError.message}`
-                );
+                if (authError) throw authError;
+                if (!authData.user) throw new Error('User creation failed');
 
-            // Create profile
-            const { error: profileError } = await supabase
-                .from("profiles")
+                userId = authData.user.id;
+
+                // Create employee record
+                await supabase
+                    .from('employees')
+                    .insert({
+                        id: userId,
+                        email: invitation.email,
+                        first_name: setupData.firstName,
+                        last_name: setupData.lastName,
+                        is_active: true,
+                        terms_accepted_at: setupData.acceptTerms ? new Date().toISOString() : null,
+                    });
+            }
+
+            // Create company association
+            await supabase
+                .from('company_employees')
                 .insert({
-                    id: authData?.user?.id,
-                    email: invitation.email,
-                    first_name: firstName,
-                    last_name: lastName,
                     company_id: invitation.company_id,
-                    role: invitation.role,
+                    employee_id: userId,
+                    permission_level: invitation.permission_level,
+                    invited_by: invitation.invited_by,
+                    invitation_accepted_at: new Date().toISOString(),
+                    is_active: true,
                 });
-
-            if (profileError)
-                throw new Error(
-                    `Profile creation failed: ${profileError.message}`
-                );
 
             // Mark invitation as used
             await supabase
-                .from("company_invitations")
-                .delete()
-                .eq("id", invitation.id);
+                .from('employee_invitations')
+                .update({
+                    is_used: true,
+                })
+                .eq('id', invitation.id);
+
+            // Create onboarding progress record
+            await supabase
+                .from('onboarding_progress')
+                .insert({
+                    employee_id: userId,
+                    steps_completed: [],
+                    current_step: 'welcome',
+                });
 
             return {
-                user: authData.user,
-                session: authData.session,
+                success: true,
+                userId,
+                companyId: invitation.company_id,
             };
         } catch (error) {
-            console.error("Invitation acceptance error:", error);
-            throw error;
+            console.error('Account setup error:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Account setup failed',
+            };
         }
     },
 
-    // Admin Management Functions
-    async getCompanyEmployees({
-        adminId,
-        companyId,
-    }: {
-        adminId: string;
-        companyId: string;
-    }) {
+    /**
+     * Get current user's companies
+     */
+    async getUserCompanies(userId: string) {
         try {
-            // Verify admin has permission
-            await this.verifyAdmin(adminId, companyId);
+            const { data, error } = await supabase
+                .from('company_employees')
+                .select(`
+          permission_level,
+          companies (*)
+        `)
+                .eq('employee_id', userId)
+                .eq('is_active', true);
 
-            const { data: employees, error } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("company_id", companyId);
+            if (error) throw error;
 
-            if (error)
-                throw new Error(`Employee fetch failed: ${error.message}`);
-
-            return employees;
+            return {
+                success: true,
+                companies: data,
+            };
         } catch (error) {
-            console.error("Get employees error:", error);
-            throw error;
+            console.error('Error fetching companies:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to fetch companies',
+            };
         }
     },
 
-    async updateEmployeePermissions({
-        adminId,
-        companyId,
-        employeeId,
-        updates,
-    }: {
-        adminId: string;
-        companyId: string;
-        employeeId: string;
-        updates: string;
-    }) {
+    /**
+     * Get company employees
+     */
+    async getCompanyEmployees(companyId: string) {
         try {
-            // Verify admin has permission
-            await this.verifyAdmin(adminId, companyId);
+            const { data, error } = await supabase
+                .from('company_employees')
+                .select(`
+          permission_level,
+          is_active,
+          employees (
+            id,
+            email,
+            first_name,
+            last_name,
+            last_login
+          )
+        `)
+                .eq('company_id', companyId);
 
-            const { data: employee, error } = await supabase
-                .from("profiles")
-                .update(updates)
-                .eq("id", employeeId)
-                .eq("company_id", companyId)
-                .select()
-                .single();
+            if (error) throw error;
 
-            if (error)
-                throw new Error(`Permission update failed: ${error.message}`);
-
-            return employee;
+            return {
+                success: true,
+                employees: data,
+            };
         } catch (error) {
-            console.error("Update permissions error:", error);
-            throw error;
+            console.error('Error fetching employees:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to fetch employees',
+            };
         }
     },
 
-    async revokeEmployeeAccess({
-        adminId,
-        companyId,
-        employeeId,
-    }: {
-        adminId: string;
-        companyId: string;
-        employeeId: string;
-    }) {
+    /**
+     * Update employee permissions
+     */
+    async updateEmployeePermissions(
+        companyId: string,
+        employeeId: string,
+        permissionLevel: 'admin' | 'editor' | 'viewer'
+    ) {
         try {
-            // Verify admin has permission
-            await this.verifyAdmin(adminId, companyId);
+            const { error } = await supabase
+                .from('company_employees')
+                .update({
+                    permission_level: permissionLevel,
+                })
+                .eq('company_id', companyId)
+                .eq('employee_id', employeeId);
 
-            // Delete the user from auth (admin privilege required in Supabase)
-            const { error: authError } = await supabase.auth.admin.deleteUser(
-                employeeId
-            );
-            if (authError)
-                throw new Error(
-                    `Auth user deletion failed: ${authError.message}`
-                );
-
-            // Delete the profile
-            const { error: profileError } = await supabase
-                .from("profiles")
-                .delete()
-                .eq("id", employeeId)
-                .eq("company_id", companyId);
-
-            if (profileError)
-                throw new Error(
-                    `Profile deletion failed: ${profileError.message}`
-                );
+            if (error) throw error;
 
             return { success: true };
         } catch (error) {
-            console.error("Revoke access error:", error);
-            throw error;
-        }
-    },
-
-    // Employee Onboarding
-    async completeOnboarding(
-        userId: string,
-        onboardingData: {
-            notificationPreferences: {
-                email: boolean;
-                sms: boolean;
-                push: boolean;
+            console.error('Error updating permissions:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to update permissions',
             };
         }
-    ) {
+    },
+
+    /**
+     * Deactivate employee
+     */
+    async deactivateEmployee(companyId: string, employeeId: string) {
         try {
-            const { data: profile, error } = await supabase
-                .from("profiles")
+            // Update company_employees association
+            const { error: ceError } = await supabase
+                .from('company_employees')
                 .update({
-                    onboarding_completed: true,
-                    notification_preferences:
-                        onboardingData.notificationPreferences || {},
+                    is_active: false,
                 })
-                .eq("id", userId)
-                .select()
-                .single();
+                .eq('company_id', companyId)
+                .eq('employee_id', employeeId);
 
-            if (error)
-                throw new Error(
-                    `Onboarding completion failed: ${error.message}`
-                );
+            if (ceError) throw ceError;
 
-            return profile;
+            // Check if employee has other active company associations
+            const { data: otherCompanies, error: ocError } = await supabase
+                .from('company_employees')
+                .select('id')
+                .eq('employee_id', employeeId)
+                .eq('is_active', true);
+
+            if (ocError) throw ocError;
+
+            // If no other active companies, deactivate the employee account
+            if (otherCompanies && otherCompanies.length === 0) {
+                await supabase
+                    .from('employees')
+                    .update({
+                        is_active: false,
+                    })
+                    .eq('id', employeeId);
+            }
+
+            return { success: true };
         } catch (error) {
-            console.error("Onboarding error:", error);
-            throw error;
+            console.error('Error deactivating employee:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to deactivate employee',
+            };
         }
     },
 
-    // Helper Functions
-    async verifyAdmin(adminId: string, companyId: string) {
-        const { data: adminProfile, error } = await supabase
-            .from("profiles")
-            .select("role, company_id")
-            .eq("id", adminId)
-            .single();
+    /**
+     * Get employee activity
+     */
+    async getEmployeeActivity(companyId: string, limit = 100) {
+        try {
+            const { data, error } = await supabase
+                .from('employee_activity')
+                .select(`
+          id,
+          activity_type,
+          details,
+          created_at,
+          employees (
+            id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+                .eq('company_id', companyId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
 
-        if (error)
-            throw new Error(`Admin verification failed: ${error.message}`);
-        if (
-            adminProfile.company_id !== companyId ||
-            adminProfile.role !== "admin"
-        ) {
-            throw new Error("Unauthorized: Admin privileges required");
+            if (error) throw error;
+
+            return {
+                success: true,
+                activities: data,
+            };
+        } catch (error) {
+            console.error('Error fetching activity:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to fetch activity',
+            };
         }
-
-        return true;
     },
 
-    // Get Profile
-    async getProfile(userId: string) {
-        const { data: profile, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", userId)
-            .single();
-
-        if (error) throw new Error(`Profile fetch failed: ${error.message}`);
-        return profile;
-    },
-
-    // Session Management
-    async getSession() {
-        const { data, error } = await supabase.auth.getSession();
-        if (error)
-            throw new Error(`Session retrieval failed: ${error.message}`);
-        return data.session;
-    },
-
+    // Standard auth functions
     async signIn(email: string, password: string) {
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
-        if (error) throw new Error(`Sign in failed: ${error.message}`);
-        return data;
-    },
 
-    async getUser() {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) throw new Error(`User retrieval failed: ${error.message}`);
-        return data.user;
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        // Update last login
+        if (data.user) {
+            await supabase
+                .from('employees')
+                .update({
+                    last_login: new Date().toISOString(),
+                })
+                .eq('id', data.user.id);
+        }
+
+        return { success: true, user: data.user };
     },
 
     async signOut() {
         const { error } = await supabase.auth.signOut();
-        if (error) throw new Error(`Sign out failed: ${error.message}`);
+        if (error) {
+            return { success: false, error: error.message };
+        }
         return { success: true };
     },
 
-    // Password Reset
-    async resetPassword(email: string) {
-        const { data, error } = await supabase.auth.resetPasswordForEmail(
-            email,
-            {
-                redirectTo: `${import.meta.env.VITE_SITE_URL}/update-password`,
-            }
-        );
-        if (error) throw new Error(`Password reset failed: ${error.message}`);
-        return data;
-    },
-
-    async updatePassword(newPassword: string) {
-        const { data, error } = await supabase.auth.updateUser({
-            password: newPassword,
-        });
-        if (error) throw new Error(`Password update failed: ${error.message}`);
-        return data;
+    async getSession() {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+            return { success: false, error: error.message };
+        }
+        return { success: true, session: data.session };
     },
 };
-
-// Export a singleton instance
-export const authService = Object.freeze(AuthService);

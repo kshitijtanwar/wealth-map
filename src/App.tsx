@@ -2,10 +2,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import { Toaster } from "sonner";
+
 const App = () => {
     return (
         <>
-            <Toaster richColors />
+            <Toaster 
+                position="top-center"
+                richColors
+                closeButton
+                expand={true}
+            />
             <Router>
                 <Routes>
                     <Route path="/" element={<LoginPage />} />
@@ -15,4 +21,5 @@ const App = () => {
         </>
     );
 };
+
 export default App;
