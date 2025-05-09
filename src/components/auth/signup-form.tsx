@@ -15,6 +15,7 @@ import { authAPI } from "../../db/apiAuth";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FormError from "../utils/FormError";
+import { useNavigate } from "react-router-dom";
 
 interface FormValues {
     companyName: string;
@@ -41,7 +42,7 @@ export function SignUpForm({
         watch,
         trigger,
     } = useForm<FormValues>();
-
+    const navigate = useNavigate();
     const password = watch("password");
 
     const handleNextStep = async () => {
@@ -69,6 +70,7 @@ export function SignUpForm({
 
             if (result.success) {
                 toast.success("Company registered successfully");
+                navigate("/dashboard");
             } else {
                 console.error("Registration failed:", result.error);
                 toast.error(result.error || "Unknown error occurred");
