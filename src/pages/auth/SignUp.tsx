@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import singupPlaceholder from "../../assets/login/login.png";
-import { SignUpForm } from "@/components/ui/signup-form";
+import { SignUpForm } from "@/components/signup-form";
 
 const SignUp = () => {
     return (
