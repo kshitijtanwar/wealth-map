@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 interface CompanyRegistrationData {
     name: string;
     logo?: string;
+    industry: string;
+    size: string;
     adminEmail: string;
     adminPassword: string;
     adminFirstName: string;
@@ -27,6 +29,13 @@ interface EmployeeAccountSetup {
     lastName: string;
     acceptTerms: boolean;
 }
+// Enhanced error handling
+class AuthError extends Error {
+    constructor(message: string, public details?: any) {
+        super(message);
+        this.name = 'AuthError';
+    }
+}
 
 // Auth API object
 export const authAPI = {
@@ -41,10 +50,12 @@ export const authAPI = {
                 .insert({
                     name: data.name,
                     logo_url: data.logo,
+                    industry: data.industry,
+                    size: data.size,
                     data_access_preferences: data.dataAccessPreferences || {},
                 })
                 .select()
-                .single();
+                .single()
 
             if (companyResponse.error) throw companyResponse.error;
 
@@ -62,11 +73,28 @@ export const authAPI = {
                 },
             });
 
-            if (authError) throw authError;
+            if (authError || !authData.user) {
+                throw new Error('User creation failed: ' + (authError?.message || 'Unknown error'));
+            }
 
-            if (!authData.user) throw new Error('User creation failed');
+            // Create employee record first
+            const { error: employeeError } = await supabase
+                .from('employees')
+                .insert({
+                    id: authData.user.id,
+                    email: data.adminEmail,
+                    first_name: data.adminFirstName,
+                    last_name: data.adminLastName,
+                    is_active: true,
+                    terms_accepted_at: new Date().toISOString(),
+                });
 
-            // Add the admin to the company_employees table
+            if (employeeError) {
+                console.error('Employee creation error:', employeeError);
+                throw new Error('Failed to create employee record');
+            }
+
+            // Then add the admin to the company_employees table
             const employeeResponse = await supabase
                 .from('company_employees')
                 .insert({
@@ -77,19 +105,10 @@ export const authAPI = {
                     is_active: true,
                 });
 
-            if (employeeResponse.error) throw employeeResponse.error;
-
-            // Create employee record
-            await supabase
-                .from('employees')
-                .insert({
-                    id: authData.user.id,
-                    email: data.adminEmail,
-                    first_name: data.adminFirstName,
-                    last_name: data.adminLastName,
-                    is_active: true,
-                    terms_accepted_at: new Date().toISOString(),
-                });
+            if (employeeResponse.error) {
+                console.error('Company employee association error:', employeeResponse.error);
+                throw new Error('Failed to associate employee with company');
+            }
 
             return {
                 success: true,

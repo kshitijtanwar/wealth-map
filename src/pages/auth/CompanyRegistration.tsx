@@ -11,6 +11,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { toast } from "react-hot-toast";
+import { authAPI } from "@/db/apiAuth";
 
 interface CompanyRegistrationProps {
     onRegister: () => void;
@@ -22,6 +24,87 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
     onCancel,
 }) => {
     const [step, setStep] = useState(1);
+
+    const [formData, setFormData] = useState({
+        name: "",
+        logo: "",
+        industry: "",
+        size: "",
+        adminFirstName: "",
+        adminLastName: "",
+        adminEmail: "",
+        adminPassword: "",
+        confirmPassword: "",
+    });
+
+    const [loading, setLoading] = useState(false);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSelectChange = (name: string, value: string) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result as string);
+                setFormData(prev => ({ ...prev, logo: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Starting registration process...");
+        console.log("Form Data:", formData);
+        setLoading(true);
+
+        try {
+            if (step === 1) {
+                setStep(2);
+            } else {
+                // Final submission
+                if (formData.adminPassword !== formData.confirmPassword) {
+                    toast.error("Passwords do not match");
+                    return;
+                }
+
+                console.log("Calling registerCompanyAndAdmin...");
+                const result = await authAPI.registerCompanyAndAdmin({
+                    name: formData.name,
+                    logo: formData.logo,
+                    industry: formData.industry,
+                    size: formData.size,
+                    adminEmail: formData.adminEmail,
+                    adminPassword: formData.adminPassword,
+                    adminFirstName: formData.adminFirstName,
+                    adminLastName: formData.adminLastName,
+                });
+                console.log("Registration result:", result);
+
+                if (result.success) {
+                    toast.success("Company registered successfully");
+                    onRegister();
+                } else {
+                    console.error("Registration failed:", result.error);
+                    toast.error(result.error || "Unknown error occurred");
+                }
+            }
+        } catch (error) {
+            console.error("Registration error:", error);
+            toast.error("An unexpected error occurred");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -66,7 +149,7 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                             </div>
                         </div>
 
-                        <form className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             {step === 1 ? (
                                 <>
                                     <div>
@@ -79,8 +162,11 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         <div className="mt-1">
                                             <Input
                                                 id="company-name"
-                                                name="company-name"
+                                                name="name"
                                                 type="text"
+                                                value={formData.name}
+                                                placeholder="Enter company name"
+                                                onChange={handleChange}
                                                 required
                                             />
                                         </div>
@@ -93,7 +179,10 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Industry
                                         </label>
-                                        <Select>
+                                        <Select
+                                            value={formData.industry}
+                                            onValueChange={(value) => handleSelectChange("industry", value)}
+                                        >
                                             <SelectTrigger
                                                 id="industry"
                                                 name="industry"
@@ -134,7 +223,10 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         >
                                             Company Size
                                         </label>
-                                        <Select>
+                                        <Select
+                                            value={formData.size}
+                                            onValueChange={(value) => handleSelectChange("size", value)}
+                                        >
                                             <SelectTrigger
                                                 id="size"
                                                 name="size"
@@ -173,15 +265,21 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                             Company Logo
                                         </label>
                                         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                            {false ? (
+                                            {logoPreview ? (
                                                 <div className="text-center">
                                                     <img
+                                                        src={logoPreview}
+
                                                         alt="Logo preview"
                                                         className="mx-auto h-32 w-32 object-contain mb-4"
                                                     />
                                                     <button
                                                         type="button"
                                                         className="text-sm text-red-600 hover:text-red-500"
+                                                        onClick={() => {
+                                                            setLogoPreview(null);
+                                                            setFormData(prev => ({ ...prev, logo: "" }));
+                                                        }}
                                                     >
                                                         Remove logo
                                                     </button>
@@ -203,6 +301,7 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                                                 type="file"
                                                                 className="sr-only"
                                                                 accept="image/*"
+                                                                onChange={handleLogoUpload}
                                                             />
                                                         </label>
                                                         <p className="pl-1">
@@ -228,8 +327,10 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         </label>
                                         <Input
                                             id="admin-name"
-                                            name="admin-name"
+                                            name="adminFirstName"
                                             type="text"
+                                            value={formData.adminFirstName}
+                                            onChange={handleChange}
                                             required
                                         />
                                     </div>
@@ -243,8 +344,10 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         </label>
                                         <Input
                                             id="admin-email"
-                                            name="admin-email"
+                                            name="adminEmail"
                                             type="email"
+                                            value={formData.adminEmail}
+                                            onChange={handleChange}
                                             required
                                         />
                                     </div>
@@ -258,9 +361,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         </label>
                                         <Input
                                             id="password"
-                                            name="password"
+                                            name="adminPassword"
                                             type="password"
+                                            value={formData.adminPassword}
+                                            onChange={handleChange}
                                             required
+                                            minLength={8}
                                         />
                                     </div>
 
@@ -273,9 +379,12 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                         </label>
                                         <Input
                                             id="confirm-password"
-                                            name="confirm-password"
+                                            name="confirmPassword"
                                             type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={handleChange}
                                             required
+                                            minLength={8}
                                         />
                                     </div>
                                 </>
@@ -293,11 +402,18 @@ const CompanyRegistration: React.FC<CompanyRegistrationProps> = ({
                                 )}
                                 <Button
                                     type="submit"
-                                    className={`
-                                        ${step === 1 ? "w-full" : "ml-auto"}
-                                        bg-emerald-600 hover:bg-emerald-700`}
+                                    className={`${step === 1 ? "w-full" : "ml-auto"} bg-emerald-600 hover:bg-emerald-700`}
+                                    disabled={loading}
                                 >
-                                    {step === 1 ? "Next" : "Create Account"}
+                                    {loading ? (
+                                        <div className="flex items-center gap-2">
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing...
+                                        </div>
+                                    ) : step === 1 ? "Next" : "Create Account"}
                                 </Button>
                             </div>
                         </form>
