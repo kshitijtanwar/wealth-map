@@ -6,12 +6,7 @@ import { Toaster } from "sonner";
 const App = () => {
     return (
         <>
-            <Toaster 
-                position="top-center"
-                richColors
-                closeButton
-                expand={true}
-            />
+            <Toaster richColors closeButton />
             <Router>
                 <Routes>
                     <Route path="/" element={<LoginPage />} />
