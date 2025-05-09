@@ -6,12 +6,14 @@ import AuthWrapper from "./components/utils/AuthWrapper";
 import Dashboard from "./pages/dashboard/Dashboard";
 import { AuthProvider } from "./context/AuthProvider";
 import { useAuth } from "./context/AuthProvider";
+import AppLayout from "./components/layout/AppLayout";
+import Employees from "./pages/employees/Employees";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
 
     if (loading) {
-        return <div>Loading authentication status...</div>; // Or a fancy spinner
+        return <div>Loading authentication status...</div>;
     }
 
     return (
@@ -19,7 +21,14 @@ const AppRoutes = () => {
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route element={<AuthWrapper />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                    path="/dashboard"
+                    element={<AppLayout children={<Dashboard />} />}
+                />
+                <Route
+                    path="/employees"
+                    element={<AppLayout children={<Employees />} />}
+                />
             </Route>
         </Routes>
     );
