@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FormError from "../utils/FormError";
 import { useNavigate } from "react-router-dom";
+import { uploadFileToStorage } from "../../lib/storage";
 
 interface FormValues {
     companyName: string;
@@ -33,6 +34,7 @@ export function SignUpForm({
 }: React.ComponentPropsWithoutRef<"form">) {
     const [step, setStep] = useState<1 | 2>(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
     const {
         register,
@@ -41,9 +43,16 @@ export function SignUpForm({
         formState: { errors },
         watch,
         trigger,
+        setValue,
     } = useForm<FormValues>();
     const navigate = useNavigate();
     const password = watch("password");
+    const logoFile = watch("logo");
+
+    const handleLogoRemove = () => {
+        setLogoPreview(null); 
+        setValue("logo", undefined);
+    };
 
     const handleNextStep = async () => {
         const isValid = await trigger(["companyName", "fullname", "email"]);
@@ -58,6 +67,22 @@ export function SignUpForm({
             if (data.password !== data.confirmPassword) {
                 toast.error("Passwords do not match");
                 return;
+            }
+
+            let logoUrl = '';
+            if (data.logo && data.logo.length > 0) {
+                const file = data.logo[0];
+                const { url, error } = await uploadFileToStorage(
+                    file,
+                    'logo-url', // Your bucket name
+                    'logos' // Folder path within bucket
+                );
+
+                if (error) {
+                    toast.error("Failed to upload logo");
+                    return;
+                }
+                logoUrl = url;
             }
 
             const result = await authAPI.registerCompanyAndAdmin({
@@ -188,16 +213,74 @@ export function SignUpForm({
                                     (optional)
                                 </span>
                             </Label>
-                            <Input
-                                id="logo"
-                                type="file"
-                                accept="image/*"
-                                {...register("logo")}
+
+                            {logoPreview && (
+                                <div className="mb-2 flex flex-col items-start gap-2">
+                                    <img
+                                        src={logoPreview}
+                                        alt="Logo preview"
+                                        className="h-20 w-20 object-contain rounded-md border"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleLogoRemove}
+                                        className="text-xs text-red-500 hover:text-red-700"
+                                    >
+                                        Remove Logo
+                                    </button>
+                                </div>
+                            )}
+
+                            <Controller
+                                name="logo"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        id="logo"
+                                        type="file"
+                                        accept="image/jpeg, image/png, image/gif"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                // Validate file type
+                                                const validTypes = ["image/jpeg", "image/png", "image/gif"];
+                                                if (!validTypes.includes(file.type)) {
+                                                    toast.error("Please upload a valid image (JPEG, PNG, GIF)");
+                                                    return;
+                                                }
+
+                                                // Validate file size (5MB max)
+                                                if (file.size > 5 * 1024 * 1024) {
+                                                    toast.error("File size must be less than 5MB");
+                                                    return;
+                                                }
+
+                                                // Create preview
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setLogoPreview(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
+
+                                                // Update form value
+                                                field.onChange(e.target.files);
+                                            } else {
+                                                handleLogoRemove();
+                                            }
+                                        }}
+                                        ref={field.ref}
+                                        onBlur={field.onBlur}
+                                    />
+                                )}
                             />
-                            {errors.logo && (
-                                <FormError text={errors.logo.message} />
+
+                            {!logoPreview && (
+                                <p className="text-xs text-muted-foreground">
+                                    Recommended: 200x200px, JPG/PNG/GIF, max 5MB
+                                </p>
                             )}
                         </div>
+
 
                         {/* Industry */}
                         <div className="grid gap-2">
