@@ -7,11 +7,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { authAPI } from "../../db/apiAuth";
 import { useNavigate } from "react-router-dom";
-
-interface FormValues {
-    email: string;
-    password: string;
-}
+import { type FormValues } from "@/types";
 
 export function LoginForm({
     className,
