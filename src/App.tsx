@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthProvider";
 import { useAuth } from "./context/AuthProvider";
 import AppLayout from "./components/layout/AppLayout";
 import Employees from "./pages/employees/Employees";
+import Reports from "./pages/reports/Reports";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -28,6 +29,10 @@ const AppRoutes = () => {
                 <Route
                     path="/employees"
                     element={<AppLayout children={<Employees />} />}
+                />
+                <Route
+                    path="/reports"
+                    element={<AppLayout children={<Reports />} />}
                 />
             </Route>
         </Routes>
