@@ -12,7 +12,7 @@ const UserActivity = ({ className, ...props }: CardProps) => {
             </CardHeader>
             <CardContent className="flex justify-around items-center h-full">
                 <div className="flex flex-col items-center">
-                    <div className="flex items-center space-x-8">
+                    <div className="flex flex-col justify-center items-center gap-8 xs:flex-row">
                         <div className="text-center">
                             <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-3">
                                 <Activity className="h-8 w-8 text-emerald-600" />
