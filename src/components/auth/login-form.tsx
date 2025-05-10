@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { authAPI } from "../db/apiAuth";
+import { authAPI } from "../../db/apiAuth";
+import { useNavigate } from "react-router-dom";
 
 interface FormValues {
     email: string;
@@ -22,6 +23,7 @@ export function LoginForm({
         handleSubmit,
         formState: { errors },
     } = useForm<FormValues>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
@@ -39,8 +41,12 @@ export function LoginForm({
             const result = await authAPI.signIn(data?.email, data?.password);
             if (result.success) {
                 toast.success("Login successful");
+                navigate("/dashboard");
             } else {
-                toast.error(result.error || "Login failed. Please check your credentials.");
+                toast.error(
+                    result.error ||
+                        "Login failed. Please check your credentials."
+                );
             }
         } catch (error) {
             console.error(error);
