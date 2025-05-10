@@ -45,7 +45,8 @@ export default function Employees() {
             email: "john.doe@example.com",
             role: "Employee",
             status: "Active",
-            avatarUrl: "/placeholder.svg?height=40&width=40",
+            avatarUrl:
+                "https://images.pexels.com/photos/9072338/pexels-photo-9072338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         },
         {
             id: "2",
@@ -53,7 +54,8 @@ export default function Employees() {
             email: "jane.smith@example.com",
             role: "Employee",
             status: "Active",
-            avatarUrl: "/placeholder.svg?height=40&width=40",
+            avatarUrl:
+                "https://images.pexels.com/photos/7688554/pexels-photo-7688554.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         },
         {
             id: "3",
@@ -61,7 +63,8 @@ export default function Employees() {
             email: "robert.johnson@example.com",
             role: "Admin",
             status: "Active",
-            avatarUrl: "/placeholder.svg?height=40&width=40",
+            avatarUrl:
+                "https://images.pexels.com/photos/10983885/pexels-photo-10983885.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         },
     ]);
 
@@ -193,7 +196,7 @@ export default function Employees() {
                 {employees.length > 0 ? (
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b bg-gray-50">
+                            <tr className="border-b text-muted-foreground text-sm">
                                 <th className="text-left py-4 px-6 font-medium text-gray-500">
                                     EMPLOYEE
                                 </th>
@@ -209,13 +212,14 @@ export default function Employees() {
                                 <th className="py-4 px-6"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="text-sm">
                             {employees.map((employee) => (
                                 <tr key={employee.id} className="border-b">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
                                             <Avatar>
                                                 <AvatarImage
+                                                    className="object-cover object-top"
                                                     src={
                                                         employee.avatarUrl ||
                                                         "/placeholder.svg"

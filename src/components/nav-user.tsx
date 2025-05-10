@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { authAPI } from "@/db/apiAuth";
-import { Modal } from "./utils/modal";
+import { Modal } from "./utils/Modal";
 
 export function NavUser({
     user,
@@ -83,6 +83,7 @@ export function NavUser({
                                     <AvatarImage
                                         src={user.avatar}
                                         alt={user.name}
+                                        className="object-cover object-top"
                                     />
                                     <AvatarFallback className="rounded-lg">
                                         CN
