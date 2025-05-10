@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Select,
     SelectContent,
@@ -11,15 +11,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { authAPI } from "@/db/apiAuth";
+import { authAPI } from "../../db/apiAuth";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
+import FormError from "../utils/FormError";
+import { useNavigate } from "react-router-dom";
 
 interface FormValues {
     companyName: string;
     logo?: FileList;
     industry: string;
-    adminName: string;
+    fullname: string;
     email: string;
     password: string;
     confirmPassword: string;
@@ -40,28 +42,11 @@ export function SignUpForm({
         watch,
         trigger,
     } = useForm<FormValues>();
-
+    const navigate = useNavigate();
     const password = watch("password");
 
-    // Show validation errors as toasts
-    useEffect(() => {
-        // Only show visible fields' errors for the current step
-        const relevantErrors =
-            step === 1
-                ? ["companyName", "adminName", "email"]
-                : ["industry", "password", "confirmPassword"];
-
-        relevantErrors.forEach((field) => {
-            if (errors[field as keyof FormValues]?.message) {
-                toast.error(
-                    errors[field as keyof FormValues]?.message as string
-                );
-            }
-        });
-    }, [errors, step]);
-
     const handleNextStep = async () => {
-        const isValid = await trigger(["companyName", "adminName", "email"]);
+        const isValid = await trigger(["companyName", "fullname", "email"]);
         if (isValid) {
             setStep(2);
         }
@@ -70,30 +55,22 @@ export function SignUpForm({
     const handleRegister = async (data: FormValues) => {
         try {
             setIsLoading(true);
-            console.log("Starting registration process...");
-            console.log("Form Data:", data);
-
             if (data.password !== data.confirmPassword) {
                 toast.error("Passwords do not match");
                 return;
             }
-            console.log("Calling registerCompanyAndAdmin...");
-
 
             const result = await authAPI.registerCompanyAndAdmin({
                 name: data.companyName,
                 industry: data.industry,
                 adminEmail: data.email,
                 adminPassword: data.password,
-                adminFirstName: data.adminName.split(' ')[0],
-                adminLastName: data.adminName.split(' ').slice(1).join(' '),
-                size: 'small' // Default value
+                fullname: data.fullname,
             });
-            console.log("Registration result:", result);
 
             if (result.success) {
                 toast.success("Company registered successfully");
-                // onRegister();
+                navigate("/dashboard");
             } else {
                 console.error("Registration failed:", result.error);
                 toast.error(result.error || "Unknown error occurred");
@@ -133,7 +110,7 @@ export function SignUpForm({
                 </div>
             </div>
 
-            <div className="grid gap-6">
+            <div className="grid gap-4">
                 {step === 1 ? (
                     <>
                         {/* Step 1: Basic Information */}
@@ -148,6 +125,9 @@ export function SignUpForm({
                                     required: "Company name is required",
                                 })}
                             />
+                            {errors.companyName && (
+                                <FormError text={errors.companyName.message} />
+                            )}
                         </div>
 
                         {/* Admin Full Name */}
@@ -157,10 +137,13 @@ export function SignUpForm({
                                 id="fullname"
                                 type="text"
                                 placeholder="John Doe"
-                                {...register("adminName", {
+                                {...register("fullname", {
                                     required: "Full name is required",
                                 })}
                             />
+                            {errors.fullname && (
+                                <FormError text={errors.fullname.message} />
+                            )}
                         </div>
 
                         {/* Admin Email */}
@@ -178,6 +161,9 @@ export function SignUpForm({
                                     },
                                 })}
                             />
+                            {errors.email && (
+                                <FormError text={errors.email.message} />
+                            )}
                         </div>
 
                         <Button
@@ -208,6 +194,9 @@ export function SignUpForm({
                                 accept="image/*"
                                 {...register("logo")}
                             />
+                            {errors.logo && (
+                                <FormError text={errors.logo.message} />
+                            )}
                         </div>
 
                         {/* Industry */}
@@ -251,6 +240,9 @@ export function SignUpForm({
                                     </Select>
                                 )}
                             />
+                            {errors.industry && (
+                                <FormError text={errors.industry.message} />
+                            )}
                         </div>
 
                         {/* Password */}
@@ -269,6 +261,9 @@ export function SignUpForm({
                                     },
                                 })}
                             />
+                            {errors.password && (
+                                <FormError text={errors.password.message} />
+                            )}
                         </div>
 
                         {/* Confirm Password */}
@@ -287,6 +282,11 @@ export function SignUpForm({
                                         "Passwords do not match",
                                 })}
                             />
+                            {errors.confirmPassword && (
+                                <FormError
+                                    text={errors.confirmPassword.message}
+                                />
+                            )}
                         </div>
 
                         <div className="flex gap-2">
