@@ -1,4 +1,4 @@
-import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+import { TrendingUpIcon } from "lucide-react";
 import {
     Card,
     CardDescription,
@@ -12,9 +12,9 @@ export function SectionCards() {
         <div className="*:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-card-foreground/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card lg:px-6">
             <Card className="@container/card">
                 <CardHeader>
-                    <CardDescription>Total Revenue</CardDescription>
+                    <CardDescription>Total Employees</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        $1,250.00
+                        24
                     </CardTitle>
                 </CardHeader>
                 <CardFooter className="flex-col items-start gap-1 text-sm">
@@ -23,49 +23,49 @@ export function SectionCards() {
                         <TrendingUpIcon className="size-4" />
                     </div>
                     <div className="text-muted-foreground">
-                        Visitors for the last 6 months
+                        +4.75% from last month
                     </div>
                 </CardFooter>
             </Card>
             <Card className="@container/card">
                 <CardHeader>
-                    <CardDescription>New Customers</CardDescription>
+                    <CardDescription>Reports Generated</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        1,234
+                        142
                     </CardTitle>
                 </CardHeader>
                 <CardFooter className="flex-col items-start gap-1 text-sm">
                     <div className="line-clamp-1 flex gap-2 font-medium">
-                        Down 20% this period{" "}
-                        <TrendingDownIcon className="size-4" />
-                    </div>
-                    <div className="text-muted-foreground">
-                        Acquisition needs attention
-                    </div>
-                </CardFooter>
-            </Card>
-            <Card className="@container/card">
-                <CardHeader>
-                    <CardDescription>Active Accounts</CardDescription>
-                    <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        45,678
-                    </CardTitle>
-                </CardHeader>
-                <CardFooter className="flex-col items-start gap-1 text-sm">
-                    <div className="line-clamp-1 flex gap-2 font-medium">
-                        Strong user retention{" "}
+                        Trending up this month{" "}
                         <TrendingUpIcon className="size-4" />
                     </div>
                     <div className="text-muted-foreground">
-                        Engagement exceed targets
+                        +12.3% from last month
                     </div>
                 </CardFooter>
             </Card>
             <Card className="@container/card">
                 <CardHeader>
-                    <CardDescription>Growth Rate</CardDescription>
+                    <CardDescription>Properties Mapped</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        4.5%
+                        2,845
+                    </CardTitle>
+                </CardHeader>
+                <CardFooter className="flex-col items-start gap-1 text-sm">
+                    <div className="line-clamp-1 flex gap-2 font-medium">
+                        Trending up
+                        <TrendingUpIcon className="size-4" />
+                    </div>
+                    <div className="text-muted-foreground">
+                        +28.4%from last quarter
+                    </div>
+                </CardFooter>
+            </Card>
+            <Card className="@container/card">
+                <CardHeader>
+                    <CardDescription>Average Property Value</CardDescription>
+                    <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+                        $2.4M
                     </CardTitle>
                 </CardHeader>
                 <CardFooter className="flex-col items-start gap-1 text-sm">
@@ -73,7 +73,7 @@ export function SectionCards() {
                         Steady performance <TrendingUpIcon className="size-4" />
                     </div>
                     <div className="text-muted-foreground">
-                        Meets growth projections
+                        +3.2% from last quarter
                     </div>
                 </CardFooter>
             </Card>
