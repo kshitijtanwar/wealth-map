@@ -7,8 +7,19 @@ import {
 } from "@/components/ui/sidebar";
 import { SearchBar } from "../utils/search-bar";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
+import { useLocation } from "react-router-dom";
+
+const pageTitles: Record<string, string> = {
+    "/dashboard": "Dashboard",
+    "/employees": "Employees",
+    "/reports": "Reports",
+    "/settings": "Settings",
+};
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const location = useLocation();
+    const pageTitle = pageTitles[location.pathname] || "Dashboard"; // Default to Dashboard if route not found
+
     return (
         <AlertDialog>
             <SidebarProvider
@@ -25,10 +36,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <SidebarTrigger className="-ml-1" />
                         <Separator
                             orientation="vertical"
-                            className="mr-2 h-4"
+                            className="mr-2 !h-8"
                         />
                         <div className="flex justify-between w-full items-center gap-6">
-                            <h1>Dashboard</h1>
+                            <h1>{pageTitle}</h1>
                             <SearchBar />
                         </div>
                     </header>
