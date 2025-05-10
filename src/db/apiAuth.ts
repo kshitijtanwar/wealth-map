@@ -1,39 +1,7 @@
 // src/lib/apiAuth.ts
 import supabase from './supabase';
 import { v4 as uuidv4 } from 'uuid';
-
-
-
-// Types for our application
-interface CompanyRegistrationData {
-    name: string;
-    logo?: string;
-    industry: string;
-    adminEmail: string;
-    adminPassword: string;
-    fullname: string;
-    dataAccessPreferences?: Record<string, any>;
-}
-
-interface EmployeeInvitation {
-    email: string;
-    permissionLevel: 'admin' | 'editor' | 'viewer';
-}
-
-interface EmployeeAccountSetup {
-    token: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    acceptTerms: boolean;
-}
-// Enhanced error handling
-class AuthError extends Error {
-    constructor(message: string, public details?: any) {
-        super(message);
-        this.name = 'AuthError';
-    }
-}
+import { type CompanyRegistrationData, type EmployeeInvitation, type EmployeeAccountSetup, type AuthError } from '@/types';
 
 // Auth API object
 export const authAPI = {
