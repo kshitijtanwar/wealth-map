@@ -9,11 +9,9 @@ interface CompanyRegistrationData {
     name: string;
     logo?: string;
     industry: string;
-    size: string;
     adminEmail: string;
     adminPassword: string;
-    adminFirstName: string;
-    adminLastName: string;
+    fullname: string;
     dataAccessPreferences?: Record<string, any>;
 }
 
@@ -51,7 +49,6 @@ export const authAPI = {
                     name: data.name,
                     logo_url: data.logo,
                     industry: data.industry,
-                    size: data.size,
                     data_access_preferences: data.dataAccessPreferences || {},
                 })
                 .select()
@@ -76,8 +73,7 @@ export const authAPI = {
                 password: data.adminPassword,
                 options: {
                     data: {
-                        first_name: data.adminFirstName,
-                        last_name: data.adminLastName,
+                        fullname: data.fullname,
                     },
                 },
             });
@@ -92,8 +88,7 @@ export const authAPI = {
                 .insert({
                     id: authData.user.id,
                     email: data.adminEmail,
-                    first_name: data.adminFirstName,
-                    last_name: data.adminLastName,
+                    fullname: data.fullname,
                     is_active: true,
                     terms_accepted_at: new Date().toISOString(),
                 });
@@ -520,26 +515,47 @@ export const authAPI = {
 
     // Standard auth functions
     async signIn(email: string, password: string) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        try {
+            if (!email || !password) {
+                throw new Error('Email and password are required');
+            }
 
-        if (error) {
-            return { success: false, error: error.message };
-        }
+            console.log('Attempting sign in for email:', email);
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password: password.trim(),
+            });
 
-        // Update last login
-        if (data.user) {
-            await supabase
+            if (error) {
+                console.error('Sign in error:', error);
+                return { success: false, error: error.message };
+            }
+
+            if (!data.user) {
+                console.error('No user data returned');
+                return { success: false, error: 'Authentication failed' };
+            }
+
+            // Update last login
+            const { error: updateError } = await supabase
                 .from('employees')
                 .update({
                     last_login: new Date().toISOString(),
                 })
                 .eq('id', data.user.id);
-        }
 
-        return { success: true, user: data.user };
+            if (updateError) {
+                console.error('Failed to update last login:', updateError);
+            }
+
+            return { success: true, user: data.user };
+        } catch (error) {
+            console.error('Sign in error:', error);
+            return { 
+                success: false, 
+                error: error instanceof Error ? error.message : 'Authentication failed'
+            };
+        }
     },
 
     async signOut() {
