@@ -10,6 +10,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
@@ -26,9 +27,11 @@ export function Reports({ className, ...props }: CardProps) {
                 <Report />
             </CardContent>
             <CardFooter>
-                <Button className="w-full">
-                    View all reports <ArrowRight />
-                </Button>
+                <Link to="/reports" className="mx-auto">
+                    <Button className="cursor-pointer" variant="link">
+                        View all reports <ArrowRight />
+                    </Button>
+                </Link>
             </CardFooter>
         </Card>
     );
