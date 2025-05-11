@@ -115,6 +115,7 @@ const Map: React.FC = () => {
                 lng: property.lng,
             });
             marker.setData(property);
+            // @ts-expect-error - HERE Maps doesn't provide proper TypeScript definitions for event objects
             marker.addEventListener("tap", function (evt) {
                 const prop = evt.target.getData();
                 setSelectedProperty(prop);
