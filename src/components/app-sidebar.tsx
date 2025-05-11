@@ -10,7 +10,7 @@ import {
     SidebarMenuItem,
     SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { NavUser } from "./nav-user";
 import { useAuth } from "@/context/AuthProvider";
 
@@ -48,12 +48,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { session } = useAuth();
     console.log("session", session);
     const companyLogo = session?.user?.user_metadata?.company_logo;
+    console.log(companyLogo)
     console.log("companyLogo", companyLogo);
     const user = session?.user;
-    const fallbackAvatar = 'https://images.pexels.com/photos/7688595/pexels-photo-7688595.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
+    const fallbackAvatar =
+        "https://images.pexels.com/photos/7688595/pexels-photo-7688595.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
     const userData = {
-        name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User',
-        email: user?.email || '',
+        name:
+            user?.user_metadata?.full_name ||
+            user?.email?.split("@")[0] ||
+            "User",
+        email: user?.email || "",
         avatar: companyLogo || fallbackAvatar,
     };
     return (
@@ -75,7 +80,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     </div>
                                 )}
                                 <span className="font-medium">
-                                    {user?.user_metadata?.company_name || 'Wealth Map'}
+                                    {user?.user_metadata?.company_name ||
+                                        "Wealth Map"}
                                 </span>
                             </Link>
                         </SidebarMenuButton>
