@@ -77,17 +77,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link to="/dashboard">
-                                {companyLogo ? (
-                                    <img
-                                        src={companyLogo}
-                                        alt="Company Logo"
-                                        className="size-8 rounded-lg object-cover"
-                                    />
-                                ) : (
-                                    <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                        <Map className="size-4" />
-                                    </div>
-                                )}
+                                <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    <Map className="size-4" />
+                                </div>
+
                                 <span className="font-medium">
                                     {user?.user_metadata?.company_name ||
                                         "Wealth Map"}
