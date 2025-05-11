@@ -23,6 +23,9 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
+import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
+import { authAPI } from "@/db/apiAuth";
+import { Modal } from "./utils/Modal";
 
 export function NavUser({
     user,
@@ -34,6 +37,10 @@ export function NavUser({
     };
 }) {
     const { isMobile } = useSidebar();
+
+    const handleLogout = async () => {
+        await authAPI.signOut();
+    };
 
     return (
         <SidebarMenu>
@@ -76,6 +83,7 @@ export function NavUser({
                                     <AvatarImage
                                         src={user.avatar}
                                         alt={user.name}
+                                        className="object-cover object-top"
                                     />
                                     <AvatarFallback className="rounded-lg">
                                         CN
@@ -114,13 +122,19 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <LogOut />
-                            Log out
-                        </DropdownMenuItem>
+                        <AlertDialogTrigger asChild>
+                            <DropdownMenuItem>
+                                <LogOut />
+                                Log out
+                            </DropdownMenuItem>
+                        </AlertDialogTrigger>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
+            <Modal
+                onConfirm={handleLogout}
+                description="This action will log you out from the session any unsaved changes may be lost."
+            />
         </SidebarMenu>
     );
 }

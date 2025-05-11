@@ -10,7 +10,7 @@ import {
     SidebarMenuItem,
     SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "./nav-user";
 import { useAuth } from "@/context/AuthProvider";
 
@@ -33,7 +33,7 @@ const data = {
         },
         {
             title: "Reports",
-            url: "#",
+            url: "/reports",
             icon: FileText,
         },
         {
@@ -85,16 +85,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu className="gap-2">
-                        {data.navMain.map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton asChild>
-                                    <Link to={item.url} className="font-medium">
-                                        <item.icon />
-                                        {item.title}
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
+                        {data.navMain.map((item) => {
+                            const isActive = location.pathname === item.url;
+                            return (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <Link
+                                            to={item.url}
+                                            className={`font-medium ${
+                                                isActive
+                                                    ? "text-primary hover:!text-primary"
+                                                    : ""
+                                            }`}
+                                        >
+                                            <item.icon />
+                                            {item.title}
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            );
+                        })}
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
