@@ -1,5 +1,12 @@
 import * as React from "react";
-import { Map, LayoutDashboard, Users, FileText, Settings } from "lucide-react";
+import {
+    Map,
+    LayoutDashboard,
+    Users,
+    FileText,
+    Settings,
+    MapPinned,
+} from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -27,6 +34,11 @@ const data = {
             icon: LayoutDashboard,
         },
         {
+            title: "Property Map",
+            url: "/map",
+            icon: MapPinned,
+        },
+        {
             title: "Employees",
             url: "/employees",
             icon: Users,
@@ -46,10 +58,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { session } = useAuth();
-    console.log("session", session);
     const companyLogo = session?.user?.user_metadata?.company_logo;
-    console.log(companyLogo)
-    console.log("companyLogo", companyLogo);
     const user = session?.user;
     const fallbackAvatar =
         "https://images.pexels.com/photos/7688595/pexels-photo-7688595.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
