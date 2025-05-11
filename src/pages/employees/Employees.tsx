@@ -108,9 +108,9 @@ export default function Employees() {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-6 flex justify-between items-center border-b">
-                <div>
+        <div className="bg-white rounded-lg shadow-sm border mx-4">
+            <div className="p-6 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
+                <div className="text-center sm:text-left">
                     <h1 className="text-2xl font-semibold text-gray-900">
                         Employee Management
                     </h1>
