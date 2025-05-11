@@ -10,6 +10,7 @@ import AppLayout from "./components/layout/AppLayout";
 import Employees from "./pages/employees/Employees";
 import Reports from "./pages/reports/Reports";
 import Map from "./pages/map/Map";
+import PropertyDetail from "./pages/property-detail/PropertyDetail";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -36,6 +37,10 @@ const AppRoutes = () => {
                     element={<AppLayout children={<Reports />} />}
                 />
                 <Route path="/map" element={<AppLayout children={<Map />} />} />
+                <Route
+                    path="/property-detail"
+                    element={<AppLayout children={<PropertyDetail />} />}
+                />
             </Route>
         </Routes>
     );
