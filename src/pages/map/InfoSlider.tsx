@@ -86,6 +86,7 @@ export function InfoSlider({
 
                 <div className="space-y-3 mt-6">
                     <Button
+                        tabIndex={-1}
                         variant="default"
                         className="w-full"
                         onClick={() => onViewPropertyDetails()}
