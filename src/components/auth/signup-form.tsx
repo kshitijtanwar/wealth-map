@@ -16,7 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FormError from "../utils/FormError";
 import { useNavigate } from "react-router-dom";
-import { uploadFileToStorage } from "../../lib/storage";
+import supabase from "@/db/supabase";
 
 interface FormValues {
     companyName: string;
@@ -50,7 +50,7 @@ export function SignUpForm({
     const logoFile = watch("logo");
 
     const handleLogoRemove = () => {
-        setLogoPreview(null); 
+        setLogoPreview(null);
         setValue("logo", undefined);
     };
 
@@ -61,32 +61,63 @@ export function SignUpForm({
         }
     };
 
+    const uploadLogo = async (file: File) => {
+        try {
+            // Generate a unique filename with timestamp
+            const timestamp = Date.now();
+            const fileName = `logos/${timestamp}-${file.name}`;
+            
+            // Upload to Supabase storage
+            const { data, error } = await supabase.storage
+                .from('logo-url')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            // Get signed URL that matches the reference format
+            const { data: signedUrlData } = await supabase.storage
+                .from('logo-url')
+                .createSignedUrl(fileName, 31536000); // 1 year expiration
+
+            if (!signedUrlData?.signedUrl) {
+                throw new Error('Failed to generate signed URL');
+            }
+
+            return signedUrlData.signedUrl;
+        } catch (error) {
+            console.error("Logo upload failed:", error);
+            throw new Error("Failed to upload logo");
+        }
+    };
+
     const handleRegister = async (data: FormValues) => {
         try {
             setIsLoading(true);
+            
+            // Validate passwords match
             if (data.password !== data.confirmPassword) {
                 toast.error("Passwords do not match");
                 return;
             }
 
             let logoUrl = '';
+            // Handle logo upload if present
             if (data.logo && data.logo.length > 0) {
-                const file = data.logo[0];
-                const { url, error } = await uploadFileToStorage(
-                    file,
-                    'logo-url', // Your bucket name
-                    'logos' // Folder path within bucket
-                );
-
-                if (error) {
-                    toast.error("Failed to upload logo");
+                try {
+                    logoUrl = await uploadLogo(data.logo[0]);
+                } catch (error) {
+                    toast.error("Failed to upload company logo");
                     return;
                 }
-                logoUrl = url;
             }
 
+            // Register company and admin
             const result = await authAPI.registerCompanyAndAdmin({
                 name: data.companyName,
+                logo: logoUrl, // Pass the logo URL
                 industry: data.industry,
                 adminEmail: data.email,
                 adminPassword: data.password,
@@ -97,11 +128,10 @@ export function SignUpForm({
                 toast.success("Company registered successfully");
                 navigate("/dashboard");
             } else {
-                console.error("Registration failed:", result.error);
-                toast.error(result.error || "Unknown error occurred");
+                toast.error(result.error || "Registration failed");
             }
         } catch (error) {
-            console.log(error);
+            console.error("Registration error:", error);
             toast.error("Failed to create account. Please try again.");
         } finally {
             setIsLoading(false);
@@ -114,24 +144,15 @@ export function SignUpForm({
             {...props}
             onSubmit={handleSubmit(handleRegister)}
         >
+            {/* Form header and step indicators */}
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create an account</h1>
                 <p className="text-balance text-sm text-muted-foreground">
                     Enter your details to create your account
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                    <div
-                        className={cn(
-                            "h-2 w-2 rounded-full",
-                            step === 1 ? "bg-primary" : "bg-muted"
-                        )}
-                    />
-                    <div
-                        className={cn(
-                            "h-2 w-2 rounded-full",
-                            step === 2 ? "bg-primary" : "bg-muted"
-                        )}
-                    />
+                    <div className={cn("h-2 w-2 rounded-full", step === 1 ? "bg-primary" : "bg-muted")} />
+                    <div className={cn("h-2 w-2 rounded-full", step === 2 ? "bg-primary" : "bg-muted")} />
                 </div>
             </div>
 
@@ -139,7 +160,6 @@ export function SignUpForm({
                 {step === 1 ? (
                     <>
                         {/* Step 1: Basic Information */}
-                        {/* Company Name */}
                         <div className="grid gap-2">
                             <Label htmlFor="company_name">Company Name</Label>
                             <Input
@@ -150,12 +170,9 @@ export function SignUpForm({
                                     required: "Company name is required",
                                 })}
                             />
-                            {errors.companyName && (
-                                <FormError text={errors.companyName.message} />
-                            )}
+                            {errors.companyName && <FormError text={errors.companyName.message} />}
                         </div>
 
-                        {/* Admin Full Name */}
                         <div className="grid gap-2">
                             <Label htmlFor="fullname">Full Name</Label>
                             <Input
@@ -166,12 +183,9 @@ export function SignUpForm({
                                     required: "Full name is required",
                                 })}
                             />
-                            {errors.fullname && (
-                                <FormError text={errors.fullname.message} />
-                            )}
+                            {errors.fullname && <FormError text={errors.fullname.message} />}
                         </div>
 
-                        {/* Admin Email */}
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
@@ -186,32 +200,19 @@ export function SignUpForm({
                                     },
                                 })}
                             />
-                            {errors.email && (
-                                <FormError text={errors.email.message} />
-                            )}
+                            {errors.email && <FormError text={errors.email.message} />}
                         </div>
 
-                        <Button
-                            type="button"
-                            onClick={handleNextStep}
-                            className="w-full"
-                        >
+                        <Button type="button" onClick={handleNextStep} className="w-full">
                             Next
                         </Button>
                     </>
                 ) : (
                     <>
                         {/* Step 2: Logo and Password */}
-                        {/* Company Logo (Optional) */}
                         <div className="grid gap-2">
-                            <Label
-                                htmlFor="logo"
-                                className="flex items-center gap-2"
-                            >
-                                Company Logo{" "}
-                                <span className="text-sm text-muted-foreground">
-                                    (optional)
-                                </span>
+                            <Label htmlFor="logo" className="flex items-center gap-2">
+                                Company Logo <span className="text-sm text-muted-foreground">(optional)</span>
                             </Label>
 
                             {logoPreview && (
@@ -262,14 +263,11 @@ export function SignUpForm({
                                                 };
                                                 reader.readAsDataURL(file);
 
-                                                // Update form value
                                                 field.onChange(e.target.files);
                                             } else {
                                                 handleLogoRemove();
                                             }
                                         }}
-                                        ref={field.ref}
-                                        onBlur={field.onBlur}
                                     />
                                 )}
                             />
@@ -281,8 +279,6 @@ export function SignUpForm({
                             )}
                         </div>
 
-
-                        {/* Industry */}
                         <div className="grid gap-2">
                             <Label htmlFor="industry">Select an industry</Label>
                             <Controller
@@ -290,10 +286,7 @@ export function SignUpForm({
                                 control={control}
                                 rules={{ required: "Industry is required" }}
                                 render={({ field }) => (
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                    >
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select an industry" />
                                         </SelectTrigger>
@@ -308,12 +301,7 @@ export function SignUpForm({
                                                 ].map((industry) => (
                                                     <SelectItem
                                                         key={industry}
-                                                        value={industry
-                                                            .toLowerCase()
-                                                            .replace(
-                                                                /\s+/g,
-                                                                "-"
-                                                            )}
+                                                        value={industry.toLowerCase().replace(/\s+/g, "-")}
                                                     >
                                                         {industry}
                                                     </SelectItem>
@@ -323,12 +311,9 @@ export function SignUpForm({
                                     </Select>
                                 )}
                             />
-                            {errors.industry && (
-                                <FormError text={errors.industry.message} />
-                            )}
+                            {errors.industry && <FormError text={errors.industry.message} />}
                         </div>
 
-                        {/* Password */}
                         <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
@@ -339,21 +324,15 @@ export function SignUpForm({
                                     required: "Password is required",
                                     minLength: {
                                         value: 8,
-                                        message:
-                                            "Password must be at least 8 characters long",
+                                        message: "Password must be at least 8 characters long",
                                     },
                                 })}
                             />
-                            {errors.password && (
-                                <FormError text={errors.password.message} />
-                            )}
+                            {errors.password && <FormError text={errors.password.message} />}
                         </div>
 
-                        {/* Confirm Password */}
                         <div className="grid gap-2">
-                            <Label htmlFor="confirm_password">
-                                Confirm Password
-                            </Label>
+                            <Label htmlFor="confirm_password">Confirm Password</Label>
                             <Input
                                 id="confirm_password"
                                 type="password"
@@ -361,15 +340,10 @@ export function SignUpForm({
                                 {...register("confirmPassword", {
                                     required: "Confirm password is required",
                                     validate: (value) =>
-                                        value === password ||
-                                        "Passwords do not match",
+                                        value === password || "Passwords do not match",
                                 })}
                             />
-                            {errors.confirmPassword && (
-                                <FormError
-                                    text={errors.confirmPassword.message}
-                                />
-                            )}
+                            {errors.confirmPassword && <FormError text={errors.confirmPassword.message} />}
                         </div>
 
                         <div className="flex gap-2">
@@ -381,11 +355,7 @@ export function SignUpForm({
                             >
                                 Back
                             </Button>
-                            <Button
-                                type="submit"
-                                className="flex-1"
-                                isLoading={isLoading}
-                            >
+                            <Button type="submit" className="flex-1" isLoading={isLoading}>
                                 Create Account
                             </Button>
                         </div>

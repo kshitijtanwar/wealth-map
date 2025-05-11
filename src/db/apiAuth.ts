@@ -42,6 +42,7 @@ export const authAPI = {
                 options: {
                     data: {
                         fullname: data.fullname,
+                        company_logo: data.logo,
                     },
                 },
             });
