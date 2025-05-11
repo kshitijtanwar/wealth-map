@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-    SheetClose,
-    SheetContent,
-} from "@/components/ui/sheet";
+import { SheetClose, SheetContent } from "@/components/ui/sheet";
 import { XCircle, Bookmark, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -31,7 +28,10 @@ export function InfoSlider({
                         className="w-full h-full object-cover"
                     />
                 )}
-                <SheetClose className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md">
+                <SheetClose
+                    className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md"
+                    tabIndex={-1}
+                >
                     <XCircle size={24} className="text-gray-600" />
                 </SheetClose>
             </div>
