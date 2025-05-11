@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     Card,
     CardHeader,
@@ -17,6 +17,9 @@ import {
 import PropertyDetailCard from "@/components/cards/PropertyDetailCard";
 import OwnerInformationCard from "@/components/cards/OwnerInformationCard";
 import { mockOwner, mockProperties } from "../../../dummyData";
+import WealthComposition from "@/components/cards/WealthComposition";
+import { DataSourceCard } from "@/components/cards/DataSourceCard";
+import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
 
 type TabsValue = "overview" | "owner" | "history";
 
@@ -85,7 +88,13 @@ const PropertyDetail: React.FC<{ property?: Property }> = ({
                         />
                     </div>
                 </TabsContent>
-                <TabsContent value="owner">Owner Analysis</TabsContent>
+                <TabsContent value="owner" className="space-y-4">
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <WealthComposition />
+                        <DataSourceCard />
+                    </div>
+                    <OtherPropertiesOwned />
+                </TabsContent>
                 <TabsContent value="history">Transaction History</TabsContent>
             </Tabs>
         </section>

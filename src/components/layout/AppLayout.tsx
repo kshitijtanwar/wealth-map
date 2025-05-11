@@ -41,7 +41,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             className="mr-2 !h-8"
                         />
                         <div className="flex justify-between w-full items-center gap-6">
-                            <h1>{pageTitle}</h1>
+                            <h1 className="line-clamp-1">{pageTitle}</h1>
                             <SearchBar />
                         </div>
                     </header>
