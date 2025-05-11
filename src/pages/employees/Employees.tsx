@@ -18,13 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, MoreVertical, Shield } from "lucide-react";
 
@@ -134,48 +127,20 @@ export default function Employees() {
                                 Send an invitation to a new team member.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="employee@example.com"
-                                    value={newEmployee.email}
-                                    onChange={(e) =>
-                                        setNewEmployee({
-                                            ...newEmployee,
-                                            email: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="role">Role</Label>
-                                <Select
-                                    value={newEmployee.role}
-                                    onValueChange={(
-                                        value: "Employee" | "Admin"
-                                    ) =>
-                                        setNewEmployee({
-                                            ...newEmployee,
-                                            role: value,
-                                        })
-                                    }
-                                >
-                                    <SelectTrigger id="role" className="w-full">
-                                        <SelectValue placeholder="Select a role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Employee">
-                                            Employee
-                                        </SelectItem>
-                                        <SelectItem value="Admin">
-                                            Admin
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                        <div className="grid gap-4 py-2">
+                            <Label htmlFor="email">Email address</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="employee@example.com"
+                                value={newEmployee.email}
+                                onChange={(e) =>
+                                    setNewEmployee({
+                                        ...newEmployee,
+                                        email: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
                         <DialogFooter>
                             <Button

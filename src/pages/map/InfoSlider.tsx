@@ -62,7 +62,7 @@ export function InfoSlider({
 
                 <div className="border-t border-gray-200 pt-4 mb-4">
                     <h4 className="font-medium mb-2">Owner Information</h4>
-                    <Card className="bg-gray-50">
+                    <Card className="bg-card">
                         <CardContent className="p-3">
                             <div className="flex justify-between items-center">
                                 <div>
@@ -99,11 +99,13 @@ export function InfoSlider({
                             variant="outline"
                             size="sm"
                             className="flex items-center gap-2"
+                            tabIndex={-1}
                         >
                             <Bookmark size={16} />
                             Save Property
                         </Button>
                         <Button
+                            tabIndex={-1}
                             variant="outline"
                             size="sm"
                             className="flex items-center gap-2"

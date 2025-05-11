@@ -4,6 +4,14 @@ import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
 import { properties } from "@/../dummyData";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 const Map: React.FC = () => {
     const navigate = useNavigate();
@@ -83,12 +91,27 @@ const Map: React.FC = () => {
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <section ref={sectionRef} className="p-4 h-full w-full">
-                <div
-                    ref={mapRef}
-                    className="border rounded-md overflow-hidden w-full h-[500px]"
-                />
-            </section>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Properties Available</CardTitle>
+                    <CardDescription>
+                        Choose from the plotted properties to explore the
+                        owner's information.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <section ref={sectionRef} className="h-full w-full">
+                        <div
+                            ref={mapRef}
+                            className="border rounded-md overflow-hidden w-full h-[500px]"
+                        />
+                    </section>
+                </CardContent>
+                <CardFooter className="text-muted-foreground text-xs">
+                    Properties may not be available in all areas. Due to
+                    limitations of dataset.
+                </CardFooter>
+            </Card>
             {selectedProperty && (
                 <InfoSlider
                     selectedProperty={selectedProperty}
