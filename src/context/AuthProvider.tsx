@@ -11,7 +11,7 @@ import type { Session } from "@supabase/supabase-js"; // adjust import if needed
 interface AuthContextType {
     session: Session | null;
     loading: boolean;
-    companyLogo: string | null;
+    companyLogo?: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +19,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
-    const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -49,7 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ session, loading, companyLogo }}>
+        <AuthContext.Provider value={{ session, loading }}>
             {children}
         </AuthContext.Provider>
     );
