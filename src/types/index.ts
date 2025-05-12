@@ -132,3 +132,10 @@ export interface MapViewSettings {
         ownerTypes?: ("individual" | "entity")[];
     };
 }
+
+export interface OnboardingInfo {
+    email: string;
+    password: string;
+    name: string;
+    phone: string;
+}
