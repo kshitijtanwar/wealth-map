@@ -89,14 +89,12 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                 />
                             </div>
                             <div className="grid gap-3">
-                                <Label htmlFor="name">Phone</Label>
+                                <Label htmlFor="name">Phone (Optional)</Label>
                                 <Input
                                     id="phone"
                                     type="tel"
                                     placeholder="(123) 456-7890"
-                                    {...register("phone", {
-                                        required: "Phone number is required",
-                                    })}
+                                    {...register("phone")}
                                 />
                                 <FormError
                                     text={errors.phone?.message as string}
