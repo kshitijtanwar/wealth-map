@@ -1,4 +1,4 @@
-import emailjs from '@emailjs/browser';
+import emailjs from "@emailjs/browser";
 
 interface InvitationEmailParams {
     to_email: string;
@@ -11,16 +11,18 @@ interface InvitationEmailParams {
 
 export const sendInvitationEmail = async (params: InvitationEmailParams) => {
     try {
-        console.log('Sending invitation email with params:', {
+        console.log("Sending invitation email with params:", {
             ...params,
             serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
             templateId: import.meta.env.VITE_EMAILJS_INVITATION_TEMPLATE_ID,
         });
 
-        if (!import.meta.env.VITE_EMAILJS_SERVICE_ID || 
-            !import.meta.env.VITE_EMAILJS_INVITATION_TEMPLATE_ID || 
-            !import.meta.env.VITE_EMAILJS_PUBLIC_KEY) {
-            throw new Error('Missing EmailJS configuration');
+        if (
+            !import.meta.env.VITE_EMAILJS_SERVICE_ID ||
+            !import.meta.env.VITE_EMAILJS_INVITATION_TEMPLATE_ID ||
+            !import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        ) {
+            throw new Error("Missing EmailJS configuration");
         }
 
         const response = await emailjs.send(
@@ -42,15 +44,16 @@ export const sendInvitationEmail = async (params: InvitationEmailParams) => {
         console.log("company_name", params.company_name);
         console.log("sender_name", params.sender_name);
         console.log("role", params.role);
-        console.log('EmailJS response:', response);
+        console.log("EmailJS response:", response);
 
         return { success: true, response };
     } catch (error) {
-        console.error('Failed to send invitation email:', error);
-        return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Failed to send email',
-            details: error
+        console.error("Failed to send invitation email:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error ? error.message : "Failed to send email",
+            details: error,
         };
     }
-}; 
+};
