@@ -9,19 +9,40 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { type OnboardingInfo } from "@/types";
+import FormError from "./utils/FormError";
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
     token: string;
 }
 
 export function LoginForm({ className, token, ...props }: LoginFormProps) {
-    console.log(token);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<OnboardingInfo>();
+
+    const handleOnboarding = async (data: OnboardingInfo) => {
+        const { email, password, name, phone } = data;
+        console.log("Onboarding data:", {
+            email,
+            password,
+            name,
+            phone,
+            token,
+        });
+    };
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden p-0">
                 <CardContent className="grid p-0 md:grid-cols-2">
-                    <form className="p-6 md:p-8">
-                        <div className="flex flex-col gap-6">
+                    <form
+                        className="p-6 md:p-8"
+                        onSubmit={handleSubmit(handleOnboarding)}
+                    >
+                        <div className="flex flex-col gap-2">
                             <CardHeader className="flex flex-col items-center text-center">
                                 <CardTitle className="text-xl">
                                     Hey there, good to see you!
@@ -36,7 +57,16 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                     id="email"
                                     type="email"
                                     placeholder="m@example.com"
-                                    required
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                            message: "Invalid email address",
+                                        },
+                                    })}
+                                />
+                                <FormError
+                                    text={errors.email?.message as string}
                                 />
                             </div>
                             <div className="grid gap-3">
@@ -45,7 +75,17 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                     id="name"
                                     type="text"
                                     placeholder="John Doe"
-                                    required
+                                    {...register("name", {
+                                        required: "Name is required",
+                                        minLength: {
+                                            value: 2,
+                                            message:
+                                                "Name must be at least 2 characters",
+                                        },
+                                    })}
+                                />
+                                <FormError
+                                    text={errors.name?.message as string}
                                 />
                             </div>
                             <div className="grid gap-3">
@@ -54,7 +94,12 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                     id="phone"
                                     type="tel"
                                     placeholder="(123) 456-7890"
-                                    required
+                                    {...register("phone", {
+                                        required: "Phone number is required",
+                                    })}
+                                />
+                                <FormError
+                                    text={errors.phone?.message as string}
                                 />
                             </div>
                             <div className="grid gap-3">
@@ -62,8 +107,18 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                 <Input
                                     id="password"
                                     type="password"
-                                    required
                                     placeholder="••••••••"
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        minLength: {
+                                            value: 8,
+                                            message:
+                                                "Password must be at least 8 characters",
+                                        },
+                                    })}
+                                />
+                                <FormError
+                                    text={errors.password?.message as string}
                                 />
                             </div>
                             <Button type="submit" className="w-full">
