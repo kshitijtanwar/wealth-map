@@ -35,7 +35,7 @@ interface Employee {
 
 export default function Employees() {
     const { session } = useAuth();
-    console.log("session", session);
+    // console.log("session", session);
     const [employees, setEmployees] = useState<Employee[]>([
         {
             id: "1",
@@ -79,7 +79,8 @@ export default function Employees() {
     const userPermission = session?.user?.user_metadata?.permission_level || 'user';
     const isAdmin = userPermission === 'admin';
     const companyName = session?.user?.user_metadata?.company_name || "Your Company";
-    const senderName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || "Admin";
+    const senderName = session?.user?.user_metadata?.fullname || session?.user?.email?.split('@')[0] || "Admin";
+    console.log("senderName", senderName);
     
 
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
