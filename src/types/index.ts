@@ -24,7 +24,7 @@ export interface CompanyRegistrationData {
 
 export interface EmployeeInvitation {
     email: string;
-    permissionLevel: "admin" | "editor" | "viewer";
+    permissionLevel: "employee";
 }
 
 export interface EmployeeAccountSetup {
