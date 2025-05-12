@@ -2,6 +2,8 @@
 import supabase from './supabase';
 import { v4 as uuidv4 } from 'uuid';
 import { type CompanyRegistrationData, type EmployeeInvitation, type EmployeeAccountSetup, type AuthError } from '@/types';
+import { sendInvitationEmail } from '@/utils/emailService';
+// import { sendEmail } from '@/lib/emailSender';
 
 // Auth API object
 export const authAPI = {
@@ -43,6 +45,9 @@ export const authAPI = {
                     data: {
                         fullname: data.fullname,
                         company_logo: data.logo,
+                        company_id: company.id,
+                        company_name: data.name,
+                        permission_level: 'admin'
                     },
                 },
             });
@@ -108,55 +113,121 @@ export const authAPI = {
             expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
 
             // Check if email already exists in employees
-            const { data: existingEmployee } = await supabase
+            const { data: existingEmployee, error: employeeError } = await supabase
                 .from('employees')
                 .select('id, email')
                 .eq('email', invitation.email)
-                .single();
+                .maybeSingle();
+
+            if (employeeError) {
+                console.error('Error checking existing employee:', employeeError);
+                throw new Error('Failed to check existing employee');
+            }
 
             if (existingEmployee) {
                 // Check if already associated with company
-                const { data: existingAssociation } = await supabase
+                const { data: existingAssociation, error: associationError } = await supabase
                     .from('company_employees')
-                    .select()
+                    .select('*')
                     .eq('company_id', companyId)
                     .eq('employee_id', existingEmployee.id)
-                    .single();
+                    .maybeSingle();
+
+                if (associationError) {
+                    console.error('Error checking company association:', associationError);
+                    throw new Error('Failed to check company association');
+                }
 
                 if (existingAssociation) {
                     throw new Error('This employee is already associated with your company');
                 }
             }
 
-            // Create or update invitation
-            const { data, error } = await supabase
+            // Check for existing invitation
+            const { data: existingInvitation } = await supabase
                 .from('employee_invitations')
-                .upsert({
-                    company_id: companyId,
-                    email: invitation.email,
-                    token,
-                    permission_level: invitation.permissionLevel,
-                    invited_by: adminId,
-                    expires_at: expiresAt.toISOString(),
-                    is_used: false,
-                })
-                .select()
+                .select('*')
+                .eq('company_id', companyId)
+                .eq('email', invitation.email)
                 .single();
 
-            if (error) throw error;
+            let data;
+            if (existingInvitation) {
+                // Update existing invitation
+                const { data: updatedInvitation, error: updateError } = await supabase
+                    .from('employee_invitations')
+                    .update({
+                        token,
+                        expires_at: expiresAt.toISOString(),
+                        is_used: false,
+                        invited_by: adminId,
+                        permission_level: invitation.permissionLevel
+                    })
+                    .eq('id', existingInvitation.id)
+                    .select(`
+                        *,
+                        companies (
+                            name
+                        )
+                    `)
+                    .single();
 
-            // In a real app, you would send an email here
-            // For now, we'll just return the token for testing
+                if (updateError) throw updateError;
+                data = updatedInvitation;
+            } else {
+                // Create new invitation
+                const { data: newInvitation, error: insertError } = await supabase
+                    .from('employee_invitations')
+                    .insert({
+                        company_id: companyId,
+                        email: invitation.email,
+                        token,
+                        permission_level: invitation.permissionLevel,
+                        invited_by: adminId,
+                        expires_at: expiresAt.toISOString(),
+                        is_used: false,
+                    })
+                    .select(`
+                        *,
+                        companies (
+                            name
+                        )
+                    `)
+                    .single();
+
+                if (insertError) throw insertError;
+                data = newInvitation;
+            }
+
+            // Send invitation email
             const invitationLink = `${window.location.origin}/accept-invitation?token=${token}`;
+            console.log('Sending invitation email with link:', invitationLink);
 
-            // TODO: Implement actual email sending
-            console.log('Invitation email would be sent to:', invitation.email);
-            console.log('Invitation link:', invitationLink);
+            const emailResponse = await sendInvitationEmail({
+                to_email: invitation.email,
+                to_name: invitation.email.split('@')[0],
+                invitation_link: invitationLink,
+                company_name: data.companies?.name || 'Your Company',
+                sender_name: data.companies?.name || 'Admin',
+                role: invitation.permissionLevel,
+            });
+
+            if (!emailResponse.success) {
+                console.error('Email sending failed:', emailResponse.error, emailResponse.details);
+                // Delete the invitation if email sending fails
+                await supabase
+                    .from('employee_invitations')
+                    .delete()
+                    .eq('id', data.id);
+                throw new Error(`Failed to send invitation email: ${emailResponse.error}`);
+            }
+
+            console.log('Invitation email sent successfully:', emailResponse);
 
             return {
                 success: true,
                 invitation: data,
-                invitationLink, // Return for testing/demo purposes
+                invitationLink,
             };
         } catch (error) {
             console.error('Invitation error:', error);
@@ -520,8 +591,8 @@ export const authAPI = {
             return { success: true, user: data.user };
         } catch (error) {
             console.error('Sign in error:', error);
-            return { 
-                success: false, 
+            return {
+                success: false,
                 error: error instanceof Error ? error.message : 'Authentication failed'
             };
         }
