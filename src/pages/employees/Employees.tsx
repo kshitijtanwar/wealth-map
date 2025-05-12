@@ -35,7 +35,6 @@ interface Employee {
 
 export default function Employees() {
     const { session } = useAuth();
-    console.log("session", session);
     const [employees, setEmployees] = useState<Employee[]>([
         {
             id: "1",
@@ -76,13 +75,19 @@ export default function Employees() {
         role: "Employee",
     });
 
-    const userPermission = session?.user?.user_metadata?.permission_level || 'user';
-    const isAdmin = userPermission === 'admin';
-    const companyName = session?.user?.user_metadata?.company_name || "Your Company";
-    const senderName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || "Admin";
-    
+    const userPermission =
+        session?.user?.user_metadata?.permission_level || "user";
+    const isAdmin = userPermission === "admin";
+    const companyName =
+        session?.user?.user_metadata?.company_name || "Your Company";
+    const senderName = session?.user?.user_metadata?.fullname || "Admin";
 
-    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    console.log(userPermission, isAdmin, companyName, senderName);
+
+    const [statusMessage, setStatusMessage] = useState<{
+        type: "success" | "error";
+        message: string;
+    } | null>(null);
     const [isInvitationSent, setIsInvitationSent] = useState(false);
 
     useEffect(() => {
@@ -96,26 +101,31 @@ export default function Employees() {
         if (isInvitationSent) {
             setStatusMessage({
                 type: "error",
-                message: "An invitation has already been sent to this email address.",
+                message:
+                    "An invitation has already been sent to this email address.",
             });
             return;
         }
 
         setIsInvitationSent(true);
-        
+
         console.log("Session data:", {
             userId: session?.user?.id,
             companyId: session?.user?.user_metadata?.company_id,
             email: newEmployee.email,
-            isAdmin
+            isAdmin,
         });
 
-        if (!newEmployee.email || !session?.user?.id || !session?.user?.user_metadata?.company_id) {
+        if (
+            !newEmployee.email ||
+            !session?.user?.id ||
+            !session?.user?.user_metadata?.company_id
+        ) {
             console.log("Missing data:", {
                 hasEmail: !!newEmployee.email,
                 hasUserId: !!session?.user?.id,
                 hasCompanyId: !!session?.user?.user_metadata?.company_id,
-                userMetadata: session?.user?.user_metadata
+                userMetadata: session?.user?.user_metadata,
             });
             setStatusMessage({
                 type: "error",
@@ -139,7 +149,10 @@ export default function Employees() {
                 session.user.user_metadata.company_id,
                 {
                     email: newEmployee.email,
-                    permissionLevel: newEmployee.role.toLowerCase() as 'admin' | 'editor' | 'viewer',
+                    permissionLevel: newEmployee.role.toLowerCase() as
+                        | "admin"
+                        | "editor"
+                        | "viewer",
                 }
             );
 
@@ -147,7 +160,7 @@ export default function Employees() {
                 // Send invitation email
                 const emailResponse = await sendInvitationEmail({
                     to_email: newEmployee.email,
-                    to_name: newEmployee.email.split('@')[0],
+                    to_name: newEmployee.email.split("@")[0],
                     invitation_link: response.invitationLink,
                     company_name: companyName,
                     sender_name: senderName,
@@ -166,7 +179,7 @@ export default function Employees() {
                     setEmployees([...employees, newEmp]);
                     setNewEmployee({ email: "", role: "Employee" });
                     setIsInviteDialogOpen(false);
-                    
+
                     setStatusMessage({
                         type: "success",
                         message: `An invitation email has been sent to ${newEmployee.email}`,
@@ -174,12 +187,13 @@ export default function Employees() {
                 } else {
                     setStatusMessage({
                         type: "error",
-                        message: "Failed to send invitation email. Please try again.",
+                        message:
+                            "Failed to send invitation email. Please try again.",
                     });
                 }
             }
         } catch (error) {
-            console.error('Failed to invite employee:', error);
+            console.error("Failed to invite employee:", error);
             setStatusMessage({
                 type: "error",
                 message: "Failed to invite employee. Please try again.",
@@ -266,11 +280,11 @@ export default function Employees() {
                             >
                                 Cancel
                             </Button>
-                            <Button 
-                                onClick={handleInvite} 
-                                disabled={isLoading}
+                            <Button
+                                onClick={handleInvite}
+                                isLoading={isLoading}
                             >
-                                {isLoading ? "Sending..." : "Send Invitation"}
+                                Send
                             </Button>
                         </DialogFooter>
                     </DialogContent>

@@ -64,9 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         "https://images.pexels.com/photos/7688595/pexels-photo-7688595.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
     const userData = {
         name:
-            user?.user_metadata?.full_name ||
-            user?.email?.split("@")[0] ||
-            "User",
+            user?.user_metadata?.fullname,
         email: user?.email || "",
         avatar: companyLogo || fallbackAvatar,
     };
