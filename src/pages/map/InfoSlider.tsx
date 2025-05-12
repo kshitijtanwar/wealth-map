@@ -19,7 +19,9 @@ export function InfoSlider({
     onViewPropertyDetails: () => void;
 }) {
     return (
-        <SheetContent className="p-0 w-full sm:max-w-md overflow-y-auto">
+        <SheetContent
+            className="p-0 w-full sm:max-w-md overflow-y-auto"
+        >
             <div className="relative h-48 bg-gray-200">
                 {selectedProperty.images && selectedProperty.images[0] && (
                     <img
