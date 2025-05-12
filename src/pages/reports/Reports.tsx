@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Eye } from "lucide-react";
-import { authAPI } from "@/db/apiAuth";
 
 interface Report {
     id: string;
@@ -25,8 +24,9 @@ interface Report {
 export default function Reports() {
     const { session } = useAuth();
     const [reports, setReports] = useState<Report[]>([]);
-    const userPermission = session?.user?.user_metadata?.permission_level || 'user';
-    const isAdmin = userPermission === 'admin';
+    const userPermission =
+        session?.user?.user_metadata?.permission_level || "user";
+    const isAdmin = userPermission === "admin";
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -66,12 +66,14 @@ export default function Reports() {
                 } else {
                     // Regular users can only see their own reports
                     const userReports = mockReports.filter(
-                        (report) => report.createdBy === session?.user?.user_metadata?.full_name
+                        (report) =>
+                            report.createdBy ===
+                            session?.user?.user_metadata?.fullname
                     );
                     setReports(userReports);
                 }
             } catch (error) {
-                console.error('Failed to fetch reports:', error);
+                console.error("Failed to fetch reports:", error);
             }
         };
 
@@ -80,12 +82,12 @@ export default function Reports() {
 
     const handleViewReport = (reportId: string) => {
         // Implement report viewing logic
-        console.log('Viewing report:', reportId);
+        console.log("Viewing report:", reportId);
     };
 
     const handleDownloadReport = (reportId: string) => {
         // Implement report download logic
-        console.log('Downloading report:', reportId);
+        console.log("Downloading report:", reportId);
     };
 
     return (
@@ -112,7 +114,9 @@ export default function Reports() {
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Type</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-right">
+                                Actions
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -146,14 +150,18 @@ export default function Reports() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => handleViewReport(report.id)}
+                                            onClick={() =>
+                                                handleViewReport(report.id)
+                                            }
                                         >
                                             <Eye className="h-4 w-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => handleDownloadReport(report.id)}
+                                            onClick={() =>
+                                                handleDownloadReport(report.id)
+                                            }
                                         >
                                             <Download className="h-4 w-4" />
                                         </Button>
