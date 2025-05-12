@@ -8,12 +8,6 @@ import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
 import { properties } from "@/../dummyData";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-} from "@/components/ui/card";
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
 

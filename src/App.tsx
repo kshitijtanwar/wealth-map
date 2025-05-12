@@ -12,7 +12,6 @@ import Reports from "./pages/reports/Reports";
 import Map from "./pages/map/Map";
 import PropertyDetail from "./pages/property-detail/PropertyDetail";
 import AcceptInvite from "./pages/auth/AcceptInvite";
-import Test from "./pages/map/Test";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -26,7 +25,6 @@ const AppRoutes = () => {
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/accept-invitation" element={<AcceptInvite />} />
-            <Route path="/test" element={<Test />} />
             <Route element={<AuthWrapper />}>
                 <Route
                     path="/dashboard"
