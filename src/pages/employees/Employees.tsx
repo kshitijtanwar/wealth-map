@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, MoreVertical, Shield } from "lucide-react";
+import { useAuth } from "@/context/AuthProvider";
+import { authAPI } from "@/db/apiAuth";
+import { sendInvitationEmail } from "@/utils/emailService";
 
 interface Employee {
     id: string;
@@ -31,6 +34,8 @@ interface Employee {
 }
 
 export default function Employees() {
+    const { session } = useAuth();
+    console.log("session", session);
     const [employees, setEmployees] = useState<Employee[]>([
         {
             id: "1",
@@ -62,6 +67,7 @@ export default function Employees() {
     ]);
 
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [newEmployee, setNewEmployee] = useState<{
         email: string;
         role: "Employee" | "Admin";
@@ -70,20 +76,118 @@ export default function Employees() {
         role: "Employee",
     });
 
-    const handleInvite = () => {
-        if (!newEmployee.email) return;
+    const userPermission = session?.user?.user_metadata?.permission_level || 'user';
+    const isAdmin = userPermission === 'admin';
+    const companyName = session?.user?.user_metadata?.company_name || "Your Company";
+    const senderName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || "Admin";
+    
 
-        const employee: Employee = {
-            id: Date.now().toString(),
-            name: newEmployee.email.split("@")[0],
+    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [isInvitationSent, setIsInvitationSent] = useState(false);
+
+    useEffect(() => {
+        if (statusMessage) {
+            const timer = setTimeout(() => setStatusMessage(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [statusMessage]);
+
+    const handleInvite = async () => {
+        if (isInvitationSent) {
+            setStatusMessage({
+                type: "error",
+                message: "An invitation has already been sent to this email address.",
+            });
+            return;
+        }
+
+        setIsInvitationSent(true);
+        
+        console.log("Session data:", {
+            userId: session?.user?.id,
+            companyId: session?.user?.user_metadata?.company_id,
             email: newEmployee.email,
-            role: newEmployee.role,
-            status: "Pending",
-        };
+            isAdmin
+        });
 
-        setEmployees([...employees, employee]);
-        setNewEmployee({ email: "", role: "Employee" });
-        setIsInviteDialogOpen(false);
+        if (!newEmployee.email || !session?.user?.id || !session?.user?.user_metadata?.company_id) {
+            console.log("Missing data:", {
+                hasEmail: !!newEmployee.email,
+                hasUserId: !!session?.user?.id,
+                hasCompanyId: !!session?.user?.user_metadata?.company_id,
+                userMetadata: session?.user?.user_metadata
+            });
+            setStatusMessage({
+                type: "error",
+                message: "Missing required information. Please try again.",
+            });
+            return;
+        }
+
+        if (!isAdmin) {
+            setStatusMessage({
+                type: "error",
+                message: "You don't have permission to invite employees.",
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await authAPI.inviteEmployee(
+                session.user.id,
+                session.user.user_metadata.company_id,
+                {
+                    email: newEmployee.email,
+                    permissionLevel: newEmployee.role.toLowerCase() as 'admin' | 'editor' | 'viewer',
+                }
+            );
+
+            if (response.success && response.invitationLink) {
+                // Send invitation email
+                const emailResponse = await sendInvitationEmail({
+                    to_email: newEmployee.email,
+                    to_name: newEmployee.email.split('@')[0],
+                    invitation_link: response.invitationLink,
+                    company_name: companyName,
+                    sender_name: senderName,
+                    role: newEmployee.role,
+                });
+
+                if (emailResponse.success) {
+                    // Add the new employee to the list with pending status
+                    const newEmp: Employee = {
+                        id: Date.now().toString(),
+                        name: newEmployee.email.split("@")[0],
+                        email: newEmployee.email,
+                        role: newEmployee.role,
+                        status: "Pending",
+                    };
+                    setEmployees([...employees, newEmp]);
+                    setNewEmployee({ email: "", role: "Employee" });
+                    setIsInviteDialogOpen(false);
+                    
+                    setStatusMessage({
+                        type: "success",
+                        message: `An invitation email has been sent to ${newEmployee.email}`,
+                    });
+                } else {
+                    setStatusMessage({
+                        type: "error",
+                        message: "Failed to send invitation email. Please try again.",
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to invite employee:', error);
+            setStatusMessage({
+                type: "error",
+                message: "Failed to invite employee. Please try again.",
+            });
+        } finally {
+            setIsLoading(false);
+            setIsInvitationSent(false);
+        }
     };
 
     const handleRevokeAccess = (id: string) => {
@@ -102,6 +206,19 @@ export default function Employees() {
 
     return (
         <div className="bg-white rounded-lg shadow-sm border mx-4">
+            {/* Alert message */}
+            {statusMessage && (
+                <div
+                    className={`mx-6 mt-4 px-4 py-3 rounded-md text-sm font-medium ${
+                        statusMessage.type === "success"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                    }`}
+                >
+                    {statusMessage.message}
+                </div>
+            )}
+
             <div className="p-6 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
                 <div className="text-center sm:text-left">
                     <h1 className="text-2xl font-semibold text-gray-900">
@@ -149,8 +266,11 @@ export default function Employees() {
                             >
                                 Cancel
                             </Button>
-                            <Button onClick={handleInvite}>
-                                Send Invitation
+                            <Button 
+                                onClick={handleInvite} 
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Sending..." : "Send Invitation"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
