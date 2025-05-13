@@ -60,7 +60,7 @@ export const authAPI = {
             if (authError || !authData.user) {
                 throw new Error(
                     "User creation failed: " +
-                        (authError?.message || "Unknown error")
+                    (authError?.message || "Unknown error")
                 );
             }
 
@@ -277,6 +277,35 @@ export const authAPI = {
                     error instanceof Error
                         ? error.message
                         : "Invitation failed",
+            };
+        }
+    },
+    // Add this to the authAPI object in src/lib/apiAuth.ts
+    async getEmployeeInvitations(companyId: string) {
+        try {
+            const { data, error } = await supabase
+                .from("employee_invitations")
+                .select(`
+                *,
+                companies (
+                    name
+                )
+            `)
+                .eq("company_id", companyId)
+                .eq("is_used", false)
+                .gt("expires_at", new Date().toISOString());
+
+            if (error) throw error;
+
+            return {
+                success: true,
+                invitations: data,
+            };
+        } catch (error) {
+            console.error("Error fetching invitations:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to fetch invitations",
             };
         }
     },
