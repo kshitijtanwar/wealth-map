@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,11 +19,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, Shield } from "lucide-react";
+import { Plus, MoreVertical, Shield, Clock } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
 import { toast } from "sonner";
+import supabase from "@/db/supabase";
 
 interface Employee {
     id: string;
@@ -34,45 +35,24 @@ interface Employee {
     avatarUrl?: string;
 }
 
+interface Invitation {
+    id: string;
+    email: string;
+    permission_level: string;
+    expires_at: string;
+    is_used: boolean;
+}
+
 export default function Employees() {
     const { session } = useAuth();
-
-    const companyName =
-        session?.user?.user_metadata?.company_name || "Your Company";
+    const companyName = session?.user?.user_metadata?.company_name || "Your Company";
     const senderName = session?.user?.user_metadata?.fullname || "Admin";
+    const companyId = session?.user?.user_metadata?.company_id;
 
-    const [employees, setEmployees] = useState<Employee[]>([
-        {
-            id: "1",
-            name: "John Doe",
-            email: "john.doe@example.com",
-            role: "Employee",
-            status: "Active",
-            avatarUrl:
-                "https://images.pexels.com/photos/9072338/pexels-photo-9072338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        },
-        {
-            id: "2",
-            name: "Jane Smith",
-            email: "jane.smith@example.com",
-            role: "Employee",
-            status: "Active",
-            avatarUrl:
-                "https://images.pexels.com/photos/7688554/pexels-photo-7688554.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        },
-        {
-            id: "3",
-            name: "Robert Johnson",
-            email: "robert.johnson@example.com",
-            role: "Admin",
-            status: "Active",
-            avatarUrl:
-                "https://images.pexels.com/photos/10983885/pexels-photo-10983885.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        },
-    ]);
-
-    const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [invitations, setInvitations] = useState<Invitation[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
     const [newEmployee, setNewEmployee] = useState<{
         email: string;
         role: "Employee";
@@ -81,14 +61,74 @@ export default function Employees() {
         role: "Employee",
     });
 
+    useEffect(() => {
+        if (companyId) {
+            fetchEmployees();
+            fetchInvitations();
+        }
+    }, [companyId]);
+
+    const fetchEmployees = async () => {
+        try {
+            // This would be replaced with actual API call to get company employees
+            // For now using mock data
+            setEmployees([
+                {
+                    id: "1",
+                    name: "John Doe",
+                    email: "john.doe@example.com",
+                    role: "Employee",
+                    status: "Active",
+                    avatarUrl:
+                        "https://images.pexels.com/photos/9072338/pexels-photo-9072338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                },
+                // {
+                //     id: "2",
+                //     name: "Jane Smith",
+                //     email: "jane.smith@example.com",
+                //     role: "Employee",
+                //     status: "Active",
+                //     avatarUrl:
+                //         "https://images.pexels.com/photos/7688554/pexels-photo-7688554.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                // },
+                // {
+                //     id: "3",
+                //     name: "Robert Johnson",
+                //     email: "robert.johnson@example.com",
+                //     role: "Admin",
+                //     status: "Active",
+                //     avatarUrl:
+                //         "https://images.pexels.com/photos/10983885/pexels-photo-10983885.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                // },
+            ]);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+            toast.error("Failed to fetch employees");
+        }
+    };
+
+    const fetchInvitations = async () => {
+        try {
+            if (!companyId) return;
+            
+            const response = await authAPI.getEmployeeInvitations(companyId);
+            if (response.success && response.invitations) {
+                setInvitations(response.invitations);
+            }
+        } catch (error) {
+            console.error("Error fetching invitations:", error);
+            toast.error("Failed to fetch pending invitations");
+        }
+    };
+
     const handleInvite = async () => {
         setIsLoading(true);
         try {
             const userId = session?.user?.id;
-            const companyId = session?.user?.user_metadata?.company_id;
             if (!userId || !companyId || !newEmployee.email) {
                 throw new Error("User ID, Company ID or email is missing.");
             }
+            
             const response = await authAPI.inviteEmployee(userId, companyId, {
                 email: newEmployee.email,
                 permissionLevel: "employee",
@@ -104,8 +144,10 @@ export default function Employees() {
                     sender_name: senderName,
                     role: newEmployee.role,
                 });
+                
                 if (res.success) {
-                    toast.success("Invitation sent!!");
+                    toast.success("Invitation sent!");
+                    fetchInvitations(); // Refresh the invitations list
                 }
             }
         } catch (error) {
@@ -114,6 +156,24 @@ export default function Employees() {
         } finally {
             setIsLoading(false);
             setIsInviteDialogOpen(false);
+            setNewEmployee({ email: "", role: "Employee" });
+        }
+    };
+
+    const handleRevokeInvitation = async (invitationId: string) => {
+        try {
+            const { error } = await supabase
+                .from("employee_invitations")
+                .delete()
+                .eq("id", invitationId);
+
+            if (error) throw error;
+
+            toast.success("Invitation revoked");
+            fetchInvitations(); // Refresh the invitations list
+        } catch (error) {
+            console.error("Error revoking invitation:", error);
+            toast.error("Failed to revoke invitation");
         }
     };
 
@@ -130,6 +190,8 @@ export default function Employees() {
     const handleRemoveEmployee = (id: string) => {
         setEmployees(employees.filter((employee) => employee.id !== id));
     };
+
+    
 
     return (
         <div className="bg-white rounded-lg shadow-sm border mx-4">
@@ -192,7 +254,7 @@ export default function Employees() {
             </div>
 
             <div className="overflow-x-auto">
-                {employees.length > 0 ? (
+                {employees.length > 0 || invitations.length > 0 ? (
                     <table className="w-full">
                         <thead>
                             <tr className="border-b text-muted-foreground text-sm">
@@ -212,6 +274,7 @@ export default function Employees() {
                             </tr>
                         </thead>
                         <tbody className="text-sm">
+                            {/* Active Employees */}
                             {employees.map((employee) => (
                                 <tr key={employee.id} className="border-b">
                                     <td className="py-4 px-6">
@@ -300,12 +363,70 @@ export default function Employees() {
                                     </td>
                                 </tr>
                             ))}
+                            
+                            {/* Pending Invitations */}
+                            {invitations.map((invitation) => (
+                                <tr key={invitation.id} className="border-b">
+                                    <td className="py-4 px-6">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar>
+                                                <AvatarFallback>
+                                                    {invitation.email.charAt(0).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <span className="font-medium">
+                                                {invitation.email.split("@")[0]}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-6">
+                                        {invitation.email}
+                                    </td>
+                                    <td className="py-4 px-6">
+                                        <div className="flex items-center gap-2">
+                                            <Shield className="h-5 w-5 text-indigo-500" />
+                                            {invitation.permission_level}
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-6">
+                                        <Badge
+                                            variant="outline"
+                                            className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 border-yellow-200"
+                                        >
+                                            Pending
+                                        </Badge>
+                                    </td>
+                                    <td className="py-4 px-6">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-gray-500"
+                                                >
+                                                    <MoreVertical className="h-4 w-4" />
+                                                    <span className="sr-only">
+                                                        Open menu
+                                                    </span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem
+                                                    className="text-amber-600"
+                                                    onClick={() => handleRevokeInvitation(invitation.id)}
+                                                >
+                                                    Revoke Invitation
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 ) : (
                     <h1 className="text-center text-muted-foreground py-6">
-                        No employees onboarded. Invite them to interact with
-                        them.
+                        No employees onboarded. Invite them to interact with them.
                     </h1>
                 )}
             </div>
