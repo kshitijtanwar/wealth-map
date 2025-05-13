@@ -47,7 +47,6 @@ export function SignUpForm({
     } = useForm<FormValues>();
     const navigate = useNavigate();
     const password = watch("password");
-    const logoFile = watch("logo");
 
     const handleLogoRemove = () => {
         setLogoPreview(null);
@@ -66,24 +65,24 @@ export function SignUpForm({
             // Generate a unique filename with timestamp
             const timestamp = Date.now();
             const fileName = `logos/${timestamp}-${file.name}`;
-            
+
             // Upload to Supabase storage
-            const { data, error } = await supabase.storage
-                .from('logo-url')
+            const { error } = await supabase.storage
+                .from("logo-url")
                 .upload(fileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
+                    cacheControl: "3600",
+                    upsert: false,
                 });
 
             if (error) throw error;
 
             // Get signed URL that matches the reference format
             const { data: signedUrlData } = await supabase.storage
-                .from('logo-url')
+                .from("logo-url")
                 .createSignedUrl(fileName, 31536000); // 1 year expiration
 
             if (!signedUrlData?.signedUrl) {
-                throw new Error('Failed to generate signed URL');
+                throw new Error("Failed to generate signed URL");
             }
 
             return signedUrlData.signedUrl;
@@ -96,19 +95,20 @@ export function SignUpForm({
     const handleRegister = async (data: FormValues) => {
         try {
             setIsLoading(true);
-            
+
             // Validate passwords match
             if (data.password !== data.confirmPassword) {
                 toast.error("Passwords do not match");
                 return;
             }
 
-            let logoUrl = '';
+            let logoUrl = "";
             // Handle logo upload if present
             if (data.logo && data.logo.length > 0) {
                 try {
                     logoUrl = await uploadLogo(data.logo[0]);
                 } catch (error) {
+                    console.log(error);
                     toast.error("Failed to upload company logo");
                     return;
                 }
@@ -151,8 +151,18 @@ export function SignUpForm({
                     Enter your details to create your account
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                    <div className={cn("h-2 w-2 rounded-full", step === 1 ? "bg-primary" : "bg-muted")} />
-                    <div className={cn("h-2 w-2 rounded-full", step === 2 ? "bg-primary" : "bg-muted")} />
+                    <div
+                        className={cn(
+                            "h-2 w-2 rounded-full",
+                            step === 1 ? "bg-primary" : "bg-muted"
+                        )}
+                    />
+                    <div
+                        className={cn(
+                            "h-2 w-2 rounded-full",
+                            step === 2 ? "bg-primary" : "bg-muted"
+                        )}
+                    />
                 </div>
             </div>
 
@@ -170,7 +180,9 @@ export function SignUpForm({
                                     required: "Company name is required",
                                 })}
                             />
-                            {errors.companyName && <FormError text={errors.companyName.message} />}
+                            {errors.companyName && (
+                                <FormError text={errors.companyName.message} />
+                            )}
                         </div>
 
                         <div className="grid gap-2">
@@ -183,7 +195,9 @@ export function SignUpForm({
                                     required: "Full name is required",
                                 })}
                             />
-                            {errors.fullname && <FormError text={errors.fullname.message} />}
+                            {errors.fullname && (
+                                <FormError text={errors.fullname.message} />
+                            )}
                         </div>
 
                         <div className="grid gap-2">
@@ -200,10 +214,16 @@ export function SignUpForm({
                                     },
                                 })}
                             />
-                            {errors.email && <FormError text={errors.email.message} />}
+                            {errors.email && (
+                                <FormError text={errors.email.message} />
+                            )}
                         </div>
 
-                        <Button type="button" onClick={handleNextStep} className="w-full">
+                        <Button
+                            type="button"
+                            onClick={handleNextStep}
+                            className="w-full"
+                        >
                             Next
                         </Button>
                     </>
@@ -211,8 +231,14 @@ export function SignUpForm({
                     <>
                         {/* Step 2: Logo and Password */}
                         <div className="grid gap-2">
-                            <Label htmlFor="logo" className="flex items-center gap-2">
-                                Company Logo <span className="text-sm text-muted-foreground">(optional)</span>
+                            <Label
+                                htmlFor="logo"
+                                className="flex items-center gap-2"
+                            >
+                                Company Logo{" "}
+                                <span className="text-sm text-muted-foreground">
+                                    (optional)
+                                </span>
                             </Label>
 
                             {logoPreview && (
@@ -244,22 +270,39 @@ export function SignUpForm({
                                             const file = e.target.files?.[0];
                                             if (file) {
                                                 // Validate file type
-                                                const validTypes = ["image/jpeg", "image/png", "image/gif"];
-                                                if (!validTypes.includes(file.type)) {
-                                                    toast.error("Please upload a valid image (JPEG, PNG, GIF)");
+                                                const validTypes = [
+                                                    "image/jpeg",
+                                                    "image/png",
+                                                    "image/gif",
+                                                ];
+                                                if (
+                                                    !validTypes.includes(
+                                                        file.type
+                                                    )
+                                                ) {
+                                                    toast.error(
+                                                        "Please upload a valid image (JPEG, PNG, GIF)"
+                                                    );
                                                     return;
                                                 }
 
                                                 // Validate file size (5MB max)
-                                                if (file.size > 5 * 1024 * 1024) {
-                                                    toast.error("File size must be less than 5MB");
+                                                if (
+                                                    file.size >
+                                                    5 * 1024 * 1024
+                                                ) {
+                                                    toast.error(
+                                                        "File size must be less than 5MB"
+                                                    );
                                                     return;
                                                 }
 
                                                 // Create preview
                                                 const reader = new FileReader();
                                                 reader.onloadend = () => {
-                                                    setLogoPreview(reader.result as string);
+                                                    setLogoPreview(
+                                                        reader.result as string
+                                                    );
                                                 };
                                                 reader.readAsDataURL(file);
 
@@ -286,7 +329,10 @@ export function SignUpForm({
                                 control={control}
                                 rules={{ required: "Industry is required" }}
                                 render={({ field }) => (
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select an industry" />
                                         </SelectTrigger>
@@ -301,7 +347,12 @@ export function SignUpForm({
                                                 ].map((industry) => (
                                                     <SelectItem
                                                         key={industry}
-                                                        value={industry.toLowerCase().replace(/\s+/g, "-")}
+                                                        value={industry
+                                                            .toLowerCase()
+                                                            .replace(
+                                                                /\s+/g,
+                                                                "-"
+                                                            )}
                                                     >
                                                         {industry}
                                                     </SelectItem>
@@ -311,7 +362,9 @@ export function SignUpForm({
                                     </Select>
                                 )}
                             />
-                            {errors.industry && <FormError text={errors.industry.message} />}
+                            {errors.industry && (
+                                <FormError text={errors.industry.message} />
+                            )}
                         </div>
 
                         <div className="grid gap-2">
@@ -324,15 +377,20 @@ export function SignUpForm({
                                     required: "Password is required",
                                     minLength: {
                                         value: 8,
-                                        message: "Password must be at least 8 characters long",
+                                        message:
+                                            "Password must be at least 8 characters long",
                                     },
                                 })}
                             />
-                            {errors.password && <FormError text={errors.password.message} />}
+                            {errors.password && (
+                                <FormError text={errors.password.message} />
+                            )}
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="confirm_password">Confirm Password</Label>
+                            <Label htmlFor="confirm_password">
+                                Confirm Password
+                            </Label>
                             <Input
                                 id="confirm_password"
                                 type="password"
@@ -340,10 +398,15 @@ export function SignUpForm({
                                 {...register("confirmPassword", {
                                     required: "Confirm password is required",
                                     validate: (value) =>
-                                        value === password || "Passwords do not match",
+                                        value === password ||
+                                        "Passwords do not match",
                                 })}
                             />
-                            {errors.confirmPassword && <FormError text={errors.confirmPassword.message} />}
+                            {errors.confirmPassword && (
+                                <FormError
+                                    text={errors.confirmPassword.message}
+                                />
+                            )}
                         </div>
 
                         <div className="flex gap-2">
@@ -355,7 +418,11 @@ export function SignUpForm({
                             >
                                 Back
                             </Button>
-                            <Button type="submit" className="flex-1" isLoading={isLoading}>
+                            <Button
+                                type="submit"
+                                className="flex-1"
+                                isLoading={isLoading}
+                            >
                                 Create Account
                             </Button>
                         </div>
