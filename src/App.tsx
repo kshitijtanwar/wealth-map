@@ -12,16 +12,23 @@ import Reports from "./pages/reports/Reports";
 import Map from "./pages/map/Map";
 import PropertyDetail from "./pages/property-detail/PropertyDetail";
 import AcceptInvite from "./pages/auth/AcceptInvite";
+import PublicRoute from "./components/utils/PublicRoute";
+import LoadingScreen from "./components/utils/LoadingScreen";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
 
     if (loading) {
-        return <div>Loading authentication status...</div>;
+        return <LoadingScreen />;
     }
 
     return (
         <Routes>
+            <Route element={<PublicRoute />}>
+                <Route path="/" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/accept-invitation" element={<AcceptInvite />} />
+            </Route>
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/accept-invitation" element={<AcceptInvite />} />
