@@ -7,12 +7,7 @@ import {
 import supabase from "@/db/supabase";
 import type { AuthProviderProps } from "@/types";
 import type { Session } from "@supabase/supabase-js"; // adjust import if needed
-
-interface AuthContextType {
-    session: Session | null;
-    loading: boolean;
-    companyLogo?: string | null;
-}
+import type { AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

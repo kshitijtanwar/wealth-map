@@ -41,6 +41,7 @@ const Map: React.FC = () => {
                                         setSelectedProperty(property);
                                         setSheetOpen(true);
                                     }}
+                                    
                                 />
                             ))}
                         </GoogleMap>
