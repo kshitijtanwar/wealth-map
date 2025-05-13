@@ -22,6 +22,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const pageTitle = pageTitles[location.pathname] || "Dashboard"; // Default to Dashboard if route not found
 
+
     return (
         <AlertDialog>
             <SidebarProvider
