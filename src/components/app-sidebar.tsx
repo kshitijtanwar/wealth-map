@@ -63,8 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const fallbackAvatar =
         "https://images.pexels.com/photos/7688595/pexels-photo-7688595.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
     const userData = {
-        name:
-            user?.user_metadata?.fullname,
+        name: user?.user_metadata?.fullname,
         email: user?.email || "",
         avatar: companyLogo || fallbackAvatar,
     };
@@ -78,11 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <Map className="size-4" />
                                 </div>
-
-                                <span className="font-medium">
-                                    {user?.user_metadata?.company_name ||
-                                        "Wealth Map"}
-                                </span>
+                                Wealth Map
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
