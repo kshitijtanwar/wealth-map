@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FormError from "../utils/FormError";
 import { useNavigate } from "react-router-dom";
+import supabase from "@/db/supabase";
 
 interface FormValues {
     companyName: string;
@@ -33,6 +34,7 @@ export function SignUpForm({
 }: React.ComponentPropsWithoutRef<"form">) {
     const [step, setStep] = useState<1 | 2>(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
     const {
         register,
@@ -41,9 +43,15 @@ export function SignUpForm({
         formState: { errors },
         watch,
         trigger,
+        setValue,
     } = useForm<FormValues>();
     const navigate = useNavigate();
     const password = watch("password");
+
+    const handleLogoRemove = () => {
+        setLogoPreview(null);
+        setValue("logo", undefined);
+    };
 
     const handleNextStep = async () => {
         const isValid = await trigger(["companyName", "fullname", "email"]);
@@ -52,16 +60,64 @@ export function SignUpForm({
         }
     };
 
+    const uploadLogo = async (file: File) => {
+        try {
+            // Generate a unique filename with timestamp
+            const timestamp = Date.now();
+            const fileName = `logos/${timestamp}-${file.name}`;
+
+            // Upload to Supabase storage
+            const { error } = await supabase.storage
+                .from("logo-url")
+                .upload(fileName, file, {
+                    cacheControl: "3600",
+                    upsert: false,
+                });
+
+            if (error) throw error;
+
+            // Get signed URL that matches the reference format
+            const { data: signedUrlData } = await supabase.storage
+                .from("logo-url")
+                .createSignedUrl(fileName, 31536000); // 1 year expiration
+
+            if (!signedUrlData?.signedUrl) {
+                throw new Error("Failed to generate signed URL");
+            }
+
+            return signedUrlData.signedUrl;
+        } catch (error) {
+            console.error("Logo upload failed:", error);
+            throw new Error("Failed to upload logo");
+        }
+    };
+
     const handleRegister = async (data: FormValues) => {
         try {
             setIsLoading(true);
+
+            // Validate passwords match
             if (data.password !== data.confirmPassword) {
                 toast.error("Passwords do not match");
                 return;
             }
 
+            let logoUrl = "";
+            // Handle logo upload if present
+            if (data.logo && data.logo.length > 0) {
+                try {
+                    logoUrl = await uploadLogo(data.logo[0]);
+                } catch (error) {
+                    console.log(error);
+                    toast.error("Failed to upload company logo");
+                    return;
+                }
+            }
+
+            // Register company and admin
             const result = await authAPI.registerCompanyAndAdmin({
                 name: data.companyName,
+                logo: logoUrl, // Pass the logo URL
                 industry: data.industry,
                 adminEmail: data.email,
                 adminPassword: data.password,
@@ -72,11 +128,10 @@ export function SignUpForm({
                 toast.success("Company registered successfully");
                 navigate("/dashboard");
             } else {
-                console.error("Registration failed:", result.error);
-                toast.error(result.error || "Unknown error occurred");
+                toast.error(result.error || "Registration failed");
             }
         } catch (error) {
-            console.log(error);
+            console.error("Registration error:", error);
             toast.error("Failed to create account. Please try again.");
         } finally {
             setIsLoading(false);
@@ -89,6 +144,7 @@ export function SignUpForm({
             {...props}
             onSubmit={handleSubmit(handleRegister)}
         >
+            {/* Form header and step indicators */}
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create an account</h1>
                 <p className="text-balance text-sm text-muted-foreground">
@@ -114,7 +170,6 @@ export function SignUpForm({
                 {step === 1 ? (
                     <>
                         {/* Step 1: Basic Information */}
-                        {/* Company Name */}
                         <div className="grid gap-2">
                             <Label htmlFor="company_name">Company Name</Label>
                             <Input
@@ -130,7 +185,6 @@ export function SignUpForm({
                             )}
                         </div>
 
-                        {/* Admin Full Name */}
                         <div className="grid gap-2">
                             <Label htmlFor="fullname">Full Name</Label>
                             <Input
@@ -146,7 +200,6 @@ export function SignUpForm({
                             )}
                         </div>
 
-                        {/* Admin Email */}
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
@@ -177,7 +230,6 @@ export function SignUpForm({
                 ) : (
                     <>
                         {/* Step 2: Logo and Password */}
-                        {/* Company Logo (Optional) */}
                         <div className="grid gap-2">
                             <Label
                                 htmlFor="logo"
@@ -188,18 +240,88 @@ export function SignUpForm({
                                     (optional)
                                 </span>
                             </Label>
-                            <Input
-                                id="logo"
-                                type="file"
-                                accept="image/*"
-                                {...register("logo")}
+
+                            {logoPreview && (
+                                <div className="mb-2 flex flex-col items-start gap-2">
+                                    <img
+                                        src={logoPreview}
+                                        alt="Logo preview"
+                                        className="h-20 w-20 object-contain rounded-md border"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleLogoRemove}
+                                        className="text-xs text-red-500 hover:text-red-700"
+                                    >
+                                        Remove Logo
+                                    </button>
+                                </div>
+                            )}
+
+                            <Controller
+                                name="logo"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        id="logo"
+                                        type="file"
+                                        accept="image/jpeg, image/png, image/gif"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                // Validate file type
+                                                const validTypes = [
+                                                    "image/jpeg",
+                                                    "image/png",
+                                                    "image/gif",
+                                                ];
+                                                if (
+                                                    !validTypes.includes(
+                                                        file.type
+                                                    )
+                                                ) {
+                                                    toast.error(
+                                                        "Please upload a valid image (JPEG, PNG, GIF)"
+                                                    );
+                                                    return;
+                                                }
+
+                                                // Validate file size (5MB max)
+                                                if (
+                                                    file.size >
+                                                    5 * 1024 * 1024
+                                                ) {
+                                                    toast.error(
+                                                        "File size must be less than 5MB"
+                                                    );
+                                                    return;
+                                                }
+
+                                                // Create preview
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setLogoPreview(
+                                                        reader.result as string
+                                                    );
+                                                };
+                                                reader.readAsDataURL(file);
+
+                                                field.onChange(e.target.files);
+                                            } else {
+                                                handleLogoRemove();
+                                            }
+                                        }}
+                                    />
+                                )}
                             />
-                            {errors.logo && (
-                                <FormError text={errors.logo.message} />
+
+                            {!logoPreview && (
+                                <p className="text-xs text-muted-foreground">
+                                    Recommended: 200x200px, JPG/PNG/GIF, max 5MB
+                                </p>
                             )}
                         </div>
 
-                        {/* Industry */}
                         <div className="grid gap-2">
                             <Label htmlFor="industry">Select an industry</Label>
                             <Controller
@@ -245,7 +367,6 @@ export function SignUpForm({
                             )}
                         </div>
 
-                        {/* Password */}
                         <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
@@ -266,7 +387,6 @@ export function SignUpForm({
                             )}
                         </div>
 
-                        {/* Confirm Password */}
                         <div className="grid gap-2">
                             <Label htmlFor="confirm_password">
                                 Confirm Password

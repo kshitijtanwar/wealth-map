@@ -2,18 +2,9 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { type SearchBarProps } from "@/types";
 
-interface SearchBarProps {
-    placeholder?: string;
-    onSearch?: (value: string) => void;
-    className?: string;
-}
-
-export function SearchBar({
-    placeholder = "Search...",
-    onSearch,
-    className,
-}: SearchBarProps) {
+export function SearchBar({ placeholder = "Search...", onSearch, className }: SearchBarProps) {
     const [query, setQuery] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
