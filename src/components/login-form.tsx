@@ -12,12 +12,18 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { type OnboardingInfo } from "@/types";
 import FormError from "./utils/FormError";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { authAPI } from "@/db/apiAuth";
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
     token: string;
 }
 
 export function LoginForm({ className, token, ...props }: LoginFormProps) {
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -25,14 +31,27 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
     } = useForm<OnboardingInfo>();
 
     const handleOnboarding = async (data: OnboardingInfo) => {
-        const { email, password, name, phone } = data;
-        console.log("Onboarding data:", {
-            email,
-            password,
-            name,
-            phone,
-            token,
-        });
+        try {
+            setIsLoading(true);
+            const result = await authAPI.completeEmployeeSetup(token, {
+                token,
+                fullname: data.name,
+                password: data.password,
+                acceptTerms: true
+            });
+
+            if (result.success) {
+                toast.success("Account setup successful!");
+                navigate("/dashboard");
+            } else {
+                toast.error(result.error || "Failed to complete account setup");
+            }
+        } catch (error) {
+            console.error("Onboarding error:", error);
+            toast.error("Failed to complete account setup. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -74,7 +93,7 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                 <Input
                                     id="name"
                                     type="text"
-                                    placeholder="John Doe"
+                                    placeholder="John Doe"  
                                     {...register("name", {
                                         required: "Name is required",
                                         minLength: {
@@ -119,7 +138,7 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                     text={errors.password?.message as string}
                                 />
                             </div>
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full" disabled={isLoading}>
                                 Login
                             </Button>
                         </div>
