@@ -30,8 +30,7 @@ export interface EmployeeInvitation {
 export interface EmployeeAccountSetup {
     token: string;
     password: string;
-    firstName: string;
-    lastName: string;
+    fullname: string;
     acceptTerms: boolean;
 }
 
