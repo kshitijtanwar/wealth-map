@@ -95,10 +95,8 @@ export default function Employees() {
             }
 
             setIsLoading(true);
-            // console.log("Fetching employees for company:", companyId);
 
             const employeesResponse = await authAPI.getActiveEmployees(companyId);
-            // console.log("Raw API Response:", JSON.stringify(employeesResponse, null, 2));
 
             if (!employeesResponse.success) {
                 console.error("API Error:", employeesResponse.error);
@@ -112,27 +110,41 @@ export default function Employees() {
                 return;
             }
 
-            // // Log the first employee to understand the structure
-            // if (employeesResponse.employees.length > 0) {
-            //     console.log("First employee data structure:", JSON.stringify(employeesResponse.employees[0], null, 2));
-            // }
+            // Filter out the current user from the employees list
+            const currentUserId = session?.user?.id;
+            const activeEmployees: Employee[] = employeesResponse.employees
+                .filter(employee => {
+                    const emp = employee.employees as unknown as { 
+                        id: string; 
+                        email: string; 
+                        fullname: string; 
+                        last_login: string; 
+                        created_at: string; 
+                        is_active: boolean 
+                    };
+                    return emp.id !== currentUserId;
+                })
+                .map(employee => {
+                    const emp = employee.employees as unknown as { 
+                        id: string; 
+                        email: string; 
+                        fullname: string; 
+                        last_login: string; 
+                        created_at: string; 
+                        is_active: boolean 
+                    };
+                    return {
+                        id: emp.id,
+                        name: emp.fullname || 'Unknown',
+                        email: emp.email,
+                        role: employee.permission_level === 'admin' ? 'Admin' : 'Employee',
+                        status: 'Active',
+                        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.email)}`,
+                        lastLogin: emp.last_login,
+                        joinedDate: employee.invitation_accepted_at
+                    };
+                });
 
-            const activeEmployees: Employee[] = employeesResponse.employees.map(employee => {
-                // console.log("Processing employee:", JSON.stringify(employee, null, 2));
-                const emp = employee.employees as unknown as { id: string; email: string; fullname: string; last_login: string; created_at: string; is_active: boolean };
-                return {
-                    id: emp.id,
-                    name: emp.fullname || 'Unknown',
-                    email: emp.email,
-                    role: employee.permission_level === 'admin' ? 'Admin' : 'Employee',
-                    status: 'Active',
-                    avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.email)}`,
-                    lastLogin: emp.last_login,
-                    joinedDate: employee.invitation_accepted_at
-                };
-            });
-
-            // console.log("Processed employees:", activeEmployees);
             setEmployees(activeEmployees);
         } catch (error) {
             console.error("Error fetching employees:", error);
