@@ -521,73 +521,56 @@ export const authAPI = {
      */
     async removeEmployee(companyId: string, employeeId: string, currentUserId: string) {
         try {
-            
             if (currentUserId === employeeId) {
                 throw new Error("You cannot remove your own account");
             }
 
-            // Start a transaction
-            await supabase.rpc('begin');
-
-            try {
-                // 1. Remove activity logs
-                const { error: activityError } = await supabase
-                    .from('employee_activity')
-                    .delete()
-                    .eq('company_id', companyId)
-                    .eq('employee_id', employeeId);
-
-                if (activityError) throw activityError;
-
-                // 2. Remove onboarding progress
-                const { error: onboardingError } = await supabase
-                    .from('onboarding_progress')
-                    .delete()
-                    .eq('employee_id', employeeId);
-
-                if (onboardingError) throw onboardingError;
-
-                // 3. Remove from company_employees
-                const { error: ceError } = await supabase
-                    .from('company_employees')
-                    .delete()
-                    .eq('company_id', companyId)
-                    .eq('employee_id', employeeId);
-
-                if (ceError) throw ceError;
-
-                // 4. Check if employee has other company associations
-                const { data: otherCompanies, error: ocError } = await supabase
-                    .from('company_employees')
-                    .select('id')
-                    .eq('employee_id', employeeId);
-
-                if (ocError) throw ocError;
-
-                // 5. If no other companies, remove the employee completely
-                if (!otherCompanies || otherCompanies.length === 0) {
-                    // Delete the employee record
-                    const { error: empError } = await supabase
-                        .from('employees')
-                        .delete()
-                        .eq('id', employeeId);
-
-                    if (empError) throw empError;
-
-                    // Optional: Delete the auth user if you want
-                    // const { error: authError } = await supabase.auth.admin.deleteUser(employeeId);
-                    // if (authError) throw authError;
-                }
-
-                // Commit the transaction if all operations succeeded
-                await supabase.rpc('commit');
-
-                return { success: true };
-            } catch (innerError) {
-                // Rollback on any error
-                await supabase.rpc('rollback');
-                throw innerError;
+            // First deactivate the employee
+            const deactivateResponse = await this.deactivateEmployee(companyId, employeeId);
+            if (!deactivateResponse.success) {
+                throw new Error(deactivateResponse.error);
             }
+
+            // 1. Remove activity logs
+            const { error: activityError } = await supabase
+                .from('employee_activity')
+                .delete()
+                .eq('company_id', companyId)
+                .eq('employee_id', employeeId);
+            if (activityError) throw activityError;
+
+            // 2. Remove onboarding progress
+            const { error: onboardingError } = await supabase
+                .from('onboarding_progress')
+                .delete()
+                .eq('employee_id', employeeId);
+            if (onboardingError) throw onboardingError;
+
+            // 3. Remove from company_employees
+            const { error: ceError } = await supabase
+                .from('company_employees')
+                .delete()
+                .eq('company_id', companyId)
+                .eq('employee_id', employeeId);
+            if (ceError) throw ceError;
+
+            // 4. Check if employee has other company associations
+            const { data: otherCompanies, error: ocError } = await supabase
+                .from('company_employees')
+                .select('id')
+                .eq('employee_id', employeeId);
+            if (ocError) throw ocError;
+
+            // 5. If no other companies, remove the employee completely
+            if (!otherCompanies || otherCompanies.length === 0) {
+                const { error: empError } = await supabase
+                    .from('employees')
+                    .delete()
+                    .eq('id', employeeId);
+                if (empError) throw empError;
+            }
+
+            return { success: true };
         } catch (error) {
             console.error("Error removing employee:", error);
             return {
@@ -815,6 +798,35 @@ export const authAPI = {
             if (!data.user) {
                 console.error("No user data returned");
                 return { success: false, error: "Authentication failed" };
+            }
+
+            // Check if employee exists and is active
+            const { data: employee, error: employeeError } = await supabase
+                .from("employees")
+                .select("id, is_active")
+                .eq("id", data.user.id)
+                .single();
+
+            if (employeeError || !employee) {
+                await supabase.auth.signOut();
+                return { success: false, error: "Employee account not found" };
+            }
+
+            if (!employee.is_active) {
+                await supabase.auth.signOut();
+                return { success: false, error: "Your account has been deactivated" };
+            }
+
+            // Check if employee has any active company associations
+            const { data: activeCompanies, error: companiesError } = await supabase
+                .from("company_employees")
+                .select("id")
+                .eq("employee_id", data.user.id)
+                .eq("is_active", true);
+
+            if (companiesError || !activeCompanies || activeCompanies.length === 0) {
+                await supabase.auth.signOut();
+                return { success: false, error: "No active company associations found" };
             }
 
             // Update last login
