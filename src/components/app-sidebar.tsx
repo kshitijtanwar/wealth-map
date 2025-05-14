@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import {
     Map,
     LayoutDashboard,
@@ -17,9 +18,10 @@ import {
     SidebarMenuItem,
     SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavUser } from "./nav-user";
 import { useAuth } from "@/context/AuthProvider";
+import supabase from "@/db/supabase";
 
 const data = {
     user: {
@@ -32,32 +34,41 @@ const data = {
             title: "Dashboard",
             url: "/dashboard",
             icon: LayoutDashboard,
+            requiresActive: true,
         },
         {
             title: "Property Map",
             url: "/map",
             icon: MapPinned,
+            requiresActive: true,
         },
         {
             title: "Employees",
             url: "/employees",
             icon: Users,
+            requiresActive: true,
+            adminOnly: true,
         },
         {
             title: "Reports",
             url: "/reports",
             icon: FileText,
+            requiresActive: true,
         },
         {
             title: "Settings",
             url: "#",
             icon: Settings,
+            requiresActive: false,
         },
     ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { session } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [hasActiveCompany, setHasActiveCompany] = useState<boolean>(true);
     const companyLogo = session?.user?.user_metadata?.company_logo;
     const user = session?.user;
     const fallbackAvatar =
@@ -67,6 +78,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         email: user?.email || "",
         avatar: companyLogo || fallbackAvatar,
     };
+    const userPermissionLevel = session?.user?.user_metadata?.permission_level;
+
+    useEffect(() => {
+        const checkActiveCompany = async () => {
+            if (!session?.user?.id) return;
+
+            const { data: activeCompanies, error } = await supabase
+                .from("company_employees")
+                .select("id")
+                .eq("employee_id", session.user.id)
+                .eq("is_active", true);
+
+            if (error) {
+                console.error("Error checking active companies:", error);
+                return;
+            }
+
+            const isActive = activeCompanies && activeCompanies.length > 0;
+            setHasActiveCompany(isActive);
+
+            // If user has no active company and is on a protected route, redirect to settings
+            if (!isActive && location.pathname !== "/settings") {
+                navigate("/settings");
+            }
+        };
+
+        checkActiveCompany();
+    }, [session?.user?.id, location.pathname]);
+
+    const filteredNavItems = data.navMain.filter(item => {
+        // Check admin permission
+        if (item.adminOnly && userPermissionLevel !== "admin") {
+            return false;
+        }
+
+        // Check active company requirement
+        if (item.requiresActive && !hasActiveCompany) {
+            return false;
+        }
+
+        return true;
+    });
+
     return (
         <Sidebar variant="floating" {...props}>
             <SidebarHeader>
@@ -86,7 +140,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu className="gap-2">
-                        {data.navMain.map((item) => {
+                        {filteredNavItems.map((item) => {
                             const isActive = location.pathname === item.url;
                             return (
                                 <SidebarMenuItem key={item.title}>
