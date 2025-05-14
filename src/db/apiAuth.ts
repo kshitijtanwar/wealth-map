@@ -280,7 +280,9 @@ export const authAPI = {
             };
         }
     },
-    // Add this to the authAPI object in src/lib/apiAuth.ts
+    /**
+     * Get employee invitations
+     */
     async getEmployeeInvitations(companyId: string) {
         try {
             const { data, error } = await supabase
@@ -306,6 +308,49 @@ export const authAPI = {
             return {
                 success: false,
                 error: error instanceof Error ? error.message : "Failed to fetch invitations",
+            };
+        }
+    },
+    /**
+ * Get active employees who have accepted invitations
+ */
+    async getActiveEmployees(companyId: string) {
+        try {
+            const { data, error } = await supabase
+                .from("company_employees")
+                .select(`
+                id,
+                permission_level,
+                is_active,
+                invitation_accepted_at,
+                employees:employees!company_employees_employee_id_fkey (
+                    id,
+                    email,
+                    fullname,
+                    last_login,
+                    created_at,
+                    is_active
+                ),
+                companies (
+                    name
+                )
+            `)
+                .eq("company_id", companyId)
+                .eq("is_active", true)
+                .not("invitation_accepted_at", "is", null)
+                .order("invitation_accepted_at", { ascending: false });
+
+            if (error) throw error;
+
+            return {
+                success: true,
+                employees: data,
+            };
+        } catch (error) {
+            console.error("Error fetching active employees:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to fetch active employees",
             };
         }
     },
@@ -355,7 +400,6 @@ export const authAPI = {
         setupData: EmployeeAccountSetup
     ) {
         try {
-            // First validate the token
             const validation = await this.validateInvitation(token);
             if (!validation.success) throw new Error(validation.error);
 
@@ -366,56 +410,41 @@ export const authAPI = {
                 .from("employees")
                 .select("id, email, is_active")
                 .eq("email", invitation.email)
-                .single();
-
-            let userId: string;
+                .maybeSingle();
 
             if (existingUser) {
-                userId = existingUser.id;
-                // Update existing employee
-                await supabase
-                    .from("employees")
-                    .update({
-                        password_hash: setupData.password, // Note: In real app, hash before storing
-                        first_name: setupData.firstName,
-                        last_name: setupData.lastName,
-                        terms_accepted_at: setupData.acceptTerms
-                            ? new Date().toISOString()
-                            : null,
-                        is_active: true,
-                    })
-                    .eq("id", userId);
-            } else {
-                // Create new auth user
-                const { data: authData, error: authError } =
-                    await supabase.auth.signUp({
-                        email: invitation.email,
-                        password: setupData.password,
-                        options: {
-                            data: {
-                                first_name: setupData.firstName,
-                                last_name: setupData.lastName,
-                            },
-                        },
-                    });
-
-                if (authError) throw authError;
-                if (!authData.user) throw new Error("User creation failed");
-
-                userId = authData.user.id;
-
-                // Create employee record
-                await supabase.from("employees").insert({
-                    id: userId,
-                    email: invitation.email,
-                    first_name: setupData.firstName,
-                    last_name: setupData.lastName,
-                    is_active: true,
-                    terms_accepted_at: setupData.acceptTerms
-                        ? new Date().toISOString()
-                        : null,
-                });
+                throw new Error("An account with this email already exists");
             }
+
+            // Create new auth user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: invitation.email,
+                password: setupData.password,
+                options: {
+                    data: {
+                        fullname: setupData.fullname,
+                        company_id: invitation.company_id,
+                        company_name: invitation.companies?.name,
+                        permission_level: invitation.permission_level,
+                    },
+                },
+            });
+
+            if (authError) throw authError;
+            if (!authData.user) throw new Error("User creation failed");
+
+            const userId = authData.user.id;
+
+            // Create employee record
+            await supabase.from("employees").insert({
+                id: userId,
+                email: invitation.email,
+                fullname: setupData.fullname,
+                is_active: true,
+                terms_accepted_at: setupData.acceptTerms
+                    ? new Date().toISOString()
+                    : null,
+            });
 
             // Create company association
             await supabase.from("company_employees").insert({
@@ -442,9 +471,17 @@ export const authAPI = {
                 current_step: "welcome",
             });
 
+            // Sign in the user immediately after signup
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                email: invitation.email,
+                password: setupData.password,
+            });
+
+            if (signInError) throw signInError;
+
             return {
                 success: true,
-                userId,
+                user: signInData.user,
                 companyId: invitation.company_id,
             };
         } catch (error) {
@@ -455,6 +492,107 @@ export const authAPI = {
                     error instanceof Error
                         ? error.message
                         : "Account setup failed",
+            };
+        }
+    },
+
+    /**
+     * Revoke employee invitation
+     */
+    async revokeEmployeeInvitation(invitationId: string) {
+        try {
+            const { error } = await supabase
+                .from("employee_invitations")
+                .delete()
+                .eq("id", invitationId);
+
+            if (error) {
+                return { success: false, error: error.message };
+            }
+
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: "Unexpected error occurred." };
+        }
+    },
+
+    /**
+     * Remove an employee from a company and clean up all associated data
+     */
+    async removeEmployee(companyId: string, employeeId: string, currentUserId: string) {
+        try {
+            
+            if (currentUserId === employeeId) {
+                throw new Error("You cannot remove your own account");
+            }
+
+            // Start a transaction
+            await supabase.rpc('begin');
+
+            try {
+                // 1. Remove activity logs
+                const { error: activityError } = await supabase
+                    .from('employee_activity')
+                    .delete()
+                    .eq('company_id', companyId)
+                    .eq('employee_id', employeeId);
+
+                if (activityError) throw activityError;
+
+                // 2. Remove onboarding progress
+                const { error: onboardingError } = await supabase
+                    .from('onboarding_progress')
+                    .delete()
+                    .eq('employee_id', employeeId);
+
+                if (onboardingError) throw onboardingError;
+
+                // 3. Remove from company_employees
+                const { error: ceError } = await supabase
+                    .from('company_employees')
+                    .delete()
+                    .eq('company_id', companyId)
+                    .eq('employee_id', employeeId);
+
+                if (ceError) throw ceError;
+
+                // 4. Check if employee has other company associations
+                const { data: otherCompanies, error: ocError } = await supabase
+                    .from('company_employees')
+                    .select('id')
+                    .eq('employee_id', employeeId);
+
+                if (ocError) throw ocError;
+
+                // 5. If no other companies, remove the employee completely
+                if (!otherCompanies || otherCompanies.length === 0) {
+                    // Delete the employee record
+                    const { error: empError } = await supabase
+                        .from('employees')
+                        .delete()
+                        .eq('id', employeeId);
+
+                    if (empError) throw empError;
+
+                    // Optional: Delete the auth user if you want
+                    // const { error: authError } = await supabase.auth.admin.deleteUser(employeeId);
+                    // if (authError) throw authError;
+                }
+
+                // Commit the transaction if all operations succeeded
+                await supabase.rpc('commit');
+
+                return { success: true };
+            } catch (innerError) {
+                // Rollback on any error
+                await supabase.rpc('rollback');
+                throw innerError;
+            }
+        } catch (error) {
+            console.error("Error removing employee:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to remove employee",
             };
         }
     },

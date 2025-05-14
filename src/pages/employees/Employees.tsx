@@ -33,6 +33,9 @@ interface Employee {
     role: "Employee" | "Admin";
     status: "Active" | "Pending" | "Revoked";
     avatarUrl?: string;
+    lastLogin?: string;
+    joinedDate?: string;
+    is_active?: boolean;
 }
 
 interface Invitation {
@@ -42,6 +45,8 @@ interface Invitation {
     expires_at: string;
     is_used: boolean;
 }
+
+
 
 export default function Employees() {
     const { session } = useAuth();
@@ -63,54 +68,15 @@ export default function Employees() {
 
     useEffect(() => {
         if (companyId) {
-            fetchEmployees();
             fetchInvitations();
+            fetchEmployees();
         }
     }, [companyId]);
-
-    const fetchEmployees = async () => {
-        try {
-            // This would be replaced with actual API call to get company employees
-            // For now using mock data
-            setEmployees([
-                {
-                    id: "1",
-                    name: "John Doe",
-                    email: "john.doe@example.com",
-                    role: "Employee",
-                    status: "Active",
-                    avatarUrl:
-                        "https://images.pexels.com/photos/9072338/pexels-photo-9072338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-                },
-                // {
-                //     id: "2",
-                //     name: "Jane Smith",
-                //     email: "jane.smith@example.com",
-                //     role: "Employee",
-                //     status: "Active",
-                //     avatarUrl:
-                //         "https://images.pexels.com/photos/7688554/pexels-photo-7688554.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-                // },
-                // {
-                //     id: "3",
-                //     name: "Robert Johnson",
-                //     email: "robert.johnson@example.com",
-                //     role: "Admin",
-                //     status: "Active",
-                //     avatarUrl:
-                //         "https://images.pexels.com/photos/10983885/pexels-photo-10983885.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-                // },
-            ]);
-        } catch (error) {
-            console.error("Error fetching employees:", error);
-            toast.error("Failed to fetch employees");
-        }
-    };
 
     const fetchInvitations = async () => {
         try {
             if (!companyId) return;
-            
+
             const response = await authAPI.getEmployeeInvitations(companyId);
             if (response.success && response.invitations) {
                 setInvitations(response.invitations);
@@ -121,6 +87,66 @@ export default function Employees() {
         }
     };
 
+    const fetchEmployees = async () => {
+        try {
+            if (!companyId) {
+                console.error("No company ID available");
+                return;
+            }
+
+            setIsLoading(true);
+            // console.log("Fetching employees for company:", companyId);
+
+            const employeesResponse = await authAPI.getActiveEmployees(companyId);
+            // console.log("Raw API Response:", JSON.stringify(employeesResponse, null, 2));
+
+            if (!employeesResponse.success) {
+                console.error("API Error:", employeesResponse.error);
+                toast.error(employeesResponse.error || "Failed to fetch employees");
+                return;
+            }
+
+            if (!employeesResponse.employees || !Array.isArray(employeesResponse.employees)) {
+                console.error("Invalid employees data:", employeesResponse.employees);
+                toast.error("Invalid employee data received");
+                return;
+            }
+
+            // // Log the first employee to understand the structure
+            // if (employeesResponse.employees.length > 0) {
+            //     console.log("First employee data structure:", JSON.stringify(employeesResponse.employees[0], null, 2));
+            // }
+
+            const activeEmployees: Employee[] = employeesResponse.employees.map(employee => {
+                // console.log("Processing employee:", JSON.stringify(employee, null, 2));
+                const emp = employee.employees as unknown as { id: string; email: string; fullname: string; last_login: string; created_at: string; is_active: boolean };
+                return {
+                    id: emp.id,
+                    name: emp.fullname || 'Unknown',
+                    email: emp.email,
+                    role: employee.permission_level === 'admin' ? 'Admin' : 'Employee',
+                    status: 'Active',
+                    avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.email)}`,
+                    lastLogin: emp.last_login,
+                    joinedDate: employee.invitation_accepted_at
+                };
+            });
+
+            // console.log("Processed employees:", activeEmployees);
+            setEmployees(activeEmployees);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+            if (error instanceof Error) {
+                console.error("Error details:", error.message);
+                toast.error(`Failed to fetch employees: ${error.message}`);
+            } else {
+                toast.error("Failed to fetch employees");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleInvite = async () => {
         setIsLoading(true);
         try {
@@ -128,7 +154,7 @@ export default function Employees() {
             if (!userId || !companyId || !newEmployee.email) {
                 throw new Error("User ID, Company ID or email is missing.");
             }
-            
+
             const response = await authAPI.inviteEmployee(userId, companyId, {
                 email: newEmployee.email,
                 permissionLevel: "employee",
@@ -144,7 +170,7 @@ export default function Employees() {
                     sender_name: senderName,
                     role: newEmployee.role,
                 });
-                
+
                 if (res.success) {
                     toast.success("Invitation sent!");
                     fetchInvitations(); // Refresh the invitations list
@@ -162,12 +188,11 @@ export default function Employees() {
 
     const handleRevokeInvitation = async (invitationId: string) => {
         try {
-            const { error } = await supabase
-                .from("employee_invitations")
-                .delete()
-                .eq("id", invitationId);
+            const response = await authAPI.revokeEmployeeInvitation(invitationId);
 
-            if (error) throw error;
+            if (!response.success) {
+                throw new Error(response.error);
+            }
 
             toast.success("Invitation revoked");
             fetchInvitations(); // Refresh the invitations list
@@ -187,11 +212,35 @@ export default function Employees() {
         );
     };
 
-    const handleRemoveEmployee = (id: string) => {
-        setEmployees(employees.filter((employee) => employee.id !== id));
-    };
+    const handleRemoveEmployee = async (employeeId: string) => {
+        try {
+            if (!companyId || !session?.user?.id) {
+                toast.error("Missing required information");
+                return;
+            }
 
-    
+            setIsLoading(true);
+
+            const response = await authAPI.removeEmployee(
+                companyId,
+                employeeId,
+                session.user.id
+            );
+
+            if (response.success) {
+                toast.success("Employee removed successfully");
+                // Refresh the employees list
+                await fetchEmployees();
+            } else {
+                throw new Error(response.error);
+            }
+        } catch (error) {
+            console.error("Error removing employee:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to remove employee");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="bg-white rounded-lg shadow-sm border mx-4">
@@ -308,14 +357,13 @@ export default function Employees() {
                                     <td className="py-4 px-6">
                                         <Badge
                                             variant="outline"
-                                            className={`px-3 py-1 rounded-full ${
-                                                employee.status === "Active"
-                                                    ? "bg-green-100 text-green-800 border-green-200"
-                                                    : employee.status ===
-                                                      "Pending"
+                                            className={`px-3 py-1 rounded-full ${employee.status === "Active"
+                                                ? "bg-green-100 text-green-800 border-green-200"
+                                                : employee.status ===
+                                                    "Pending"
                                                     ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                                                     : "bg-red-100 text-red-800 border-red-200"
-                                            }`}
+                                                }`}
                                         >
                                             {employee.status}
                                         </Badge>
@@ -337,17 +385,17 @@ export default function Employees() {
                                             <DropdownMenuContent align="end">
                                                 {employee.status ===
                                                     "Active" && (
-                                                    <DropdownMenuItem
-                                                        className="text-amber-600"
-                                                        onClick={() =>
-                                                            handleRevokeAccess(
-                                                                employee.id
-                                                            )
-                                                        }
-                                                    >
-                                                        Revoke Access
-                                                    </DropdownMenuItem>
-                                                )}
+                                                        <DropdownMenuItem
+                                                            className="text-amber-600"
+                                                            onClick={() =>
+                                                                handleRevokeAccess(
+                                                                    employee.id
+                                                                )
+                                                            }
+                                                        >
+                                                            Revoke Access
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 <DropdownMenuItem
                                                     className="text-red-600"
                                                     onClick={() =>
@@ -356,14 +404,14 @@ export default function Employees() {
                                                         )
                                                     }
                                                 >
-                                                    Remove Employee
+                                                    {isLoading ? "Removing..." : "Remove Employee"}
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </td>
                                 </tr>
                             ))}
-                            
+
                             {/* Pending Invitations */}
                             {invitations.map((invitation) => (
                                 <tr key={invitation.id} className="border-b">
