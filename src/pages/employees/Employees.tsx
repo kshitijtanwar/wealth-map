@@ -46,13 +46,12 @@ interface Invitation {
     is_used: boolean;
 }
 
-
-
 export default function Employees() {
     const { session } = useAuth();
     const companyName = session?.user?.user_metadata?.company_name || "Your Company";
     const senderName = session?.user?.user_metadata?.fullname || "Admin";
     const companyId = session?.user?.user_metadata?.company_id;
+    const userPermissionLevel = session?.user?.user_metadata?.permission_level;
 
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -65,6 +64,20 @@ export default function Employees() {
         email: "",
         role: "Employee",
     });
+
+    // Prevent access if user is not an admin
+    if (userPermissionLevel !== "admin") {
+        return (
+            <div className="flex items-center justify-center h-[80vh]">
+                <div className="text-center">
+                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h1>
+                    <p className="text-muted-foreground">
+                        You don't have permission to access this page.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (companyId) {
@@ -214,14 +227,29 @@ export default function Employees() {
         }
     };
 
-    const handleRevokeAccess = (id: string) => {
-        setEmployees(
-            employees.map((employee) =>
-                employee.id === id
-                    ? { ...employee, status: "Revoked" }
-                    : employee
-            )
-        );
+    const handleRevokeAccess = async (employeeId: string) => {
+        try {
+            if (!companyId) {
+                toast.error("Company ID not found");
+                return;
+            }
+
+            setIsLoading(true);
+            const response = await authAPI.deactivateEmployee(companyId, employeeId);
+
+            if (response.success) {
+                toast.success("Employee access revoked successfully");
+                // Refresh the employees list
+                await fetchEmployees();
+            } else {
+                throw new Error(response.error);
+            }
+        } catch (error) {
+            console.error("Error revoking access:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to revoke access");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleRemoveEmployee = async (employeeId: string) => {
