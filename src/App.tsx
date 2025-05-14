@@ -24,10 +24,10 @@ const AppRoutes = () => {
 
     return (
         <Routes>
+            <Route path="/accept-invitation" element={<AcceptInvite />} />
             <Route element={<PublicRoute />}>
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUp />} />
-                <Route path="/accept-invitation" element={<AcceptInvite />} />
             </Route>
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
