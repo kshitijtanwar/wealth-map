@@ -221,6 +221,7 @@ export default function Employees() {
 
             setIsLoading(true);
 
+
             const response = await authAPI.removeEmployee(
                 companyId,
                 employeeId,
