@@ -783,8 +783,6 @@ export const authAPI = {
             if (!email || !password) {
                 throw new Error("Email and password are required");
             }
-
-            console.log("Attempting sign in for email:", email);
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email.trim(),
                 password: password.trim(),
@@ -796,37 +794,18 @@ export const authAPI = {
             }
 
             if (!data.user) {
-                console.error("No user data returned");
-                return { success: false, error: "Authentication failed" };
+                return { success: false, error: "No user data returned" };
             }
 
-            // Check if employee exists and is active
-            const { data: employee, error: employeeError } = await supabase
-                .from("employees")
-                .select("id, is_active")
-                .eq("id", data.user.id)
-                .single();
-
-            if (employeeError || !employee) {
-                await supabase.auth.signOut();
-                return { success: false, error: "Employee account not found" };
-            }
-
-            if (!employee.is_active) {
-                await supabase.auth.signOut();
-                return { success: false, error: "Your account has been deactivated" };
-            }
-
-            // Check if employee has any active company associations
+            // Check for active companies but don't prevent login
             const { data: activeCompanies, error: companiesError } = await supabase
                 .from("company_employees")
                 .select("id")
                 .eq("employee_id", data.user.id)
                 .eq("is_active", true);
 
-            if (companiesError || !activeCompanies || activeCompanies.length === 0) {
-                await supabase.auth.signOut();
-                return { success: false, error: "No active company associations found" };
+            if (companiesError) {
+                console.error("Error checking company status:", companiesError);
             }
 
             // Update last login
