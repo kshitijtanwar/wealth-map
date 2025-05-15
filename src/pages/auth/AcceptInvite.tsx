@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { LoginForm } from "@/components/login-form";
+import { LoginForm } from "@/components/accept-invite";
 import { Map } from "lucide-react";
 
 export default function LoginPage() {
