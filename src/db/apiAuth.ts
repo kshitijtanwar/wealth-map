@@ -819,37 +819,14 @@ export const authAPI = {
                 return { success: false, error: "No user data returned" };
             }
 
-            await supabase
-                .from("company_employees")
-                .select("id")
-                .eq("employee_id", data.user.id)
-                .eq("is_active", true);
-            // Check if employee exists and is active
-            const { data: employee, error: employeeError } = await supabase
-                .from("employees")
-                .select("id, is_active")
-                .eq("id", data.user.id)
-                .single();
-
-            if (employeeError || !employee) {
-                await supabase.auth.signOut();
-                return { success: false, error: "Employee account not found" };
-            }
-
-            if (!employee.is_active) {
-                await supabase.auth.signOut();
-                return {
-                    success: false,
-                    error: "Your account has been deactivated",
-                };
-            }
-
-            // Check if employee has any active company associations
-            const { error: companiesError } = await supabase
-                .from("company_employees")
-                .select("id")
-                .eq("employee_id", data.user.id)
-                .eq("is_active", true);
+            // Check for active companies but don't prevent login
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { data: activeCompanies, error: companiesError } =
+                await supabase
+                    .from("company_employees")
+                    .select("id")
+                    .eq("employee_id", data.user.id)
+                    .eq("is_active", true);
 
             if (companiesError) {
                 console.error("Error checking company status:", companiesError);

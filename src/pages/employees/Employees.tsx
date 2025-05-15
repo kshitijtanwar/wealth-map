@@ -28,6 +28,7 @@ import { type Employee, type Invitation } from "@/types";
 import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function Employees() {
     const { session } = useAuth();
@@ -173,18 +174,7 @@ export default function Employees() {
 
     // Prevent access if user is not an admin
     if (userPermissionLevel !== "admin") {
-        return (
-            <div className="flex items-center justify-center h-[80vh]">
-                <div className="text-center">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-                        Access Denied
-                    </h1>
-                    <p className="text-muted-foreground">
-                        You don't have permission to access this page.
-                    </p>
-                </div>
-            </div>
-        );
+        return <AccessDenied />;
     }
 
     const handleInvite = async () => {
