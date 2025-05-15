@@ -58,21 +58,12 @@ export class AuthError extends Error {
     }
 }
 
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: "admin" | "employee";
-    companyId: string;
-    avatar?: string;
-}
-
 export interface Company {
     id: string;
     name: string;
     logo?: string;
     createdAt: string;
-    employees: User[];
+    employees: Employee[];
 }
 
 export interface Property {
@@ -88,7 +79,7 @@ export interface Property {
     value: number;
     size: number;
     images?: string[];
-    ownerId: string;
+    owner: Owner; 
 }
 
 export interface Owner {
@@ -103,7 +94,7 @@ export interface Owner {
         cash: number;
         other: number;
     };
-    properties: string[]; // property IDs
+    properties: Property[]; 
     lastUpdated: string;
 }
 
@@ -116,20 +107,6 @@ export interface Report {
     owners: string[]; // owner IDs
     notes: string;
     status: "draft" | "completed";
-}
-
-export interface MapViewSettings {
-    center: {
-        lat: number;
-        lng: number;
-    };
-    zoom: number;
-    filters: {
-        minValue?: number;
-        maxValue?: number;
-        states?: string[];
-        ownerTypes?: ("individual" | "entity")[];
-    };
 }
 
 export interface OnboardingInfo {

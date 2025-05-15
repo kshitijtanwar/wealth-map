@@ -15,13 +15,16 @@ export function InfoSlider({
         value: number;
         size: number;
         images?: string[];
+        owner: {
+            name: string;
+            type: string;
+            estimatedNetWorth: number;
+        };
     };
     onViewPropertyDetails: () => void;
 }) {
     return (
-        <SheetContent
-            className="p-0 w-full sm:max-w-md overflow-y-auto"
-        >
+        <SheetContent className="p-0 w-full sm:max-w-md overflow-y-auto">
             <div className="relative h-48 bg-gray-200">
                 {selectedProperty.images && selectedProperty.images[0] && (
                     <img
@@ -68,9 +71,17 @@ export function InfoSlider({
                         <CardContent className="p-3">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="font-medium">John Smith</p>
+                                    <p className="font-medium">
+                                        {selectedProperty.owner.name}
+                                    </p>
                                     <p className="text-sm text-gray-600">
-                                        Individual Owner
+                                        {selectedProperty.owner.type
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                            selectedProperty.owner.type.slice(
+                                                1
+                                            )}{" "}
+                                        Owner
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -78,7 +89,15 @@ export function InfoSlider({
                                         Net Worth
                                     </p>
                                     <p className="font-semibold text-emerald-600">
-                                        $12.4M
+                                        $
+                                        {selectedProperty.owner
+                                            .estimatedNetWorth
+                                            ? (
+                                                  selectedProperty.owner
+                                                      .estimatedNetWorth /
+                                                  1_000_000
+                                              ).toFixed(1) + "M"
+                                            : "N/A"}
                                     </p>
                                 </div>
                             </div>
