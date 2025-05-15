@@ -14,6 +14,9 @@ import PropertyDetail from "./pages/property-detail/PropertyDetail";
 import AcceptInvite from "./pages/auth/AcceptInvite";
 import PublicRoute from "./components/utils/PublicRoute";
 import LoadingScreen from "./components/utils/LoadingScreen";
+import Terms from "./pages/legal/Terms";
+import Privacy from "./pages/legal/Privacy";
+import Settings from "./pages/settings/Settings";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -24,7 +27,11 @@ const AppRoutes = () => {
 
     return (
         <Routes>
+            {/* Public routes */}
             <Route path="/accept-invitation" element={<AcceptInvite />} />
+            <Route path="terms-and-service" element={<Terms />} />
+            <Route path="privacy" element={<Privacy />} />
+            {/*  Routes to navigate user if session exists */}
             <Route element={<PublicRoute />}>
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUp />} />
@@ -32,6 +39,8 @@ const AppRoutes = () => {
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/accept-invitation" element={<AcceptInvite />} />
+
+            {/* Protected routes */}
             <Route element={<AuthWrapper />}>
                 <Route
                     path="/dashboard"
@@ -49,6 +58,10 @@ const AppRoutes = () => {
                 <Route
                     path="/property-detail"
                     element={<AppLayout children={<PropertyDetail />} />}
+                />
+                <Route
+                    path="/settings"
+                    element={<AppLayout children={<Settings />} />}
                 />
             </Route>
         </Routes>
