@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { BellRing } from "lucide-react";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -50,35 +52,46 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         checkActiveCompany();
     }, [session?.user?.id]);
 
-    const shouldShowAccessDenied = !hasActiveCompany && location.pathname === "/map";
+    const shouldShowAccessDenied =
+        !hasActiveCompany && location.pathname === "/map";
 
     return (
-        <AlertDialog>
-            <SidebarProvider
-                style={
-                    {
-                        "--sidebar-width": "19rem",
-                    } as React.CSSProperties
-                }
-                className="p-1"
-            >
-                <AppSidebar />
-                <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 !h-8"
-                        />
-                        <div className="flex justify-between w-full items-center gap-6">
-                            <span>{pageTitle}</span>
-                            <SearchBar />
-                        </div>
-                    </header>
-                    {shouldShowAccessDenied ? <AccessDenied /> : children}
-                </SidebarInset>
-            </SidebarProvider>
-        </AlertDialog>
+        <APIProvider
+            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            libraries={["places"]}
+        >
+            <AlertDialog>
+                <SidebarProvider
+                    style={
+                        {
+                            "--sidebar-width": "19rem",
+                        } as React.CSSProperties
+                    }
+                    className="p-1"
+                >
+                    <AppSidebar />
+                    <SidebarInset>
+                        <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator
+                                orientation="vertical"
+                                className="mr-2 !h-8"
+                            />
+
+                            <div className="flex w-full items-center gap-6">
+                                <span className="flex-1">{pageTitle}</span>
+                                <BellRing
+                                    size={20}
+                                    className="hover:text-emerald-500 duration-200 cursor-pointer"
+                                />
+                                {location.pathname == "/map" && <SearchBar />}
+                            </div>
+                        </header>
+                        {shouldShowAccessDenied ? <AccessDenied /> : children}
+                    </SidebarInset>
+                </SidebarProvider>
+            </AlertDialog>
+        </APIProvider>
     );
 };
 
