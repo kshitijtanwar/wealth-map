@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
     Card,
     CardHeader,
@@ -8,7 +9,6 @@ import {
 import { MapPin, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Property } from "@/types";
 import {
     PropertyValueCard,
     PropertySizeCard,
@@ -16,26 +16,31 @@ import {
 } from "@/components/cards/OverviewCard";
 import PropertyDetailCard from "@/components/cards/PropertyDetailCard";
 import OwnerInformationCard from "@/components/cards/OwnerInformationCard";
-import { mockOwner, mockProperties } from "../../../dummyData";
 import WealthComposition from "@/components/cards/WealthComposition";
 import { DataSourceCard } from "@/components/cards/DataSourceCard";
 import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
 
 type TabsValue = "overview" | "owner" | "history";
 
-const PropertyDetail: React.FC<{ property?: Property }> = ({
-    property = mockProperties[1],
-}) => {
+const PropertyDetail: React.FC = () => {
+    const location = useLocation();
+    const property = location.state?.property;
+    const owner = location.state?.owner;
+
     const [tab, setTab] = useState<TabsValue>("overview");
+
+    if (!property) {
+        return <div className="p-4">Property not found.</div>;
+    }
 
     return (
         <section className="space-y-4 p-4">
             <Card className={`w-full`}>
                 <CardHeader className="flex flex-col sm:flex-row justify-between items-center">
                     <div className="space-y-1">
-                        <CardTitle>456 Ocean Drive</CardTitle>
+                        <CardTitle>{property.address}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
-                            <MapPin size={15} /> Miami, FL 33139
+                            <MapPin size={15} /> {property.city}, {property.state} {property.zipCode}
                         </CardDescription>
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
@@ -73,8 +78,8 @@ const PropertyDetail: React.FC<{ property?: Property }> = ({
                             details="5 bed, 4 bath"
                         />
                         <OwnerNetWorthCard
-                            netWorth={mockOwner.estimatedNetWorth}
-                            confidenceLevel={mockOwner.confidenceLevel}
+                            netWorth={owner?.estimatedNetWorth ?? 0}
+                            confidenceLevel={owner?.confidenceLevel ?? "unknown"}
                         />
                     </div>
 
@@ -83,7 +88,7 @@ const PropertyDetail: React.FC<{ property?: Property }> = ({
                             <PropertyDetailCard property={property} />
                         </div>
                         <OwnerInformationCard
-                            owner={mockOwner}
+                            owner={owner}
                             onViewWealthAnalysis={() => setTab("owner")}
                         />
                     </div>
