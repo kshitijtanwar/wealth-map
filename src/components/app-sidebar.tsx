@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 import {
     Map,
     LayoutDashboard,
@@ -18,10 +17,9 @@ import {
     SidebarMenuItem,
     SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "./nav-user";
 import { useAuth } from "@/context/AuthProvider";
-import supabase from "@/db/supabase";
 
 const data = {
     user: {
@@ -67,8 +65,6 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { session } = useAuth();
     const location = useLocation();
-    const navigate = useNavigate();
-    const [hasActiveCompany, setHasActiveCompany] = useState<boolean>(true);
     const companyLogo = session?.user?.user_metadata?.company_logo;
     const user = session?.user;
     const fallbackAvatar =
@@ -80,17 +76,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     };
     const userPermissionLevel = session?.user?.user_metadata?.permission_level;
 
-
-
-    const filteredNavItems = data.navMain.filter(item => {
+    const filteredNavItems = data.navMain.filter((item) => {
+        console.log(item);
         // Check admin permission
         if (item.adminOnly && userPermissionLevel !== "admin") {
             return false;
         }
 
         // Check active company requirement
-        if (item.requiresActive && !hasActiveCompany) {
-            return false;
+        if (item.requiresActive) {
+            return true;
         }
 
         return true;

@@ -7,6 +7,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 export function Modal({
     title = "Are you absolutely sure?",
@@ -15,8 +16,24 @@ export function Modal({
 }: {
     title?: string;
     description?: string;
-    onConfirm: () => void;
+    onConfirm: () => void | Promise<void>;
 }) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleConfirm = async (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        event.preventDefault();
+        setIsLoading(true);
+        try {
+            await Promise.resolve(onConfirm());
+        } catch (error) {
+            console.error("Error in onConfirm:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -24,12 +41,15 @@ export function Modal({
                 <AlertDialogDescription>{description}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={isLoading}>
+                    Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
-                    onClick={onConfirm}
+                    onClick={handleConfirm}
                     className="bg-destructive text-white hover:bg-red-700"
+                    disabled={isLoading}
                 >
-                    Continue
+                    {isLoading ? "Processing..." : "Continue"}
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
