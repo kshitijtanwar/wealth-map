@@ -80,32 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     };
     const userPermissionLevel = session?.user?.user_metadata?.permission_level;
 
-    useEffect(() => {
-        const checkActiveCompany = async () => {
-            if (!session?.user?.id) return;
 
-            const { data: activeCompanies, error } = await supabase
-                .from("company_employees")
-                .select("id")
-                .eq("employee_id", session.user.id)
-                .eq("is_active", true);
-
-            if (error) {
-                console.error("Error checking active companies:", error);
-                return;
-            }
-
-            const isActive = activeCompanies && activeCompanies.length > 0;
-            setHasActiveCompany(isActive);
-
-            // If user has no active company and is on a protected route, redirect to settings
-            if (!isActive && location.pathname !== "/settings") {
-                navigate("/settings");
-            }
-        };
-
-        checkActiveCompany();
-    }, [session?.user?.id, location.pathname]);
 
     const filteredNavItems = data.navMain.filter(item => {
         // Check admin permission
