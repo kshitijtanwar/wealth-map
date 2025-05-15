@@ -8,6 +8,10 @@ import {
 import { SearchBar } from "../utils/search-bar";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import supabase from "@/db/supabase";
+import { useAuth } from "@/context/AuthProvider";
+import AccessDenied from "../AccessDenied";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -20,7 +24,33 @@ const pageTitles: Record<string, string> = {
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
-    const pageTitle = pageTitles[location.pathname] || "Dashboard"; // Default to Dashboard if route not found
+    const { session } = useAuth();
+    const [hasActiveCompany, setHasActiveCompany] = useState(true);
+    const pageTitle = pageTitles[location.pathname] || "Dashboard";
+
+    useEffect(() => {
+        const checkActiveCompany = async () => {
+            if (!session?.user?.id) return;
+
+            const { data: activeCompanies, error } = await supabase
+                .from("company_employees")
+                .select("id")
+                .eq("employee_id", session.user.id)
+                .eq("is_active", true);
+
+            if (error) {
+                console.error("Error checking active companies:", error);
+                return;
+            }
+
+            const isActive = activeCompanies && activeCompanies.length > 0;
+            setHasActiveCompany(isActive);
+        };
+
+        checkActiveCompany();
+    }, [session?.user?.id]);
+
+    const shouldShowAccessDenied = !hasActiveCompany && location.pathname === "/map";
 
     return (
         <AlertDialog>
@@ -45,10 +75,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             <SearchBar />
                         </div>
                     </header>
-                    {children}
+                    {shouldShowAccessDenied ? <AccessDenied /> : children}
                 </SidebarInset>
             </SidebarProvider>
         </AlertDialog>
     );
 };
+
 export default AppLayout;
