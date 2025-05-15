@@ -19,39 +19,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, Shield, Clock } from "lucide-react";
+import { Plus, MoreVertical, Shield } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
 import { toast } from "sonner";
-import supabase from "@/db/supabase";
-
-interface Employee {
-    id: string;
-    name: string;
-    email: string;
-    role: "Employee" | "Admin";
-    status: "Active" | "Pending" | "Revoked";
-    avatarUrl?: string;
-    lastLogin?: string;
-    joinedDate?: string;
-    is_active?: boolean;
-}
-
-interface Invitation {
-    id: string;
-    email: string;
-    permission_level: string;
-    expires_at: string;
-    is_used: boolean;
-}
+import { type Employee, type Invitation } from "@/types";
 
 export default function Employees() {
     const { session } = useAuth();
-    const companyName = session?.user?.user_metadata?.company_name || "Your Company";
-    const senderName = session?.user?.user_metadata?.fullname || "Admin";
-    const companyId = session?.user?.user_metadata?.company_id;
-    const userPermissionLevel = session?.user?.user_metadata?.permission_level;
+    const {
+        company_name: companyName,
+        fullname: senderName,
+        company_id: companyId,
+        permission_level: userPermissionLevel,
+    } = session?.user?.user_metadata || {};
 
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -65,12 +47,21 @@ export default function Employees() {
         role: "Employee",
     });
 
+    useEffect(() => {
+        if (companyId) {
+            fetchInvitations();
+            fetchEmployees();
+        }
+    }, [companyId]);
+
     // Prevent access if user is not an admin
     if (userPermissionLevel !== "admin") {
         return (
             <div className="flex items-center justify-center h-[80vh]">
                 <div className="text-center">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                        Access Denied
+                    </h1>
                     <p className="text-muted-foreground">
                         You don't have permission to access this page.
                     </p>
@@ -78,13 +69,6 @@ export default function Employees() {
             </div>
         );
     }
-
-    useEffect(() => {
-        if (companyId) {
-            fetchInvitations();
-            fetchEmployees();
-        }
-    }, [companyId]);
 
     const fetchInvitations = async () => {
         try {
@@ -109,16 +93,26 @@ export default function Employees() {
 
             setIsLoading(true);
 
-            const employeesResponse = await authAPI.getActiveEmployees(companyId);
+            const employeesResponse = await authAPI.getActiveEmployees(
+                companyId
+            );
 
             if (!employeesResponse.success) {
                 console.error("API Error:", employeesResponse.error);
-                toast.error(employeesResponse.error || "Failed to fetch employees");
+                toast.error(
+                    employeesResponse.error || "Failed to fetch employees"
+                );
                 return;
             }
 
-            if (!employeesResponse.employees || !Array.isArray(employeesResponse.employees)) {
-                console.error("Invalid employees data:", employeesResponse.employees);
+            if (
+                !employeesResponse.employees ||
+                !Array.isArray(employeesResponse.employees)
+            ) {
+                console.error(
+                    "Invalid employees data:",
+                    employeesResponse.employees
+                );
                 toast.error("Invalid employee data received");
                 return;
             }
@@ -126,35 +120,40 @@ export default function Employees() {
             // Filter out the current user from the employees list
             const currentUserId = session?.user?.id;
             const activeEmployees: Employee[] = employeesResponse.employees
-                .filter(employee => {
-                    const emp = employee.employees as unknown as { 
-                        id: string; 
-                        email: string; 
-                        fullname: string; 
-                        last_login: string; 
-                        created_at: string; 
-                        is_active: boolean 
+                .filter((employee) => {
+                    const emp = employee.employees as unknown as {
+                        id: string;
+                        email: string;
+                        fullname: string;
+                        last_login: string;
+                        created_at: string;
+                        is_active: boolean;
                     };
                     return emp.id !== currentUserId;
                 })
-                .map(employee => {
-                    const emp = employee.employees as unknown as { 
-                        id: string; 
-                        email: string; 
-                        fullname: string; 
-                        last_login: string; 
-                        created_at: string; 
-                        is_active: boolean 
+                .map((employee) => {
+                    const emp = employee.employees as unknown as {
+                        id: string;
+                        email: string;
+                        fullname: string;
+                        last_login: string;
+                        created_at: string;
+                        is_active: boolean;
                     };
                     return {
                         id: emp.id,
-                        name: emp.fullname || 'Unknown',
+                        name: emp.fullname || "Unknown",
                         email: emp.email,
-                        role: employee.permission_level === 'admin' ? 'Admin' : 'Employee',
-                        status: 'Active',
-                        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.email)}`,
+                        role:
+                            employee.permission_level === "admin"
+                                ? "Admin"
+                                : "Employee",
+                        status: "Active",
+                        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            emp.email
+                        )}`,
                         lastLogin: emp.last_login,
-                        joinedDate: employee.invitation_accepted_at
+                        joinedDate: employee.invitation_accepted_at,
                     };
                 });
 
@@ -213,7 +212,9 @@ export default function Employees() {
 
     const handleRevokeInvitation = async (invitationId: string) => {
         try {
-            const response = await authAPI.revokeEmployeeInvitation(invitationId);
+            const response = await authAPI.revokeEmployeeInvitation(
+                invitationId
+            );
 
             if (!response.success) {
                 throw new Error(response.error);
@@ -235,7 +236,10 @@ export default function Employees() {
             }
 
             setIsLoading(true);
-            const response = await authAPI.deactivateEmployee(companyId, employeeId);
+            const response = await authAPI.deactivateEmployee(
+                companyId,
+                employeeId
+            );
 
             if (response.success) {
                 toast.success("Employee access revoked successfully");
@@ -246,7 +250,11 @@ export default function Employees() {
             }
         } catch (error) {
             console.error("Error revoking access:", error);
-            toast.error(error instanceof Error ? error.message : "Failed to revoke access");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to revoke access"
+            );
         } finally {
             setIsLoading(false);
         }
@@ -260,7 +268,6 @@ export default function Employees() {
             }
 
             setIsLoading(true);
-
 
             const response = await authAPI.removeEmployee(
                 companyId,
@@ -277,7 +284,11 @@ export default function Employees() {
             }
         } catch (error) {
             console.error("Error removing employee:", error);
-            toast.error(error instanceof Error ? error.message : "Failed to remove employee");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to remove employee"
+            );
         } finally {
             setIsLoading(false);
         }
@@ -398,13 +409,14 @@ export default function Employees() {
                                     <td className="py-4 px-6">
                                         <Badge
                                             variant="outline"
-                                            className={`px-3 py-1 rounded-full ${employee.status === "Active"
-                                                ? "bg-green-100 text-green-800 border-green-200"
-                                                : employee.status ===
-                                                    "Pending"
+                                            className={`px-3 py-1 rounded-full ${
+                                                employee.status === "Active"
+                                                    ? "bg-green-100 text-green-800 border-green-200"
+                                                    : employee.status ===
+                                                      "Pending"
                                                     ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                                                     : "bg-red-100 text-red-800 border-red-200"
-                                                }`}
+                                            }`}
                                         >
                                             {employee.status}
                                         </Badge>
@@ -426,17 +438,17 @@ export default function Employees() {
                                             <DropdownMenuContent align="end">
                                                 {employee.status ===
                                                     "Active" && (
-                                                        <DropdownMenuItem
-                                                            className="text-amber-600"
-                                                            onClick={() =>
-                                                                handleRevokeAccess(
-                                                                    employee.id
-                                                                )
-                                                            }
-                                                        >
-                                                            Revoke Access
-                                                        </DropdownMenuItem>
-                                                    )}
+                                                    <DropdownMenuItem
+                                                        className="text-amber-600"
+                                                        onClick={() =>
+                                                            handleRevokeAccess(
+                                                                employee.id
+                                                            )
+                                                        }
+                                                    >
+                                                        Revoke Access
+                                                    </DropdownMenuItem>
+                                                )}
                                                 <DropdownMenuItem
                                                     className="text-red-600"
                                                     onClick={() =>
@@ -445,7 +457,9 @@ export default function Employees() {
                                                         )
                                                     }
                                                 >
-                                                    {isLoading ? "Removing..." : "Remove Employee"}
+                                                    {isLoading
+                                                        ? "Removing..."
+                                                        : "Remove Employee"}
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -460,7 +474,9 @@ export default function Employees() {
                                         <div className="flex items-center gap-3">
                                             <Avatar>
                                                 <AvatarFallback>
-                                                    {invitation.email.charAt(0).toUpperCase()}
+                                                    {invitation.email
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <span className="font-medium">
@@ -502,7 +518,11 @@ export default function Employees() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem
                                                     className="text-amber-600"
-                                                    onClick={() => handleRevokeInvitation(invitation.id)}
+                                                    onClick={() =>
+                                                        handleRevokeInvitation(
+                                                            invitation.id
+                                                        )
+                                                    }
                                                 >
                                                     Revoke Invitation
                                                 </DropdownMenuItem>
@@ -515,7 +535,8 @@ export default function Employees() {
                     </table>
                 ) : (
                     <h1 className="text-center text-muted-foreground py-6">
-                        No employees onboarded. Invite them to interact with them.
+                        No employees onboarded. Invite them to interact with
+                        them.
                     </h1>
                 )}
             </div>

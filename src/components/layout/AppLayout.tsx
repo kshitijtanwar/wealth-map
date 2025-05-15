@@ -22,7 +22,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const pageTitle = pageTitles[location.pathname] || "Dashboard"; // Default to Dashboard if route not found
 
-
     return (
         <AlertDialog>
             <SidebarProvider
@@ -42,7 +41,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             className="mr-2 !h-8"
                         />
                         <div className="flex justify-between w-full items-center gap-6">
-                            <h1 className="line-clamp-1">{pageTitle}</h1>
+                            <span>{pageTitle}</span>
                             <SearchBar />
                         </div>
                     </header>
