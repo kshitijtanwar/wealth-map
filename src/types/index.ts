@@ -19,7 +19,7 @@ export interface CompanyRegistrationData {
     adminEmail: string;
     adminPassword: string;
     fullname: string;
-    dataAccessPreferences: Record<string, unknown>;
+    dataAccessPreferences?: Record<string, unknown>;
 }
 
 export interface EmployeeInvitation {
