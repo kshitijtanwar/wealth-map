@@ -55,7 +55,7 @@ const data = {
         },
         {
             title: "Settings",
-            url: "#",
+            url: "/settings",
             icon: Settings,
             requiresActive: false,
         },
@@ -77,7 +77,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const userPermissionLevel = session?.user?.user_metadata?.permission_level;
 
     const filteredNavItems = data.navMain.filter((item) => {
-        console.log(item);
         // Check admin permission
         if (item.adminOnly && userPermissionLevel !== "admin") {
             return false;
