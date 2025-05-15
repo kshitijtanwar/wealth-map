@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useReducer } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,9 @@ import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
 import { toast } from "sonner";
 import { type Employee, type Invitation } from "@/types";
+import { Modal } from "@/components/utils/Modal";
+import { AlertDialog } from "@/components/ui/alert-dialog";
+import { initialLoadingState, loadingReducer } from "@/utils/helper";
 
 export default function Employees() {
     const { session } = useAuth();
@@ -35,9 +38,14 @@ export default function Employees() {
         permission_level: userPermissionLevel,
     } = session?.user?.user_metadata || {};
 
+    const [modalAction, setModalAction] = useState<{
+        type: "revoke" | "remove" | null;
+        id?: string;
+        isOpen: boolean;
+    }>({ type: null, isOpen: false });
+
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
     const [newEmployee, setNewEmployee] = useState<{
         email: string;
@@ -47,17 +55,26 @@ export default function Employees() {
         role: "Employee",
     });
 
+    const [loadingState, dispatch] = useReducer(
+        loadingReducer,
+        initialLoadingState
+    );
+
     const fetchInvitations = useCallback(async () => {
         try {
             if (!companyId) return;
 
+            dispatch({ type: "FETCH_INVITATIONS_START" });
             const response = await authAPI.getEmployeeInvitations(companyId);
+
             if (response.success && response.invitations) {
                 setInvitations(response.invitations);
             }
         } catch (error) {
             console.error("Error fetching invitations:", error);
             toast.error("Failed to fetch pending invitations");
+        } finally {
+            dispatch({ type: "FETCH_INVITATIONS_END" });
         }
     }, [companyId]);
 
@@ -68,8 +85,7 @@ export default function Employees() {
                 return;
             }
 
-            setIsLoading(true);
-
+            dispatch({ type: "FETCH_EMPLOYEES_START" });
             const employeesResponse = await authAPI.getActiveEmployees(
                 companyId
             );
@@ -144,7 +160,7 @@ export default function Employees() {
                 toast.error("Failed to fetch employees");
             }
         } finally {
-            setIsLoading(false);
+            dispatch({ type: "FETCH_EMPLOYEES_END" });
         }
     }, [companyId, session]);
 
@@ -172,7 +188,7 @@ export default function Employees() {
     }
 
     const handleInvite = async () => {
-        setIsLoading(true);
+        dispatch({ type: "INVITE_START" });
         try {
             const userId = session?.user?.id;
             if (!userId || !companyId || !newEmployee.email) {
@@ -204,49 +220,42 @@ export default function Employees() {
             console.error("Failed to invite employee:", error);
             toast.error("Failed to invite employee. Please try again.");
         } finally {
-            setIsLoading(false);
+            dispatch({ type: "INVITE_END" });
             setIsInviteDialogOpen(false);
             setNewEmployee({ email: "", role: "Employee" });
         }
     };
 
     const handleRevokeInvitation = async (invitationId: string) => {
+        dispatch({ type: "REVOKE_INVITATION_START" });
         try {
             const response = await authAPI.revokeEmployeeInvitation(
                 invitationId
             );
-
-            if (!response.success) {
-                throw new Error(response.error);
-            }
-
-            toast.success("Invitation revoked");
+            if (!response.success) throw new Error(response.error);
             fetchInvitations(); // Refresh the invitations list
         } catch (error) {
             console.error("Error revoking invitation:", error);
             toast.error("Failed to revoke invitation");
+        } finally {
+            dispatch({ type: "REVOKE_INVITATION_END" });
         }
     };
 
     const handleRevokeAccess = async (employeeId: string) => {
+        dispatch({ type: "REVOKE_ACCESS_START" });
         try {
             if (!companyId) {
                 toast.error("Company ID not found");
                 return;
             }
 
-            setIsLoading(true);
             const response = await authAPI.deactivateEmployee(
                 companyId,
                 employeeId
             );
-
-            if (response.success) {
-                toast.success("Employee access revoked successfully");
-                await fetchEmployees();
-            } else {
-                throw new Error(response.error);
-            }
+            if (!response.success) throw new Error(response.error);
+            await fetchEmployees();
         } catch (error) {
             console.error("Error revoking access:", error);
             toast.error(
@@ -255,31 +264,26 @@ export default function Employees() {
                     : "Failed to revoke access"
             );
         } finally {
-            setIsLoading(false);
+            dispatch({ type: "REVOKE_ACCESS_END" });
         }
     };
 
     const handleRemoveEmployee = async (employeeId: string) => {
+        dispatch({ type: "REMOVE_EMPLOYEE_START" });
         try {
             if (!companyId || !session?.user?.id) {
                 toast.error("Missing required information");
                 return;
             }
 
-            setIsLoading(true);
-
             const response = await authAPI.removeEmployee(
                 companyId,
                 employeeId,
                 session.user.id
             );
+            if (!response.success) throw new Error(response.error);
 
-            if (response.success) {
-                toast.success("Employee removed successfully");
-                await fetchEmployees();
-            } else {
-                throw new Error(response.error);
-            }
+            await fetchEmployees();
         } catch (error) {
             console.error("Error removing employee:", error);
             toast.error(
@@ -288,7 +292,33 @@ export default function Employees() {
                     : "Failed to remove employee"
             );
         } finally {
-            setIsLoading(false);
+            dispatch({ type: "REMOVE_EMPLOYEE_END" });
+        }
+    };
+
+    const handleConfirm = async () => {
+        try {
+            if (!modalAction.id) return;
+            switch (modalAction.type) {
+                case "revoke":
+                    if (invitations.find((inv) => inv.id === modalAction.id)) {
+                        await handleRevokeInvitation(modalAction.id);
+                    } else {
+                        await handleRevokeAccess(modalAction.id);
+                    }
+                    break;
+
+                case "remove":
+                    await handleRemoveEmployee(modalAction.id);
+                    break;
+
+                default:
+                    break;
+            }
+        } catch (error) {
+            console.error("Error in modal confirmation:", error);
+        } finally {
+            setModalAction({ type: null, isOpen: false });
         }
     };
 
@@ -343,7 +373,7 @@ export default function Employees() {
                             </Button>
                             <Button
                                 onClick={handleInvite}
-                                isLoading={isLoading}
+                                isLoading={loadingState.inviting}
                             >
                                 Send
                             </Button>
@@ -439,9 +469,11 @@ export default function Employees() {
                                                     <DropdownMenuItem
                                                         className="text-amber-600"
                                                         onClick={() =>
-                                                            handleRevokeAccess(
-                                                                employee.id
-                                                            )
+                                                            setModalAction({
+                                                                type: "revoke",
+                                                                id: employee.id,
+                                                                isOpen: true,
+                                                            })
                                                         }
                                                     >
                                                         Revoke Access
@@ -450,12 +482,16 @@ export default function Employees() {
                                                 <DropdownMenuItem
                                                     className="text-red-600"
                                                     onClick={() =>
-                                                        handleRemoveEmployee(
-                                                            employee.id
-                                                        )
+                                                        setModalAction({
+                                                            type: "remove",
+                                                            id: employee.id,
+                                                            isOpen: true,
+                                                        })
                                                     }
                                                 >
-                                                    {isLoading
+                                                    {loadingState.removingEmployee &&
+                                                    modalAction.id ===
+                                                        employee.id
                                                         ? "Removing..."
                                                         : "Remove Employee"}
                                                 </DropdownMenuItem>
@@ -517,9 +553,11 @@ export default function Employees() {
                                                 <DropdownMenuItem
                                                     className="text-amber-600"
                                                     onClick={() =>
-                                                        handleRevokeInvitation(
-                                                            invitation.id
-                                                        )
+                                                        setModalAction({
+                                                            type: "revoke",
+                                                            id: invitation.id,
+                                                            isOpen: true,
+                                                        })
                                                     }
                                                 >
                                                     Revoke Invitation
@@ -538,6 +576,33 @@ export default function Employees() {
                     </h1>
                 )}
             </div>
+            <AlertDialog
+                open={modalAction.isOpen}
+                onOpenChange={(open) =>
+                    setModalAction((prev) => ({ ...prev, isOpen: open }))
+                }
+            >
+                <Modal
+                    title={
+                        modalAction.type === "revoke"
+                            ? "Revoke Access"
+                            : modalAction.type === "remove"
+                            ? "Remove Employee"
+                            : "Confirmation"
+                    }
+                    description={
+                        modalAction.type === "revoke" &&
+                        invitations.find((inv) => inv.id === modalAction.id)
+                            ? "This will revoke the invitation. The user won't be able to join your organization with this invitation link."
+                            : modalAction.type === "revoke"
+                            ? "This will revoke the employee's access to the system. They will no longer be able to log in."
+                            : modalAction.type === "remove"
+                            ? "This will permanently remove the employee from your organization. This action cannot be undone."
+                            : "Are you sure you want to continue with this action?"
+                    }
+                    onConfirm={handleConfirm}
+                />
+            </AlertDialog>
         </div>
     );
 }
