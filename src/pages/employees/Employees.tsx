@@ -25,7 +25,7 @@ import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
 import { toast } from "sonner";
 import supabase from "@/db/supabase";
-
+import AccessDenied from "@/components/AccessDenied";
 interface Employee {
     id: string;
     name: string;
@@ -67,16 +67,7 @@ export default function Employees() {
 
     // Prevent access if user is not an admin
     if (userPermissionLevel !== "admin") {
-        return (
-            <div className="flex items-center justify-center h-[80vh]">
-                <div className="text-center">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h1>
-                    <p className="text-muted-foreground">
-                        You don't have permission to access this page.
-                    </p>
-                </div>
-            </div>
-        );
+        return <AccessDenied />;
     }
 
     useEffect(() => {
