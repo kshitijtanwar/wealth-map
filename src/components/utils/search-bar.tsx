@@ -1,12 +1,17 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useRef, useEffect } from "react";
-import { useMap } from "@vis.gl/react-google-maps";
+import { useRef, useEffect, useState } from "react";
+import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { Button } from "../ui/button";
+import SearchMarker from "./SearchMarker";
 
 export const SearchBar: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const map = useMap();
+    const [markerPosition, setMarkerPosition] = useState<{
+        lat: number;
+        lng: number;
+    } | null>(null);
 
     useEffect(() => {
         if (
@@ -29,7 +34,7 @@ export const SearchBar: React.FC = () => {
             if (place.geometry && place.geometry.location) {
                 const lat = place.geometry.location.lat();
                 const lng = place.geometry.location.lng();
-                // onPlaceSelected(lat, lng);
+                setMarkerPosition({ lat, lng }); // Set marker position
                 if (map) {
                     map.panTo({ lat, lng });
                     map.setZoom(15);
@@ -51,6 +56,7 @@ export const SearchBar: React.FC = () => {
                     type="search"
                     className="w-full pl-9 pr-12"
                     aria-label="Search"
+                    placeholder="Search for locations..."
                 />
                 <Button
                     variant="ghost"
@@ -63,6 +69,11 @@ export const SearchBar: React.FC = () => {
                     </kbd>
                 </Button>
             </div>
+            {markerPosition && (
+                <AdvancedMarker position={markerPosition}>
+                    <SearchMarker />
+                </AdvancedMarker>
+            )}
         </div>
     );
 };
