@@ -820,8 +820,7 @@ export const authAPI = {
             }
 
             // Check for active companies but don't prevent login
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { data: activeCompanies, error: companiesError } =
+            const { error: companiesError } =
                 await supabase
                     .from("company_employees")
                     .select("id")
