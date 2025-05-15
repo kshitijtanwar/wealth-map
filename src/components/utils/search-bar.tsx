@@ -90,7 +90,7 @@ export const SearchBar = () => {
     return (
         <div
             ref={containerRef}
-            className="relative w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-lg p-1 z-[1000]"
+            className="relative w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-lg p-1 z-[15]"
         >
             <div className="flex items-center w-full border rounded-md">
                 <Search className="absolute left-3 text-gray-400 h-4 w-4" />
@@ -106,7 +106,7 @@ export const SearchBar = () => {
             </div>
 
             {suggestions.length > 0 && isFocused && (
-                <ul className="absolute z-[9999] mt-1 w-full bg-white border border-gray-100 rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
+                <ul className="absolute z-[10] mt-1 w-full bg-white border border-gray-100 rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
                     {suggestions.map((s) => (
                         <li
                             key={s.place_id}
