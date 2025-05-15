@@ -14,7 +14,7 @@ import { type OnboardingInfo } from "@/types";
 import FormError from "./utils/FormError";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authAPI } from "@/db/apiAuth";
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
@@ -37,7 +37,7 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                 token,
                 fullname: data.name,
                 password: data.password,
-                acceptTerms: true
+                acceptTerms: true,
             });
 
             if (result.success) {
@@ -93,7 +93,7 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                 <Input
                                     id="name"
                                     type="text"
-                                    placeholder="John Doe"  
+                                    placeholder="John Doe"
                                     {...register("name", {
                                         required: "Name is required",
                                         minLength: {
@@ -138,7 +138,11 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                                     text={errors.password?.message as string}
                                 />
                             </div>
-                            <Button type="submit" className="w-full" disabled={isLoading}>
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isLoading}
+                            >
                                 Login
                             </Button>
                         </div>
@@ -154,8 +158,14 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
             </Card>
             <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
                 By clicking continue, you agree to our{" "}
-                <a href="#">Terms of Service</a> and{" "}
-                <a href="#">Privacy Policy</a>.
+                <Link to="/terms-and-service" className="text-emerald-500">
+                    Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-emerald-500">
+                    Privacy Policy
+                </Link>
+                .
             </div>
         </div>
     );
