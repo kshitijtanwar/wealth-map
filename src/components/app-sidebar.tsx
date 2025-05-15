@@ -99,15 +99,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             setHasActiveCompany(isActive);
 
             // If user has no active company and is on a protected route, redirect to settings
-            if (!isActive && location.pathname !== "/settings") {
-                navigate("/settings");
+            if (!isActive && location.pathname !== "/dashboard") {
+                navigate("/dashboard");
             }
         };
 
         checkActiveCompany();
     }, [session?.user?.id, location.pathname]);
 
-    const filteredNavItems = data.navMain.filter(item => {
+    const filteredNavItems = data.navMain.filter((item) => {
         // Check admin permission
         if (item.adminOnly && userPermissionLevel !== "admin") {
             return false;

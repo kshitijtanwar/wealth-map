@@ -135,3 +135,22 @@ export interface Invitation {
     expires_at: string;
     is_used: boolean;
 }
+
+
+// Loading state reducer types
+export type LoadingAction =
+    | { type: "FETCH_EMPLOYEES_START" | "FETCH_EMPLOYEES_END" }
+    | { type: "FETCH_INVITATIONS_START" | "FETCH_INVITATIONS_END" }
+    | { type: "INVITE_START" | "INVITE_END" }
+    | { type: "REVOKE_INVITATION_START" | "REVOKE_INVITATION_END" }
+    | { type: "REVOKE_ACCESS_START" | "REVOKE_ACCESS_END" }
+    | { type: "REMOVE_EMPLOYEE_START" | "REMOVE_EMPLOYEE_END" };
+
+export interface LoadingState {
+    fetchingEmployees: boolean;
+    fetchingInvitations: boolean;
+    inviting: boolean;
+    revokingInvitation: boolean;
+    revokingAccess: boolean;
+    removingEmployee: boolean;
+}
