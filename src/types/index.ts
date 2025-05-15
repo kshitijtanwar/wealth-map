@@ -19,7 +19,7 @@ export interface CompanyRegistrationData {
     adminEmail: string;
     adminPassword: string;
     fullname: string;
-    dataAccessPreferences?: Record<string, any>;
+    dataAccessPreferences: Record<string, unknown>;
 }
 
 export interface EmployeeInvitation {
@@ -30,8 +30,7 @@ export interface EmployeeInvitation {
 export interface EmployeeAccountSetup {
     token: string;
     password: string;
-    firstName: string;
-    lastName: string;
+    fullname: string;
     acceptTerms: boolean;
 }
 
@@ -53,19 +52,10 @@ export interface FormValues {
 
 // Error Types
 export class AuthError extends Error {
-    constructor(message: string, public details?: any) {
+    constructor(message: string, public details?: unknown) {
         super(message);
         this.name = "AuthError";
     }
-}
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: "admin" | "employee";
-    companyId: string;
-    avatar?: string;
 }
 
 export interface Company {
@@ -73,7 +63,7 @@ export interface Company {
     name: string;
     logo?: string;
     createdAt: string;
-    employees: User[];
+    employees: Employee[];
 }
 
 export interface Property {
@@ -89,7 +79,7 @@ export interface Property {
     value: number;
     size: number;
     images?: string[];
-    ownerId: string;
+    owner: Owner; 
 }
 
 export interface Owner {
@@ -104,7 +94,7 @@ export interface Owner {
         cash: number;
         other: number;
     };
-    properties: string[]; // property IDs
+    properties: Property[]; 
     lastUpdated: string;
 }
 
@@ -119,23 +109,48 @@ export interface Report {
     status: "draft" | "completed";
 }
 
-export interface MapViewSettings {
-    center: {
-        lat: number;
-        lng: number;
-    };
-    zoom: number;
-    filters: {
-        minValue?: number;
-        maxValue?: number;
-        states?: string[];
-        ownerTypes?: ("individual" | "entity")[];
-    };
-}
-
 export interface OnboardingInfo {
     email: string;
     password: string;
     name: string;
     phone?: string;
+}
+
+export interface Employee {
+    id: string;
+    name: string;
+    email: string;
+    role: "Employee" | "Admin";
+    status: "Active" | "Pending" | "Revoked";
+    avatarUrl?: string;
+    lastLogin?: string;
+    joinedDate?: string;
+    is_active?: boolean;
+}
+
+export interface Invitation {
+    id: string;
+    email: string;
+    permission_level: string;
+    expires_at: string;
+    is_used: boolean;
+}
+
+
+// Loading state reducer types
+export type LoadingAction =
+    | { type: "FETCH_EMPLOYEES_START" | "FETCH_EMPLOYEES_END" }
+    | { type: "FETCH_INVITATIONS_START" | "FETCH_INVITATIONS_END" }
+    | { type: "INVITE_START" | "INVITE_END" }
+    | { type: "REVOKE_INVITATION_START" | "REVOKE_INVITATION_END" }
+    | { type: "REVOKE_ACCESS_START" | "REVOKE_ACCESS_END" }
+    | { type: "REMOVE_EMPLOYEE_START" | "REMOVE_EMPLOYEE_END" };
+
+export interface LoadingState {
+    fetchingEmployees: boolean;
+    fetchingInvitations: boolean;
+    inviting: boolean;
+    revokingInvitation: boolean;
+    revokingAccess: boolean;
+    removingEmployee: boolean;
 }
