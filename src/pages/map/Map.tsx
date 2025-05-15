@@ -1,22 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     APIProvider,
     Map as GoogleMap,
-    AdvancedMarker,
+    useMap,
 } from "@vis.gl/react-google-maps";
 import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
 import { properties } from "@/../dummyData";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import type { Property } from "@/types";
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
+
+interface MarkersProps {
+    points: Property[];
+    setSelectedProperty: React.Dispatch<React.SetStateAction<Property | null>>;
+    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Markers: React.FC<MarkersProps> = ({
+    points,
+    setSelectedProperty,
+    setSheetOpen,
+}) => {
+    const map = useMap();
+    const clusterer = useRef<MarkerClusterer | null>(null);
+    const markersRef = useRef<google.maps.Marker[]>([]);
+
+    useEffect(() => {
+        if (!map) return;
+        markersRef.current.forEach((marker) => marker.setMap(null));
+        markersRef.current = [];
+
+        const newMarkers = points.map((property) => {
+            const marker = new google.maps.Marker({
+                position: {
+                    lat: property.coordinates.lat,
+                    lng: property.coordinates.lng,
+                },
+            });
+            marker.addListener("click", () => {
+                setSelectedProperty(property);
+                setSheetOpen(true);
+            });
+            return marker;
+        });
+        markersRef.current = newMarkers;
+
+        // Create or update clusterer
+        if (!clusterer.current) {
+            clusterer.current = new MarkerClusterer({
+                markers: newMarkers,
+                map,
+            });
+        } else {
+            clusterer.current.clearMarkers();
+            clusterer.current.addMarkers(newMarkers);
+        }
+
+        return () => {
+            newMarkers.forEach((marker) => marker.setMap(null));
+        };
+    }, [map, points, setSelectedProperty, setSheetOpen]);
+
+    return null;
+};
 
 const Map: React.FC = () => {
     const navigate = useNavigate();
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedProperty, setSelectedProperty] = useState<
-        (typeof properties)[0] | null
-    >(null);
+    const [selectedProperty, setSelectedProperty] = useState<Property | null>(
+        null
+    );
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -30,20 +86,11 @@ const Map: React.FC = () => {
                             defaultCenter={DEFAULT_CENTER}
                             defaultZoom={13}
                         >
-                            {properties.map((property, idx) => (
-                                <AdvancedMarker
-                                    key={idx}
-                                    position={{
-                                        lat: property.lat,
-                                        lng: property.lng,
-                                    }}
-                                    onClick={() => {
-                                        setSelectedProperty(property);
-                                        setSheetOpen(true);
-                                    }}
-                                    
-                                />
-                            ))}
+                            <Markers
+                                points={properties}
+                                setSelectedProperty={setSelectedProperty}
+                                setSheetOpen={setSheetOpen}
+                            />
                         </GoogleMap>
                     </APIProvider>
                 </div>
@@ -53,7 +100,9 @@ const Map: React.FC = () => {
                 <InfoSlider
                     selectedProperty={selectedProperty}
                     onViewPropertyDetails={() => {
-                        navigate("/property-detail");
+                        navigate("/property-detail", {
+                            state: { property: selectedProperty, owner: selectedProperty.owner },
+                        });
                     }}
                 />
             )}
