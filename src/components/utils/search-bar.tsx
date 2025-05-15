@@ -1,74 +1,119 @@
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
-import { Button } from "../ui/button";
+import { debounce } from "lodash";
 import SearchMarker from "./SearchMarker";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
+import type { RefObject } from "react";
+import { useOnClickOutside } from "@/hooks/use-on-click-outside";
 
-export const SearchBar: React.FC = () => {
+export const SearchBar = () => {
     const inputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const map = useMap();
+    const [suggestions, setSuggestions] = useState<
+        google.maps.places.AutocompletePrediction[]
+    >([]);
     const [markerPosition, setMarkerPosition] = useState<{
         lat: number;
         lng: number;
     } | null>(null);
+    const [isFocused, setIsFocused] = useState(false);
+
+    const autocompleteService =
+        useRef<google.maps.places.AutocompleteService | null>(null);
+    const placesService = useRef<google.maps.places.PlacesService | null>(null);
+
+    useOnClickOutside(containerRef as RefObject<HTMLDivElement>, () => {
+        setIsFocused(false);
+    });
 
     useEffect(() => {
-        if (
-            !window.google ||
-            !window.google.maps ||
-            !window.google.maps.places ||
-            !inputRef.current
-        )
-            return;
-
-        const autocomplete = new window.google.maps.places.Autocomplete(
-            inputRef.current,
-            {
-                types: ["geocode"],
-            }
-        );
-
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            if (place.geometry && place.geometry.location) {
-                const lat = place.geometry.location.lat();
-                const lng = place.geometry.location.lng();
-                setMarkerPosition({ lat, lng }); // Set marker position
-                if (map) {
-                    map.panTo({ lat, lng });
-                    map.setZoom(15);
-                }
-            }
-        });
-
-        return () => {
-            window.google.maps.event.clearInstanceListeners(autocomplete);
-        };
+        if (window.google && !autocompleteService.current && map) {
+            autocompleteService.current =
+                new window.google.maps.places.AutocompleteService();
+            placesService.current = new window.google.maps.places.PlacesService(
+                map
+            );
+        }
     }, [map]);
 
+    const fetchSuggestions = debounce((input: string) => {
+        if (!autocompleteService.current || input.trim() === "") {
+            setSuggestions([]);
+            return;
+        }
+
+        autocompleteService.current.getPlacePredictions(
+            {
+                input,
+                types: ["geocode"],
+            },
+            (predictions) => {
+                if (predictions) setSuggestions(predictions);
+                else setSuggestions([]);
+            }
+        );
+    }, 400);
+
+    const handleInput = () => {
+        const inputValue = inputRef.current?.value || "";
+        fetchSuggestions(inputValue);
+    };
+
+    const handleSelect = (placeId: string) => {
+        if (!placesService.current) return;
+
+        placesService.current.getDetails(
+            { placeId, fields: ["geometry"] },
+            (place, status) => {
+                if (
+                    status === google.maps.places.PlacesServiceStatus.OK &&
+                    place?.geometry?.location
+                ) {
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+                    setMarkerPosition({ lat, lng });
+                    map?.panTo({ lat, lng });
+                    map?.setZoom(15);
+                    setSuggestions([]);
+                    setIsFocused(false);
+                }
+            }
+        );
+    };
+
     return (
-        <div className={`relative flex w-full max-w-sm items-center`}>
-            <div className="relative w-full">
-                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div
+            ref={containerRef}
+            className="relative w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-lg p-1 z-[1000]"
+        >
+            <div className="flex items-center w-full border rounded-md">
+                <Search className="absolute left-3 text-gray-400 h-4 w-4" />
                 <Input
                     ref={inputRef}
-                    type="search"
-                    className="w-full pl-9 pr-12"
-                    aria-label="Search"
+                    type="text"
                     placeholder="Search for locations..."
+                    onChange={handleInput}
+                    onFocus={() => setIsFocused(true)}
+                    onClick={() => setIsFocused(true)}
+                    className="w-full pl-9 pr-4 py-2 border-hidden"
                 />
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                    <span className="sr-only">Search</span>
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                        ⏎
-                    </kbd>
-                </Button>
             </div>
+
+            {suggestions.length > 0 && isFocused && (
+                <ul className="absolute z-[9999] mt-1 w-full bg-white border border-gray-100 rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
+                    {suggestions.map((s) => (
+                        <li
+                            key={s.place_id}
+                            className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                            onClick={() => handleSelect(s.place_id)}
+                        >
+                            {s.description}
+                        </li>
+                    ))}
+                </ul>
+            )}
             {markerPosition && (
                 <AdvancedMarker position={markerPosition}>
                     <SearchMarker />
