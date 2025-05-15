@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,30 +47,7 @@ export default function Employees() {
         role: "Employee",
     });
 
-    useEffect(() => {
-        if (companyId) {
-            fetchInvitations();
-            fetchEmployees();
-        }
-    }, [companyId]);
-
-    // Prevent access if user is not an admin
-    if (userPermissionLevel !== "admin") {
-        return (
-            <div className="flex items-center justify-center h-[80vh]">
-                <div className="text-center">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-                        Access Denied
-                    </h1>
-                    <p className="text-muted-foreground">
-                        You don't have permission to access this page.
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
-    const fetchInvitations = async () => {
+    const fetchInvitations = useCallback(async () => {
         try {
             if (!companyId) return;
 
@@ -82,9 +59,9 @@ export default function Employees() {
             console.error("Error fetching invitations:", error);
             toast.error("Failed to fetch pending invitations");
         }
-    };
+    }, [companyId]);
 
-    const fetchEmployees = async () => {
+    const fetchEmployees = useCallback(async () => {
         try {
             if (!companyId) {
                 console.error("No company ID available");
@@ -154,7 +131,7 @@ export default function Employees() {
                         )}`,
                         lastLogin: emp.last_login,
                         joinedDate: employee.invitation_accepted_at,
-                    };
+                    } as Employee;
                 });
 
             setEmployees(activeEmployees);
@@ -169,7 +146,30 @@ export default function Employees() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [companyId, session]);
+
+    useEffect(() => {
+        if (companyId) {
+            fetchInvitations();
+            fetchEmployees();
+        }
+    }, [companyId, fetchInvitations, fetchEmployees]);
+
+    // Prevent access if user is not an admin
+    if (userPermissionLevel !== "admin") {
+        return (
+            <div className="flex items-center justify-center h-[80vh]">
+                <div className="text-center">
+                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                        Access Denied
+                    </h1>
+                    <p className="text-muted-foreground">
+                        You don't have permission to access this page.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     const handleInvite = async () => {
         setIsLoading(true);
@@ -243,7 +243,6 @@ export default function Employees() {
 
             if (response.success) {
                 toast.success("Employee access revoked successfully");
-                // Refresh the employees list
                 await fetchEmployees();
             } else {
                 throw new Error(response.error);
@@ -277,7 +276,6 @@ export default function Employees() {
 
             if (response.success) {
                 toast.success("Employee removed successfully");
-                // Refresh the employees list
                 await fetchEmployees();
             } else {
                 throw new Error(response.error);
