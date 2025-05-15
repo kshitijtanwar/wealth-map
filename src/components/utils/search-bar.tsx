@@ -61,8 +61,12 @@ export const SearchBar = () => {
         fetchSuggestions(inputValue);
     };
 
-    const handleSelect = (placeId: string) => {
+    const handleSelect = (placeId: string, description: string) => {
         if (!placesService.current) return;
+
+        if (inputRef.current) {
+            inputRef.current.value = description;
+        }
 
         placesService.current.getDetails(
             { placeId, fields: ["geometry"] },
@@ -107,7 +111,9 @@ export const SearchBar = () => {
                         <li
                             key={s.place_id}
                             className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
-                            onClick={() => handleSelect(s.place_id)}
+                            onClick={() =>
+                                handleSelect(s.place_id, s.description)
+                            }
                         >
                             {s.description}
                         </li>
