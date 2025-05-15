@@ -1,9 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-    APIProvider,
-    Map as GoogleMap,
-    useMap,
-} from "@vis.gl/react-google-maps";
+import { Map as GoogleMap, useMap } from "@vis.gl/react-google-maps";
 import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
@@ -77,22 +73,21 @@ const Map: React.FC = () => {
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <section className="h-full w-full p-2 pt-0">
-                <div className="border rounded-md overflow-hidden w-full h-full">
-                    <APIProvider
-                        apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                <div
+                    className="border rounded-md overflow-hidden w-full h-full"
+                    style={{ position: "relative" }}
+                >
+                    <GoogleMap
+                        mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
+                        defaultCenter={DEFAULT_CENTER}
+                        defaultZoom={13}
                     >
-                        <GoogleMap
-                            mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
-                            defaultCenter={DEFAULT_CENTER}
-                            defaultZoom={13}
-                        >
-                            <Markers
-                                points={properties}
-                                setSelectedProperty={setSelectedProperty}
-                                setSheetOpen={setSheetOpen}
-                            />
-                        </GoogleMap>
-                    </APIProvider>
+                        <Markers
+                            points={properties}
+                            setSelectedProperty={setSelectedProperty}
+                            setSheetOpen={setSheetOpen}
+                        />
+                    </GoogleMap>
                 </div>
             </section>
 
@@ -101,7 +96,10 @@ const Map: React.FC = () => {
                     selectedProperty={selectedProperty}
                     onViewPropertyDetails={() => {
                         navigate("/property-detail", {
-                            state: { property: selectedProperty, owner: selectedProperty.owner },
+                            state: {
+                                property: selectedProperty,
+                                owner: selectedProperty.owner,
+                            },
                         });
                     }}
                 />
