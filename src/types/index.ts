@@ -19,7 +19,7 @@ export interface CompanyRegistrationData {
     adminEmail: string;
     adminPassword: string;
     fullname: string;
-    dataAccessPreferences?: Record<string, any>;
+    dataAccessPreferences: Record<string, unknown>;
 }
 
 export interface EmployeeInvitation {
@@ -52,7 +52,7 @@ export interface FormValues {
 
 // Error Types
 export class AuthError extends Error {
-    constructor(message: string, public details?: any) {
+    constructor(message: string, public details?: unknown) {
         super(message);
         this.name = "AuthError";
     }
@@ -137,4 +137,24 @@ export interface OnboardingInfo {
     password: string;
     name: string;
     phone?: string;
+}
+
+export interface Employee {
+    id: string;
+    name: string;
+    email: string;
+    role: "Employee" | "Admin";
+    status: "Active" | "Pending" | "Revoked";
+    avatarUrl?: string;
+    lastLogin?: string;
+    joinedDate?: string;
+    is_active?: boolean;
+}
+
+export interface Invitation {
+    id: string;
+    email: string;
+    permission_level: string;
+    expires_at: string;
+    is_used: boolean;
 }

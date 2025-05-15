@@ -60,7 +60,7 @@ export const authAPI = {
             if (authError || !authData.user) {
                 throw new Error(
                     "User creation failed: " +
-                    (authError?.message || "Unknown error")
+                        (authError?.message || "Unknown error")
                 );
             }
 
@@ -287,12 +287,14 @@ export const authAPI = {
         try {
             const { data, error } = await supabase
                 .from("employee_invitations")
-                .select(`
+                .select(
+                    `
                 *,
                 companies (
                     name
                 )
-            `)
+            `
+                )
                 .eq("company_id", companyId)
                 .eq("is_used", false)
                 .gt("expires_at", new Date().toISOString());
@@ -307,18 +309,22 @@ export const authAPI = {
             console.error("Error fetching invitations:", error);
             return {
                 success: false,
-                error: error instanceof Error ? error.message : "Failed to fetch invitations",
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to fetch invitations",
             };
         }
     },
     /**
- * Get active employees who have accepted invitations
- */
+     * Get active employees who have accepted invitations
+     */
     async getActiveEmployees(companyId: string) {
         try {
             const { data, error } = await supabase
                 .from("company_employees")
-                .select(`
+                .select(
+                    `
                 id,
                 permission_level,
                 is_active,
@@ -334,7 +340,8 @@ export const authAPI = {
                 companies (
                     name
                 )
-            `)
+            `
+                )
                 .eq("company_id", companyId)
                 .eq("is_active", true)
                 .not("invitation_accepted_at", "is", null)
@@ -350,7 +357,10 @@ export const authAPI = {
             console.error("Error fetching active employees:", error);
             return {
                 success: false,
-                error: error instanceof Error ? error.message : "Failed to fetch active employees",
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to fetch active employees",
             };
         }
     },
@@ -417,18 +427,19 @@ export const authAPI = {
             }
 
             // Create new auth user
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: invitation.email,
-                password: setupData.password,
-                options: {
-                    data: {
-                        fullname: setupData.fullname,
-                        company_id: invitation.company_id,
-                        company_name: invitation.companies?.name,
-                        permission_level: invitation.permission_level,
+            const { data: authData, error: authError } =
+                await supabase.auth.signUp({
+                    email: invitation.email,
+                    password: setupData.password,
+                    options: {
+                        data: {
+                            fullname: setupData.fullname,
+                            company_id: invitation.company_id,
+                            company_name: invitation.companies?.name,
+                            permission_level: invitation.permission_level,
+                        },
                     },
-                },
-            });
+                });
 
             if (authError) throw authError;
             if (!authData.user) throw new Error("User creation failed");
@@ -472,10 +483,11 @@ export const authAPI = {
             });
 
             // Sign in the user immediately after signup
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-                email: invitation.email,
-                password: setupData.password,
-            });
+            const { data: signInData, error: signInError } =
+                await supabase.auth.signInWithPassword({
+                    email: invitation.email,
+                    password: setupData.password,
+                });
 
             if (signInError) throw signInError;
 
@@ -511,7 +523,7 @@ export const authAPI = {
             }
 
             return { success: true };
-        } catch (err) {
+        } catch {
             return { success: false, error: "Unexpected error occurred." };
         }
     },
@@ -519,54 +531,61 @@ export const authAPI = {
     /**
      * Remove an employee from a company and clean up all associated data
      */
-    async removeEmployee(companyId: string, employeeId: string, currentUserId: string) {
+    async removeEmployee(
+        companyId: string,
+        employeeId: string,
+        currentUserId: string
+    ) {
         try {
             if (currentUserId === employeeId) {
                 throw new Error("You cannot remove your own account");
             }
 
             // First deactivate the employee
-            const deactivateResponse = await this.deactivateEmployee(companyId, employeeId);
+            const deactivateResponse = await this.deactivateEmployee(
+                companyId,
+                employeeId
+            );
             if (!deactivateResponse.success) {
                 throw new Error(deactivateResponse.error);
             }
 
             // 1. Remove activity logs
             const { error: activityError } = await supabase
-                .from('employee_activity')
+                .from("employee_activity")
                 .delete()
-                .eq('company_id', companyId)
-                .eq('employee_id', employeeId);
+                .eq("company_id", companyId)
+                .eq("employee_id", employeeId);
             if (activityError) throw activityError;
 
             // 2. Remove onboarding progress
             const { error: onboardingError } = await supabase
-                .from('onboarding_progress')
+                .from("onboarding_progress")
                 .delete()
-                .eq('employee_id', employeeId);
+                .eq("employee_id", employeeId);
             if (onboardingError) throw onboardingError;
 
             // 3. Remove from company_employees
             const { error: ceError } = await supabase
-                .from('company_employees')
+                .from("company_employees")
                 .delete()
-                .eq('company_id', companyId)
-                .eq('employee_id', employeeId);
+                .eq("company_id", companyId)
+                .eq("employee_id", employeeId);
             if (ceError) throw ceError;
 
             // 4. Check if employee has other company associations
             const { data: otherCompanies, error: ocError } = await supabase
-                .from('company_employees')
-                .select('id')
-                .eq('employee_id', employeeId);
+                .from("company_employees")
+                .select("id")
+                .eq("employee_id", employeeId);
             if (ocError) throw ocError;
 
             // 5. If no other companies, remove the employee completely
             if (!otherCompanies || otherCompanies.length === 0) {
                 const { error: empError } = await supabase
-                    .from('employees')
+                    .from("employees")
                     .delete()
-                    .eq('id', employeeId);
+                    .eq("id", employeeId);
                 if (empError) throw empError;
             }
 
@@ -575,7 +594,10 @@ export const authAPI = {
             console.error("Error removing employee:", error);
             return {
                 success: false,
-                error: error instanceof Error ? error.message : "Failed to remove employee",
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to remove employee",
             };
         }
     },
@@ -814,19 +836,30 @@ export const authAPI = {
 
             if (!employee.is_active) {
                 await supabase.auth.signOut();
-                return { success: false, error: "Your account has been deactivated" };
+                return {
+                    success: false,
+                    error: "Your account has been deactivated",
+                };
             }
 
             // Check if employee has any active company associations
-            const { data: activeCompanies, error: companiesError } = await supabase
-                .from("company_employees")
-                .select("id")
-                .eq("employee_id", data.user.id)
-                .eq("is_active", true);
+            const { data: activeCompanies, error: companiesError } =
+                await supabase
+                    .from("company_employees")
+                    .select("id")
+                    .eq("employee_id", data.user.id)
+                    .eq("is_active", true);
 
-            if (companiesError || !activeCompanies || activeCompanies.length === 0) {
+            if (
+                companiesError ||
+                !activeCompanies ||
+                activeCompanies.length === 0
+            ) {
                 await supabase.auth.signOut();
-                return { success: false, error: "No active company associations found" };
+                return {
+                    success: false,
+                    error: "No active company associations found",
+                };
             }
 
             // Update last login
