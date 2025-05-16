@@ -5,26 +5,27 @@ import {
     CardTitle,
 } from "../../components/ui/card";
 import { Map } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Privacy: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className={cn("flex flex-col gap-6 my-5")}>
             <div className="max-w-4xl mx-auto">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-center text-3xl flex items-center justify-center gap-2 font-bold text-gray-900">
-                            <Map size={26} className="text-emerald-500" />
+                        <CardTitle className="text-center text-3xl flex items-center justify-center gap-2 font-bold">
+                            <Map size={26} className="text-primary" />
                             Wealth Map
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+                        <h1 className="text-3xl font-bold mb-8">
                             Privacy Policy
                         </h1>
 
-                        <div className="space-y-6 text-gray-600">
+                        <div className="space-y-6">
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     1. Introduction
                                 </h2>
                                 <p className="mb-4">
@@ -36,11 +37,11 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     2. Information We Collect
                                 </h2>
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-medium text-gray-900">
+                                    <h3 className="text-lg font-medium">
                                         Personal Information
                                     </h3>
                                     <ul className="list-disc pl-6 space-y-2">
@@ -50,7 +51,7 @@ const Privacy: React.FC = () => {
                                         <li>Payment information</li>
                                     </ul>
 
-                                    <h3 className="text-lg font-medium text-gray-900">
+                                    <h3 className="text-lg font-medium">
                                         Usage Data
                                     </h3>
                                     <ul className="list-disc pl-6 space-y-2">
@@ -63,7 +64,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     3. How We Use Your Information
                                 </h2>
                                 <p className="mb-4">
@@ -82,7 +83,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     4. Data Security
                                 </h2>
                                 <p className="mb-4">
@@ -104,7 +105,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     5. Data Sharing and Disclosure
                                 </h2>
                                 <p className="mb-4">
@@ -125,7 +126,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     6. Your Rights
                                 </h2>
                                 <p className="mb-4">You have the right to:</p>
@@ -139,7 +140,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     7. Cookies and Tracking
                                 </h2>
                                 <p className="mb-4">
@@ -152,7 +153,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     8. Children's Privacy
                                 </h2>
                                 <p className="mb-4">
@@ -163,7 +164,7 @@ const Privacy: React.FC = () => {
                             </section>
 
                             <section>
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h2 className="text-xl font-semibold mb-4">
                                     9. International Data Transfers
                                 </h2>
                                 <p className="mb-4">
