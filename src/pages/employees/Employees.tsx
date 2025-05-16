@@ -374,7 +374,7 @@ export default function Employees() {
                             <Plus className="h-4 w-4" /> Invite Employee
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                         <DialogHeader>
                             <DialogTitle>Invite a new employee</DialogTitle>
                             <DialogDescription>
@@ -414,7 +414,8 @@ export default function Employees() {
                 </Dialog>
             </div>
             <div className="px-4">
-                {loadingState.fetchingEmployees || loadingState.fetchingInvitations ? (
+                {loadingState.fetchingEmployees ||
+                loadingState.fetchingInvitations ? (
                     <Table className="w-full">
                         <TableHeader>
                             <TableRow>
@@ -426,9 +427,13 @@ export default function Employees() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {Array(4).fill(0).map((_, index) => (
-                                <TableRowSkeleton key={`skeleton-${index}`} />
-                            ))}
+                            {Array(4)
+                                .fill(0)
+                                .map((_, index) => (
+                                    <TableRowSkeleton
+                                        key={`skeleton-${index}`}
+                                    />
+                                ))}
                         </TableBody>
                     </Table>
                 ) : employees.length > 0 || invitations.length > 0 ? (
