@@ -14,6 +14,9 @@ import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
 import { PropertyFilter } from "../utils/property-filter";
 import { SearchFilter } from "../utils/SearchFilter";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { BellRing } from "lucide-react";
+
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
@@ -52,11 +55,16 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         checkActiveCompany();
     }, [session?.user?.id]);
 
-    const shouldShowAccessDenied = !hasActiveCompany && location.pathname === "/map";
+    const shouldShowAccessDenied =
+        !hasActiveCompany && location.pathname === "/map";
 
     return (
-        <AlertDialog>
             <SearchProvider>
+        <APIProvider
+            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            libraries={["places"]}
+        >
+            <AlertDialog>
                 <SidebarProvider
                     style={
                         {
@@ -81,14 +89,18 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                         <PropertyFilter />
                                     </>
                                 )}
+                            {location.pathname == "/map" && <SearchBar />}
                             </div>
                         </header>
                         {/* <SearchResults /> */}
                         {shouldShowAccessDenied ? <AccessDenied /> : children}
                     </SidebarInset>
                 </SidebarProvider>
-            </SearchProvider>
         </AlertDialog>
+        </APIProvider>
+            </SearchProvider>
+        
+        
     );
 };
 
