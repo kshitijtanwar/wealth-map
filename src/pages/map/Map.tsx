@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { properties } from "@/../dummyData";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Property } from "@/types";
+import { useTheme } from "@/components/theme-provider";
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
 
@@ -64,6 +65,7 @@ const Markers: React.FC<MarkersProps> = ({
 };
 
 const Map: React.FC = () => {
+    const { theme } = useTheme();
     const navigate = useNavigate();
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(
@@ -73,13 +75,12 @@ const Map: React.FC = () => {
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <section className="h-full w-full p-2 pt-0">
-                <div
-                    className="border rounded-md overflow-hidden w-full h-full"
-                >
+                <div className="border rounded-md overflow-hidden w-full h-full">
                     <GoogleMap
                         mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                         defaultCenter={DEFAULT_CENTER}
                         defaultZoom={13}
+                        colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
                     >
                         <Markers
                             points={properties}
