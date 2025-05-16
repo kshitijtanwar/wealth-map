@@ -43,6 +43,34 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// TableRowSkeleton component for loading states
+const TableRowSkeleton = () => (
+    <TableRow>
+        <TableCell>
+            <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-5 w-28" />
+            </div>
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-5 w-40" />
+        </TableCell>
+        <TableCell>
+            <div className="flex items-center gap-1">
+                <Skeleton className="h-5 w-5 rounded-full" />
+                <Skeleton className="h-5 w-16" />
+            </div>
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-6 w-20 rounded-full" />
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-8 w-8 rounded-md" />
+        </TableCell>
+    </TableRow>
+);
 
 export default function Employees() {
     const { session } = useAuth();
@@ -386,7 +414,24 @@ export default function Employees() {
                 </Dialog>
             </div>
             <div className="px-4">
-                {employees.length > 0 || invitations.length > 0 ? (
+                {loadingState.fetchingEmployees || loadingState.fetchingInvitations ? (
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>EMPLOYEE</TableHead>
+                                <TableHead>EMAIL</TableHead>
+                                <TableHead>ROLE</TableHead>
+                                <TableHead>STATUS</TableHead>
+                                <TableHead></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Array(4).fill(0).map((_, index) => (
+                                <TableRowSkeleton key={`skeleton-${index}`} />
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : employees.length > 0 || invitations.length > 0 ? (
                     <Table className="w-full">
                         <TableHeader>
                             <TableRow>
@@ -558,6 +603,8 @@ export default function Employees() {
                                     </TableCell>
                                 </TableRow>
                             ))}
+
+                            {/* Loading Skeletons section removed */}
                         </TableBody>
                     </Table>
                 ) : (
