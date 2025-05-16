@@ -18,6 +18,7 @@ import SearchResult from "./pages/SearchResult";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Settings from "./pages/settings/Settings";
+import { ThemeProvider } from "./components/theme-provider";
 
 
 const AppRoutes = () => {
@@ -76,12 +77,14 @@ const AppRoutes = () => {
 
 const App = () => {
     return (
-        <AuthProvider>
-            <Toaster richColors closeButton />
-            <Router>
-                <AppRoutes />
-            </Router>
-        </AuthProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <AuthProvider>
+                <Toaster richColors closeButton />
+                <Router>
+                    <AppRoutes />
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     );
 };
 

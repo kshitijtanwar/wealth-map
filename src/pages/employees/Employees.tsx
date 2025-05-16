@@ -29,6 +29,12 @@ import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
 import AccessDenied from "@/components/AccessDenied";
+import {
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 export default function Employees() {
     const { session } = useAuth();
@@ -313,16 +319,16 @@ export default function Employees() {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border mx-4">
-            <div className="p-6 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
-                <div className="text-center sm:text-left">
-                    <h1 className="text-2xl font-semibold text-gray-900">
+        <Card className="border-none bg-inherit">
+            <div className="px-6 py-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
+                <CardHeader className="text-center sm:text-left flex-1">
+                    <CardTitle className="text-2xl font-semibold">
                         Employee Management
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
+                    </CardTitle>
+                    <CardDescription className=" mt-1">
                         Manage employee accounts and permissions
-                    </p>
-                </div>
+                    </CardDescription>
+                </CardHeader>
                 <Dialog
                     open={isInviteDialogOpen}
                     onOpenChange={setIsInviteDialogOpen}
@@ -593,6 +599,6 @@ export default function Employees() {
                     onConfirm={handleConfirm}
                 />
             </AlertDialog>
-        </div>
+        </Card>
     );
 }

@@ -48,6 +48,7 @@ export const SearchBar = () => {
             {
                 input,
                 types: ["geocode"],
+                componentRestrictions: { country: "us" },
             },
             (predictions) => {
                 if (predictions) setSuggestions(predictions);
