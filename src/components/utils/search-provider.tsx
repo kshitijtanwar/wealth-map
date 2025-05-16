@@ -2,17 +2,53 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { type OwnerFilters, type PropertyFilters, type SearchContextType, type SearchFilter } from "@/types";
 import { owners, properties } from "../../../dummyData";
-
-
+import { useSearchParams} from "react-router-dom";
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>({});
-    const [ownerFilters, setOwnerFilters] = useState<OwnerFilters>({});
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    // Initialize state from URL parameters
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
+    const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>(() => {
+        try {
+            const filters = searchParams.get('propertyFilters');
+            return filters ? JSON.parse(decodeURIComponent(filters)) : {};
+        } catch {
+            return {};
+        }
+    });
+    const [ownerFilters, setOwnerFilters] = useState<OwnerFilters>(() => {
+        try {
+            const filters = searchParams.get('ownerFilters');
+            return filters ? JSON.parse(decodeURIComponent(filters)) : {};
+        } catch {
+            return {};
+        }
+    });
+    
     const [savedFilters, setSavedFilters] = useState<SearchFilter[]>([]);
     const [suggestions, setSuggestions] = useState<string[]>([]);
+
+    // Update URL when search state changes
+    useEffect(() => {
+        const params = new URLSearchParams();
+        
+        if (searchQuery) {
+            params.set('q', searchQuery);
+        }
+        
+        if (Object.keys(propertyFilters).length > 0) {
+            params.set('propertyFilters', encodeURIComponent(JSON.stringify(propertyFilters)));
+        }
+        
+        if (Object.keys(ownerFilters).length > 0) {
+            params.set('ownerFilters', encodeURIComponent(JSON.stringify(ownerFilters)));
+        }
+        
+        setSearchParams(params, { replace: true });
+    }, [searchQuery, propertyFilters, ownerFilters, setSearchParams]);
 
     // Generate suggestions based on current query
     useEffect(() => {
