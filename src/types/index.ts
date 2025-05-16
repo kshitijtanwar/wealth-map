@@ -41,7 +41,6 @@ export interface ButtonProps extends React.ComponentProps<"button"> {
 
 export interface SearchBarProps {
     placeholder?: string;
-    onSearch?: (value: string) => void;
     className?: string;
 }
 
@@ -134,6 +133,51 @@ export interface Invitation {
     permission_level: string;
     expires_at: string;
     is_used: boolean;
+}
+// Add to index.ts
+
+// Search Types
+export interface SearchFilter {
+    id: string;
+    name: string;
+    filters: PropertyFilters & OwnerFilters;
+}
+
+export interface PropertyFilters {
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    minValue?: number;
+    maxValue?: number;
+    minSize?: number;
+    maxSize?: number;
+}
+
+export interface OwnerFilters {
+    name?: string;
+    type?: "individual" | "entity";
+    minNetWorth?: number;
+    maxNetWorth?: number;
+    confidenceLevel?: ("low" | "medium" | "high")[];
+}
+
+export interface SearchContextType {
+    searchQuery: string;
+    propertyFilters: PropertyFilters;
+    ownerFilters: OwnerFilters;
+    savedFilters: SearchFilter[];
+    suggestions: string[];
+    setSearchQuery: (query: string) => void;
+    setPropertyFilters: (filters: PropertyFilters) => void;
+    setOwnerFilters: (filters: OwnerFilters) => void;
+    saveFilter: (name: string) => void;
+    loadFilter: (filterId: string) => void;
+    deleteFilter: (filterId: string) => void;
+}
+
+export interface SearchProviderProps {
+    children: ReactNode;
 }
 
 
