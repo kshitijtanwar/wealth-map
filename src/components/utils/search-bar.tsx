@@ -91,10 +91,10 @@ export const SearchBar = () => {
     return (
         <div
             ref={containerRef}
-            className="relative w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-lg p-1 z-[15]"
+            className="relative w-full max-w-sm backdrop-blur-sm rounded-lg p-1 z-[15]"
         >
-            <div className="flex items-center w-full border rounded-md">
-                <Search className="absolute left-3 text-gray-400 h-4 w-4" />
+            <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none z-10" />
                 <Input
                     ref={inputRef}
                     type="text"
@@ -102,16 +102,16 @@ export const SearchBar = () => {
                     onChange={handleInput}
                     onFocus={() => setIsFocused(true)}
                     onClick={() => setIsFocused(true)}
-                    className="w-full pl-9 pr-4 py-2 border-hidden"
+                    className="w-full pl-9 pr-4 py-2"
                 />
             </div>
 
             {suggestions.length > 0 && isFocused && (
-                <ul className="absolute z-[10] mt-1 w-full bg-white border border-gray-100 rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
+                <ul className="absolute z-[10] mt-1 w-full bg-white dark:bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
                     {suggestions.map((s) => (
                         <li
                             key={s.place_id}
-                            className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="px-4 py-2 hover:text-primary cursor-pointer transition-colors"
                             onClick={() =>
                                 handleSelect(s.place_id, s.description)
                             }
@@ -129,4 +129,3 @@ export const SearchBar = () => {
         </div>
     );
 };
-

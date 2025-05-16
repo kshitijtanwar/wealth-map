@@ -234,7 +234,7 @@ export const authAPI = {
             }
 
             // Send invitation email
-            const invitationLink = `${window.location.origin}/accept-invitation?token=${token}`;
+            const invitationLink = `https://wealth-map-1.onrender.com//accept-invitation?token=${token}`;
             console.log("Sending invitation email with link:", invitationLink);
 
             const emailResponse = await sendInvitationEmail({

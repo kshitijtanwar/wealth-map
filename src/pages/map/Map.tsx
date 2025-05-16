@@ -75,7 +75,6 @@ const Map: React.FC = () => {
             <section className="h-full w-full p-2 pt-0">
                 <div
                     className="border rounded-md overflow-hidden w-full h-full"
-                    style={{ position: "relative" }}
                 >
                     <GoogleMap
                         mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
