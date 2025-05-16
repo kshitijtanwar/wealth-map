@@ -15,7 +15,7 @@ import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
 import { PropertyFilter } from "../utils/property-filter";
 import { SearchResults } from "../utils/search-results";
-
+import { SearchFilter } from "../utils/SearchFilter";
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
@@ -23,6 +23,7 @@ const pageTitles: Record<string, string> = {
     "/property-detail": "Property Detail",
     "/reports": "Reports",
     "/settings": "Settings",
+    "/search": "Search",    
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -76,11 +77,15 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             />
                             <div className="flex justify-between w-full items-center gap-6">
                                 <span>{pageTitle}</span>
-                                <SearchBar />
-                                <PropertyFilter />
+                                {location.pathname !== '/map' && (
+                                    <>
+                                        <SearchFilter />
+                                        <PropertyFilter />
+                                    </>
+                                )}
                             </div>
                         </header>
-                        <SearchResults />
+                        {/* <SearchResults /> */}
                         {shouldShowAccessDenied ? <AccessDenied /> : children}
                     </SidebarInset>
                 </SidebarProvider>
