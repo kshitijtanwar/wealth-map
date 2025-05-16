@@ -5,7 +5,6 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { SearchBar } from "../utils/search-bar";
 import { SearchProvider } from "../utils/search-provider";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
@@ -14,7 +13,6 @@ import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
 import { PropertyFilter } from "../utils/property-filter";
-import { SearchResults } from "../utils/search-results";
 import { SearchFilter } from "../utils/SearchFilter";
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",

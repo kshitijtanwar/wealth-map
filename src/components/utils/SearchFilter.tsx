@@ -2,25 +2,45 @@
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type SearchBarProps } from "@/types";
 import { useSearch } from "./search-provider";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 export function SearchFilter({ placeholder = "Search...", className }: SearchBarProps) {
-    const [query, setQuery] = useState("");
     const { setSearchQuery, suggestions } = useSearch();
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [query, setQuery] = useState(searchParams.get('q') || "");
     const [showSuggestions, setShowSuggestions] = useState(false);
+
+    // Update local query state when URL parameter changes
+    // useEffect(() => {
+    //     const urlQuery = searchParams.get('q') || "";
+    //     setQuery(urlQuery);
+    // }, [searchParams]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setSearchQuery(query);
         setShowSuggestions(false);
+        
+        if (location.pathname !== '/search') {
+            navigate(`/search?q=${encodeURIComponent(query)}`);
+        }
     };
 
     const handleSuggestionClick = (suggestion: string) => {
         setQuery(suggestion);
         setSearchQuery(suggestion);
         setShowSuggestions(false);
+        
+        if (location.pathname !== '/search') {
+            console.log("suggestion", suggestion);
+            console.log("navigating to search");
+            navigate(`/search?q=${encodeURIComponent(suggestion)}`);
+        }
     };
 
     return (
@@ -36,8 +56,9 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
                         placeholder={placeholder}
                         value={query}
                         onChange={(e) => {
-                            setQuery(e.target.value);
-                            setSearchQuery(e.target.value);
+                            const newQuery = e.target.value;
+                            setQuery(newQuery);
+                            setSearchQuery(newQuery);
                         }}
                         onFocus={() => setShowSuggestions(true)}
                         className="w-full pl-9 pr-12"
@@ -59,17 +80,17 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
 
             {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
-                    <ul className="max-h-60 overflow-auto py-1">
+                    <div className="max-h-60 overflow-auto py-1">
                         {suggestions.map((suggestion, index) => (
-                            <li
+                            <button
                                 key={index}
                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100"
                                 onClick={() => handleSuggestionClick(suggestion)}
                             >
                                 {suggestion}
-                            </li>
+                            </button>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
         </div>
