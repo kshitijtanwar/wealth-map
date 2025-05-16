@@ -15,7 +15,7 @@ import AccessDenied from "../AccessDenied";
 import { PropertyFilter } from "../utils/property-filter";
 import { SearchFilter } from "../utils/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import { BellRing } from "lucide-react";
+import { SearchBar } from "../utils/search-bar";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -24,7 +24,7 @@ const pageTitles: Record<string, string> = {
     "/property-detail": "Property Detail",
     "/reports": "Reports",
     "/settings": "Settings",
-    "/search": "Search",    
+    "/search": "Search",
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -59,48 +59,52 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         !hasActiveCompany && location.pathname === "/map";
 
     return (
-            <SearchProvider>
-        <APIProvider
-            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-            libraries={["places"]}
-        >
-            <AlertDialog>
-                <SidebarProvider
-                    style={
-                        {
-                            "--sidebar-width": "19rem",
-                        } as React.CSSProperties
-                    }
-                    className="p-1"
-                >
-                    <AppSidebar />
-                    <SidebarInset>
-                        <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
-                            <SidebarTrigger className="-ml-1" />
-                            <Separator
-                                orientation="vertical"
-                                className="mr-2 !h-8"
-                            />
-                            <div className="flex justify-between w-full items-center gap-6">
-                                <span>{pageTitle}</span>
-                                {location.pathname !== '/map' && (
-                                    <>
-                                        <SearchFilter />
-                                        <PropertyFilter />
-                                    </>
-                                )}
-                            {location.pathname == "/map" && <SearchBar />}
-                            </div>
-                        </header>
-                        {/* <SearchResults /> */}
-                        {shouldShowAccessDenied ? <AccessDenied /> : children}
-                    </SidebarInset>
-                </SidebarProvider>
-        </AlertDialog>
-        </APIProvider>
-            </SearchProvider>
-        
-        
+        <SearchProvider>
+            <APIProvider
+                apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                libraries={["places"]}
+            >
+                <AlertDialog>
+                    <SidebarProvider
+                        style={
+                            {
+                                "--sidebar-width": "19rem",
+                            } as React.CSSProperties
+                        }
+                        className="p-1"
+                    >
+                        <AppSidebar />
+                        <SidebarInset>
+                            <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
+                                <SidebarTrigger className="-ml-1" />
+                                <Separator
+                                    orientation="vertical"
+                                    className="mr-2 !h-8"
+                                />
+                                <div className="flex justify-between w-full items-center gap-6">
+                                    <span>{pageTitle}</span>
+                                    {location.pathname !== "/map" && (
+                                        <>
+                                            <SearchFilter />
+                                            <PropertyFilter />
+                                        </>
+                                    )}
+                                    {location.pathname == "/map" && (
+                                        <SearchBar />
+                                    )}
+                                </div>
+                            </header>
+                            {/* <SearchResults /> */}
+                            {shouldShowAccessDenied ? (
+                                <AccessDenied />
+                            ) : (
+                                children
+                            )}
+                        </SidebarInset>
+                    </SidebarProvider>
+                </AlertDialog>
+            </APIProvider>
+        </SearchProvider>
     );
 };
 

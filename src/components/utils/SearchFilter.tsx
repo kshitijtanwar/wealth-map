@@ -2,17 +2,20 @@
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { type SearchBarProps } from "@/types";
 import { useSearch } from "./search-provider";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
-export function SearchFilter({ placeholder = "Search...", className }: SearchBarProps) {
+export function SearchFilter({
+    placeholder = "Search...",
+    className,
+}: SearchBarProps) {
     const { setSearchQuery, suggestions } = useSearch();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const [query, setQuery] = useState(searchParams.get('q') || "");
+    const [query, setQuery] = useState(searchParams.get("q") || "");
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Update local query state when URL parameter changes
@@ -25,8 +28,8 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         e.preventDefault();
         setSearchQuery(query);
         setShowSuggestions(false);
-        
-        if (location.pathname !== '/search') {
+
+        if (location.pathname !== "/search") {
             navigate(`/search?q=${encodeURIComponent(query)}`);
         }
     };
@@ -35,8 +38,8 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         setQuery(suggestion);
         setSearchQuery(suggestion);
         setShowSuggestions(false);
-        
-        if (location.pathname !== '/search') {
+
+        if (location.pathname !== "/search") {
             console.log("suggestion", suggestion);
             console.log("navigating to search");
             navigate(`/search?q=${encodeURIComponent(suggestion)}`);
@@ -85,7 +88,9 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
                             <button
                                 key={index}
                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                                onClick={() => handleSuggestionClick(suggestion)}
+                                onClick={() =>
+                                    handleSuggestionClick(suggestion)
+                                }
                             >
                                 {suggestion}
                             </button>
