@@ -1,4 +1,4 @@
-import type { Property, Owner } from "@/types";
+import type { Property, Owner, Report } from "@/types";
 
 // Step 1: Define owners without properties first
 export const owners: Owner[] = [
@@ -276,3 +276,27 @@ owners[2].properties = [
 
 // Export a default owner for mockOwner if needed
 export const mockOwner = owners[0];
+
+export const mockReports: Report[] = [
+    {
+        id: "1",
+        title: "Q1 2024 Financial Analysis",
+        createdBy: "John Doe",
+        createdAt: "2024-03-15",
+        status: "Completed",
+    },
+    {
+        id: "2",
+        title: "Market Research Report",
+        createdBy: "Jane Smith",
+        createdAt: "2024-03-10",
+        status: "Draft",
+    },
+    {
+        id: "3",
+        title: "Annual Performance Review",
+        createdBy: "Robert Johnson",
+        createdAt: "2024-02-28",
+        status: "Draft",
+    },
+];
