@@ -78,7 +78,7 @@ export interface Property {
     value: number;
     size: number;
     images?: string[];
-    owner: Owner; 
+    owner: Owner;
 }
 
 export interface Owner {
@@ -93,7 +93,7 @@ export interface Owner {
         cash: number;
         other: number;
     };
-    properties: Property[]; 
+    properties: Property[];
     lastUpdated: string;
 }
 
@@ -102,10 +102,10 @@ export interface Report {
     title: string;
     createdBy: string; // user ID
     createdAt: string;
-    properties: string[]; // property IDs
-    owners: string[]; // owner IDs
-    notes: string;
-    status: "draft" | "completed";
+    properties?: string[]; // property IDs
+    owners?: string[]; // owner IDs
+    notes?: string;
+    status: "Draft" | "Completed";
 }
 
 export interface OnboardingInfo {
@@ -179,7 +179,6 @@ export interface SearchContextType {
 export interface SearchProviderProps {
     children: ReactNode;
 }
-
 
 // Loading state reducer types
 export type LoadingAction =
