@@ -6,12 +6,15 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { SearchBar } from "../utils/search-bar";
+import { SearchProvider } from "../utils/search-provider";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
+import { PropertyFilter } from "../utils/property-filter";
+import { SearchResults } from "../utils/search-results";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -54,30 +57,34 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     return (
         <AlertDialog>
-            <SidebarProvider
-                style={
-                    {
-                        "--sidebar-width": "19rem",
-                    } as React.CSSProperties
-                }
-                className="p-1"
-            >
-                <AppSidebar />
-                <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 !h-8"
-                        />
-                        <div className="flex justify-between w-full items-center gap-6">
-                            <span>{pageTitle}</span>
-                            <SearchBar />
-                        </div>
-                    </header>
-                    {shouldShowAccessDenied ? <AccessDenied /> : children}
-                </SidebarInset>
-            </SidebarProvider>
+            <SearchProvider>
+                <SidebarProvider
+                    style={
+                        {
+                            "--sidebar-width": "19rem",
+                        } as React.CSSProperties
+                    }
+                    className="p-1"
+                >
+                    <AppSidebar />
+                    <SidebarInset>
+                        <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator
+                                orientation="vertical"
+                                className="mr-2 !h-8"
+                            />
+                            <div className="flex justify-between w-full items-center gap-6">
+                                <span>{pageTitle}</span>
+                                <SearchBar />
+                                <PropertyFilter />
+                            </div>
+                        </header>
+                        <SearchResults />
+                        {shouldShowAccessDenied ? <AccessDenied /> : children}
+                    </SidebarInset>
+                </SidebarProvider>
+            </SearchProvider>
         </AlertDialog>
     );
 };
