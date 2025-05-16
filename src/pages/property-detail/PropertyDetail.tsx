@@ -40,7 +40,8 @@ const PropertyDetail: React.FC = () => {
                     <div className="space-y-1">
                         <CardTitle>{property.address}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
-                            <MapPin size={15} /> {property.city}, {property.state} {property.zipCode}
+                            <MapPin size={15} /> {property.city},{" "}
+                            {property.state} {property.zipCode}
                         </CardDescription>
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
@@ -79,7 +80,9 @@ const PropertyDetail: React.FC = () => {
                         />
                         <OwnerNetWorthCard
                             netWorth={owner?.estimatedNetWorth ?? 0}
-                            confidenceLevel={owner?.confidenceLevel ?? "unknown"}
+                            confidenceLevel={
+                                owner?.confidenceLevel ?? "unknown"
+                            }
                         />
                     </div>
 

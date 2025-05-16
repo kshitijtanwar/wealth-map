@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { BellRing } from "lucide-react";
+import { ModeToggle } from "../utils/mode-toggle";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -80,10 +81,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                             <div className="flex w-full items-center gap-6">
                                 <span className="flex-1">{pageTitle}</span>
-                                <BellRing
+                                {/* <BellRing
                                     size={20}
                                     className="hover:text-emerald-500 duration-200 cursor-pointer"
-                                />
+                                /> */}
+                                <ModeToggle />
                                 {location.pathname == "/map" && <SearchBar />}
                             </div>
                         </header>
