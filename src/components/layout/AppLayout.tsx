@@ -5,13 +5,15 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { SearchBar } from "../utils/search-bar";
+import { SearchProvider } from "../utils/search-provider";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../AccessDenied";
+import { PropertyFilter } from "../utils/property-filter";
+import { SearchFilter } from "../utils/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { BellRing } from "lucide-react";
 
@@ -22,6 +24,7 @@ const pageTitles: Record<string, string> = {
     "/property-detail": "Property Detail",
     "/reports": "Reports",
     "/settings": "Settings",
+    "/search": "Search",    
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -56,6 +59,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         !hasActiveCompany && location.pathname === "/map";
 
     return (
+            <SearchProvider>
         <APIProvider
             apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             libraries={["places"]}
@@ -77,21 +81,26 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 orientation="vertical"
                                 className="mr-2 !h-8"
                             />
-
-                            <div className="flex w-full items-center gap-6">
-                                <span className="flex-1">{pageTitle}</span>
-                                <BellRing
-                                    size={20}
-                                    className="hover:text-emerald-500 duration-200 cursor-pointer"
-                                />
-                                {location.pathname == "/map" && <SearchBar />}
+                            <div className="flex justify-between w-full items-center gap-6">
+                                <span>{pageTitle}</span>
+                                {location.pathname !== '/map' && (
+                                    <>
+                                        <SearchFilter />
+                                        <PropertyFilter />
+                                    </>
+                                )}
+                            {location.pathname == "/map" && <SearchBar />}
                             </div>
                         </header>
+                        {/* <SearchResults /> */}
                         {shouldShowAccessDenied ? <AccessDenied /> : children}
                     </SidebarInset>
                 </SidebarProvider>
-            </AlertDialog>
+        </AlertDialog>
         </APIProvider>
+            </SearchProvider>
+        
+        
     );
 };
 
