@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Eye } from "lucide-react";
+import { Card, CardHeader } from "@/components/ui/card";
 
 interface Report {
     id: string;
@@ -91,21 +92,19 @@ export default function Reports() {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border mx-4">
-            <div className="p-6 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
+        <Card className="border-none bg-inherit">
+            <CardHeader className="px-3 py-2 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
                 <div className="text-center sm:text-left">
-                    <h1 className="text-2xl font-semibold text-gray-900">
-                        Reports
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
+                    <h1 className="text-2xl font-semibold">Reports</h1>
+                    <p className="mt-1">
                         {isAdmin
                             ? "View and manage all company reports"
                             : "View your generated reports"}
                     </p>
                 </div>
-            </div>
+            </CardHeader>
 
-            <div className="p-6">
+            <div className="px-6">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -177,6 +176,6 @@ export default function Reports() {
                     </div>
                 )}
             </div>
-        </div>
+        </Card>
     );
 }

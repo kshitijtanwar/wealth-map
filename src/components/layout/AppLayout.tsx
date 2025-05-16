@@ -15,6 +15,7 @@ import AccessDenied from "../AccessDenied";
 import { PropertyFilter } from "../utils/property-filter";
 import { SearchFilter } from "../utils/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { ModeToggle } from "../utils/mode-toggle";
 import { SearchBar } from "../utils/search-bar";
 
 const pageTitles: Record<string, string> = {
