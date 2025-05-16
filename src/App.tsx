@@ -14,10 +14,12 @@ import PropertyDetail from "./pages/property-detail/PropertyDetail";
 import AcceptInvite from "./pages/auth/AcceptInvite";
 import PublicRoute from "./components/utils/PublicRoute";
 import LoadingScreen from "./components/utils/LoadingScreen";
+import SearchResult from "./pages/SearchResult";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Settings from "./pages/settings/Settings";
 import { ThemeProvider } from "./components/theme-provider";
+
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -61,6 +63,10 @@ const AppRoutes = () => {
                     element={<AppLayout children={<PropertyDetail />} />}
                 />
                 <Route
+                    path="/search"
+                    element={<AppLayout children={<SearchResult />} />}
+                />
+                  <Route
                     path="/settings"
                     element={<AppLayout children={<Settings />} />}
                 />
