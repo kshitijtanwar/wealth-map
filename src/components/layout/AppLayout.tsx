@@ -82,10 +82,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     orientation="vertical"
                                     className="mr-2 !h-8"
                                 />
-                                <div className="flex justify-between w-full items-center gap-6">
-                                    <span>{pageTitle}</span>
+                                <div className="flex w-full items-center gap-6">
+                                    <span className="flex-1">{pageTitle}</span>
                                     {location.pathname !== "/map" && (
                                         <>
+                                            <ModeToggle />
                                             <SearchFilter />
                                             <PropertyFilter />
                                         </>

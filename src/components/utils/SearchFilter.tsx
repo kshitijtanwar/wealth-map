@@ -1,11 +1,11 @@
 // search-bar.tsx
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { type SearchBarProps } from "@/types";
 import { useSearch } from "./search-provider";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function SearchFilter({
     placeholder = "Search...",
@@ -85,7 +85,7 @@ export function SearchFilter({
                 <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
                     <div className="max-h-60 overflow-auto py-1">
                         {suggestions.map((suggestion, index) => (
-                            <button
+                            <Button
                                 key={index}
                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100"
                                 onClick={() =>
@@ -93,7 +93,7 @@ export function SearchFilter({
                                 }
                             >
                                 {suggestion}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
