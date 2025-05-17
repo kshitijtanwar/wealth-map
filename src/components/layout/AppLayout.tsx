@@ -82,11 +82,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     orientation="vertical"
                                     className="mr-2 !h-8"
                                 />
-                                <div className="flex w-full items-center gap-6">
+                                <div className="flex w-full items-center gap-2">
                                     <span className="flex-1">{pageTitle}</span>
+                                    <ModeToggle />
                                     {location.pathname !== "/map" && (
                                         <>
-                                            <ModeToggle />
                                             <SearchFilter />
                                             {location.pathname === "/search" && (
                                                 <PropertyFilter />
@@ -98,7 +98,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     )}
                                 </div>
                             </header>
-                            {/* <SearchResults /> */}
                             {shouldShowAccessDenied ? (
                                 <AccessDenied />
                             ) : (
