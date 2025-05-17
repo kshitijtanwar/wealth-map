@@ -3,20 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { type SearchBarProps } from "@/types";
-import { useSearch } from "./search-provider";
+import { useSearch } from "../../context/search-provider";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
-export function SearchFilter({ placeholder = "Search...", className }: SearchBarProps) {
+export function SearchFilter({
+    placeholder = "Search...",
+    className,
+}: SearchBarProps) {
     const { setSearchQuery, suggestions } = useSearch();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const [query, setQuery] = useState(searchParams.get('q') || "");
+    const [query, setQuery] = useState(searchParams.get("q") || "");
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Update local query state when URL parameter changes
     useEffect(() => {
-        const urlQuery = searchParams.get('q') || "";
+        const urlQuery = searchParams.get("q") || "";
         setQuery(urlQuery);
         setSearchQuery(urlQuery); // Also update the search context
     }, [searchParams, setSearchQuery]);
@@ -25,14 +28,16 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         e.preventDefault();
         setSearchQuery(query);
         setShowSuggestions(false);
-        
-        if (location.pathname !== '/search') {
+
+        if (location.pathname !== "/search") {
             navigate(`/search?q=${encodeURIComponent(query)}`);
         } else {
             // Update the URL even on the search page
             const newParams = new URLSearchParams(searchParams);
-            newParams.set('q', query);
-            navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
+            newParams.set("q", query);
+            navigate(`${location.pathname}?${newParams.toString()}`, {
+                replace: true,
+            });
         }
     };
 
@@ -40,15 +45,17 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         setQuery(suggestion);
         setSearchQuery(suggestion);
         setShowSuggestions(false);
-        
+
         const newParams = new URLSearchParams(searchParams);
-        newParams.set('q', suggestion);
-        
-        if (location.pathname !== '/search') {
+        newParams.set("q", suggestion);
+
+        if (location.pathname !== "/search") {
             navigate(`/search?${newParams.toString()}`);
         } else {
             // Update the URL even on the search page
-            navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
+            navigate(`${location.pathname}?${newParams.toString()}`, {
+                replace: true,
+            });
         }
     };
 
@@ -62,23 +69,23 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
     // Hide suggestions when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (!(e.target as HTMLElement).closest('.search-container')) {
+            if (!(e.target as HTMLElement).closest(".search-container")) {
                 setShowSuggestions(false);
             }
         };
 
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
     return (
-        <div className="relative w-full max-w-sm search-container">
+        <div className="relative w-full max-w-sm backdrop-blur-sm rounded-lg p-1 z-[15]">
             <form
                 onSubmit={handleSubmit}
                 className={`relative flex w-full items-center ${className}`}
             >
                 <div className="relative w-full">
-                    <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none z-10" />
                     <Input
                         type="search"
                         placeholder={placeholder}
@@ -103,19 +110,17 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
             </form>
 
             {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
-                    <ul className="max-h-60 overflow-auto py-1">
-                        {suggestions.map((suggestion, index) => (
-                            <li
-                                key={index}
-                                className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                                onClick={() => handleSuggestionClick(suggestion)}
-                            >
-                                {suggestion}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                <ul className="absolute z-[10] mt-1 w-full bg-white dark:bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto text-sm">
+                    {suggestions.map((suggestion, index) => (
+                        <li
+                            key={index}
+                            className="px-4 py-2 hover:text-primary cursor-pointer transition-colors"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                            {suggestion}
+                        </li>
+                    ))}
+                </ul>
             )}
         </div>
     );

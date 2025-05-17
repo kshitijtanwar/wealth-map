@@ -1,4 +1,4 @@
-import { GalleryVerticalEnd } from "lucide-react";
+import { Map } from "lucide-react";
 import loginPlaceholder from "../../assets/login/login.png";
 import { Link } from "react-router-dom";
 import { LoginForm } from "@/components/auth/login-form";
@@ -14,7 +14,7 @@ export default function LoginPage() {
                         className="flex items-center gap-2 font-medium"
                     >
                         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                            <GalleryVerticalEnd className="size-4" />
+                            <Map className="size-4" />
                         </div>
                         Wealth Map
                     </Link>

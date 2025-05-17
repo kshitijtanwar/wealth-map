@@ -5,18 +5,17 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { SearchProvider } from "../utils/search-provider";
+import { SearchProvider } from "../../context/search-provider";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
-import AccessDenied from "../AccessDenied";
-import { PropertyFilter } from "../utils/property-filter";
-import { SearchFilter } from "../utils/SearchFilter";
+import AccessDenied from "../utils/AccessDenied";
+import { SearchFilter } from "../search/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { ModeToggle } from "../utils/mode-toggle";
-import { SearchBar } from "../utils/search-bar";
+import { SearchBar } from "../search/maps/search-bar";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -85,16 +84,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 <div className="flex w-full items-center gap-2">
                                     <span className="flex-1">{pageTitle}</span>
                                     <ModeToggle />
-                                    {location.pathname !== "/map" && (
-                                        <>
-                                            <SearchFilter />
-                                            {location.pathname === "/search" && (
-                                                <PropertyFilter />
-                                            )}
-                                        </>
-                                    )}
-                                    {location.pathname == "/map" && (
+                                    {location.pathname == "/map" ? (
                                         <SearchBar />
+                                    ) : (
+                                        <SearchFilter />
                                     )}
                                 </div>
                             </header>

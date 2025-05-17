@@ -1,51 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import image from "@/assets/landing/growth.png";
-import image3 from "@/assets/landing/reflecting.png";
-import image4 from "@/assets/landing/looking-ahead.png";
-
-interface FeatureProps {
-    title: string;
-    description: string;
-    image: string;
-}
-
-const features: FeatureProps[] = [
-    {
-        title: "Responsive Design",
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi nesciunt est nostrum omnis ab sapiente.",
-        image: image4,
-    },
-    {
-        title: "Intuitive user interface",
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi nesciunt est nostrum omnis ab sapiente.",
-        image: image3,
-    },
-    {
-        title: "AI-Powered insights",
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi nesciunt est nostrum omnis ab sapiente.",
-        image: image,
-    },
-];
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const featureList: string[] = [
     "Dark/Light theme",
-    "Reviews",
-    "Features",
-    "Pricing",
-    "Contact form",
-    "Our team",
+    "Interactive Google Maps",
+    "Employee Management",
+    "Email Onboarding",
+    "Detailed reports",
     "Responsive design",
-    "Newsletter",
     "Minimalist",
 ];
 
@@ -69,25 +31,22 @@ export const Features = () => {
                 ))}
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {features.map(({ title, description, image }: FeatureProps) => (
-                    <Card key={title}>
-                        <CardHeader>
-                            <CardTitle>{title}</CardTitle>
-                        </CardHeader>
-
-                        <CardContent>{description}</CardContent>
-
-                        <CardFooter>
-                            <img
-                                src={image}
-                                alt="About feature"
-                                className="w-[200px] lg:w-[300px] mx-auto"
-                            />
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-center">
+                        Introducing our latest and greatest interactive Map
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <video
+                        src="https://ik.imagekit.io/hidnllbxz/Sarthak_s%20video.mp4?updatedAt=1747514543316"
+                        autoPlay
+                        loop
+                        muted
+                        className="w-full h-full object-cover rounded-lg"
+                    ></video>
+                </CardContent>
+            </Card>
         </section>
     );
 };

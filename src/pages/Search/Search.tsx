@@ -1,8 +1,8 @@
 // Example page component
-import { SearchFilter } from "@/components/utils/SearchFilter";
-import { PropertyFilter } from "@/components/utils/property-filter";
-import { SearchResults } from "@/components/utils/search-results";
-import { SearchProvider } from "@/components/utils/search-provider";
+import { SearchFilter } from "@/components/search/SearchFilter";
+import { PropertyFilter } from "@/components/search/property-filter";
+import { SearchResults } from "@/components/search/search-results";
+import { SearchProvider } from "@/context/search-provider";
 
 export function SearchPage() {
     return (
