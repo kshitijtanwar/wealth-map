@@ -2,9 +2,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* * {
-    font-family: "Satoshi", sans-serif;
-} */
+* {
+    scroll-behavior: smooth;
+}
 
 @custom-variant dark (&:is(.dark *));
 

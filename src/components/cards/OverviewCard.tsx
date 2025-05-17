@@ -30,7 +30,7 @@ export function PropertyValueCard({
                             Property Value
                         </p>
                         <p className="text-2xl font-bold">
-                            ${value.toLocaleString()}
+                            ${value ? value.toLocaleString() : "1.23M"}
                         </p>
                     </div>
                     <div className="bg-blue-50 p-2 rounded-lg">
