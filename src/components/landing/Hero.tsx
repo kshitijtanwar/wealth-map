@@ -29,7 +29,7 @@ export const Hero = () => {
                 </p>
 
                 <Button className="w-full md:w-1/3 cursor-pointer">
-                    <Link to={session ? "/dashboard" : "/"}>
+                    <Link to={session ? "/dashboard" : "/login"}>
                         {session ? "Dashboard" : "Get Started"}
                     </Link>
                 </Button>
