@@ -147,22 +147,22 @@ export function LoginForm({ className, token, ...props }: LoginFormProps) {
                             </Button>
                         </div>
                     </form>
-                    <div className="bg-muted relative hidden md:block">
+                    <div className="relative hidden md:block">
                         <img
                             src="https://images.pexels.com/photos/7581000/pexels-photo-7581000.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                             alt="Image"
-                            className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                            className="absolute inset-0 h-full w-full object-cover"
                         />
                     </div>
                 </CardContent>
             </Card>
             <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
                 By clicking continue, you agree to our{" "}
-                <Link to="/terms-and-service" className="text-emerald-500">
+                <Link to="/terms-and-service" className="text-primary">
                     Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className="text-emerald-500">
+                <Link to="/privacy" className="text-primary">
                     Privacy Policy
                 </Link>
                 .

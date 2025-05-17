@@ -1,5 +1,5 @@
 import emailjs from "@emailjs/browser";
-
+import { toast } from "sonner";
 interface InvitationEmailParams {
     to_email: string;
     to_name: string;
@@ -48,6 +48,7 @@ export const sendInvitationEmail = async (params: InvitationEmailParams) => {
 
         return { success: true, response };
     } catch (error) {
+        toast.error("Failed to send invitation email");
         console.error("Failed to send invitation email:", error);
         return {
             success: false,
