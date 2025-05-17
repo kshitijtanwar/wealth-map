@@ -62,7 +62,7 @@ const teamList: TeamProps[] = [
     {
         imageUrl: "https://i.ibb.co/Qvd7ss0G/IMG-20240122-114248.jpg",
         name: "Mohd Sahil",
-        position: "Frontend/Backend Developer",
+        position: "Fullstack Developer",
         description:
             "Bridges frontend and backend with full-stack contributions, focusing on user authentication, data handling, and feature integration.",
         socialNetworks: [
@@ -176,10 +176,6 @@ export const Team = () => {
                     )
                 )}
             </div>
-            <p className="text-center mt-10 text-muted-foreground">
-                Special thanks to @vedant_nagar for helping out with product
-                demo videos.
-            </p>
         </section>
     );
 };
