@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import type { Property } from "@/types";
 import axios from "axios";
 
@@ -11,7 +10,6 @@ export const getMapData = async (): Promise<Property[]> => {
         return response.data;
     } catch (error) {
         console.error("Failed to fetch map data:", error);
-        toast.error("Failed to fetch map data.");
         throw error;
     }
 };
