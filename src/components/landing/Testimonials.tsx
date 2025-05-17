@@ -17,45 +17,45 @@ interface TestimonialProps {
 const testimonials: TestimonialProps[] = [
     {
         image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe",
-        comment: "This landing page is awesome!",
+        name: "Emily Carter",
+        userName: "@wealth_insights",
+        comment:
+            "Wealth Map gave us a competitive edge by making property data incredibly accessible and actionable.",
     },
     {
         image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe1",
+        name: "Michael Reynolds",
+        userName: "@realestate_pro",
         comment:
-            "Lorem ipsum dolor sit amet,empor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.",
-    },
-
-    {
-        image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe2",
-        comment:
-            "Lorem ipsum dolor sit amet,exercitation. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.",
+            "Finally, a platform that combines mapping with real wealth analytics. A game changer for my research work.",
     },
     {
         image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe3",
+        name: "David Liu",
+        userName: "@data_driven_dave",
         comment:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+            "The filtering and map clustering make it easy to narrow down exactly what I’m looking for. Great user experience!",
     },
     {
         image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe4",
+        name: "Samantha Green",
+        userName: "@techsavvy_sam",
         comment:
-            "Lorem ipsum dolor sit amet, tempor incididunt  aliqua. Ut enim ad minim veniam, quis nostrud.",
+            "Love the clean interface and responsiveness. Wealth Map works seamlessly on all my devices, even in dark mode!",
     },
     {
         image: "https://github.com/shadcn.png",
-        name: "John Doe React",
-        userName: "@john_Doe5",
+        name: "Jason Patel",
+        userName: "@investor_insight",
         comment:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Being able to export detailed reports and track ownership history helps me make smarter investment choices.",
+    },
+    {
+        image: "https://github.com/shadcn.png",
+        name: "Natalie Brooks",
+        userName: "@onboard_easy",
+        comment:
+            "The onboarding was smooth and quick. We got our whole team set up in no time with full access control.",
     },
 ];
 
@@ -68,12 +68,14 @@ export const Testimonials = () => {
                     {" "}
                     People Love{" "}
                 </span>
-                This Landing Page
+                Wealth Map
             </h2>
 
             <p className="text-xl text-muted-foreground pt-4 pb-8">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Non
-                unde error facere hic reiciendis illo
+                Thousands of professionals trust Wealth Map to simplify property
+                research, analyze ownership wealth, and streamline
+                decision-making. From real estate analysts to corporate teams,
+                users love how fast, intuitive, and insightful the platform is.
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 sm:block columns-2  lg:columns-3 lg:gap-6 mx-auto space-y-4 lg:space-y-6">
