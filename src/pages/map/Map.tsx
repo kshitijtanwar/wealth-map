@@ -3,12 +3,12 @@ import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
-import { properties } from "@/../dummyData";
 import type { Property } from "@/types";
 import { useTheme } from "@/components/theme-provider";
 import { Markers } from "./Markers";
+import { useMapData } from "@/hooks/useMapData";
 
-const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
+const DEFAULT_CENTER = { lat: 34.109166, lng: -118.431669 }; 
 
 const Map: React.FC = () => {
     const { theme } = useTheme();
@@ -17,6 +17,8 @@ const Map: React.FC = () => {
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(
         null
     );
+
+    const { data: properties } = useMapData();
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
