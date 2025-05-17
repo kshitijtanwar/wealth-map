@@ -12,7 +12,10 @@ export function SearchResults() {
         const matchesQuery = 
             !searchQuery ||
             property.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            property.owner.name.toLowerCase().includes(searchQuery.toLowerCase());
+            property.owner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            property.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            property.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            property.zipCode.toLowerCase().includes(searchQuery.toLowerCase());
 
         // Property filters
         const matchesPropertyFilters = 
