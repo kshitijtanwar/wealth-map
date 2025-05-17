@@ -8,8 +8,11 @@ import { useTheme } from "@/components/theme-provider";
 import { Markers } from "./Markers";
 import { useQuery } from "@tanstack/react-query";
 import { getMapData } from "@/services/mapServices";
-
-const DEFAULT_CENTER = { lat: 34.109166, lng: -118.431669 };
+import {
+    type MapCameraChangedEvent,
+    type MapCameraProps,
+} from "@vis.gl/react-google-maps";
+import { getInitialCameraProps } from "@/utils/mapStorage";
 
 const Map: React.FC = () => {
     const { theme } = useTheme();
@@ -18,11 +21,22 @@ const Map: React.FC = () => {
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(
         null
     );
+
     const { data: properties } = useQuery({
         queryKey: ["mapData"],
         queryFn: getMapData,
         staleTime: 1000 * 60,
     });
+
+    const [cameraProps, setCameraProps] = useState<MapCameraProps>(
+        getInitialCameraProps()
+    );
+
+    const handleCameraChange = (ev: MapCameraChangedEvent) => {
+        const newCameraProps = ev.detail;
+        setCameraProps(newCameraProps);
+        localStorage.setItem("mapCameraProps", JSON.stringify(newCameraProps));
+    };
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -30,11 +44,10 @@ const Map: React.FC = () => {
                 <div className="border rounded-md overflow-hidden w-full h-full">
                     <GoogleMap
                         mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
-                        defaultCenter={
-                            properties?.[0]?.coordinates || DEFAULT_CENTER
-                        }
-                        defaultZoom={13}
+                        defaultCenter={cameraProps.center}
+                        defaultZoom={cameraProps.zoom}
                         colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
+                        onCameraChanged={handleCameraChange}
                     >
                         <Markers
                             points={properties ?? []}
