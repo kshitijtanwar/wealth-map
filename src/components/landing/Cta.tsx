@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 
 export const Cta = () => {
     return (
-        <section id="cta" className="bg-muted/50 py-16 my-24 sm:my-32">
-            <div className="container lg:grid lg:grid-cols-2 place-items-center">
+        <section id="cta" className="bg-muted/50 py-16 my-24 sm:my-32 px-4">
+            <div className="container flex flex-col md:flex-row items-center justify-between gap-8 max-w-7xl mx-auto">
                 <div className="lg:col-start-1">
                     <h2 className="text-3xl md:text-4xl font-bold ">
                         All Your
@@ -20,7 +20,7 @@ export const Cta = () => {
                     </p>
                 </div>
 
-                <div className="space-y-4 lg:col-start-2">
+                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                     <Button className="w-full md:mr-4 md:w-auto">
                         Request a Demo
                     </Button>
