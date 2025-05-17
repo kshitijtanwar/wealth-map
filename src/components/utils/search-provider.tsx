@@ -2,13 +2,13 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { type OwnerFilters, type PropertyFilters, type SearchContextType, type SearchFilter } from "@/types";
 import { owners, properties } from "../../../dummyData";
-import { useSearchParams} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     // Initialize state from URL parameters
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
     const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>(() => {
@@ -27,28 +27,37 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             return {};
         }
     });
-    
+
     const [savedFilters, setSavedFilters] = useState<SearchFilter[]>([]);
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
     // Update URL when search state changes
     useEffect(() => {
-        const params = new URLSearchParams();
-        
+        const currentQuery = searchParams.get('q') || "";
+        const currentPropertyFilters = searchParams.get('propertyFilters');
+        const currentOwnerFilters = searchParams.get('ownerFilters');
+
+        const newParams = new URLSearchParams();
+
         if (searchQuery) {
-            params.set('q', searchQuery);
+            newParams.set('q', searchQuery);
         }
-        
+
         if (Object.keys(propertyFilters).length > 0) {
-            params.set('propertyFilters', encodeURIComponent(JSON.stringify(propertyFilters)));
+            newParams.set('propertyFilters', encodeURIComponent(JSON.stringify(propertyFilters)));
         }
-        
+
         if (Object.keys(ownerFilters).length > 0) {
-            params.set('ownerFilters', encodeURIComponent(JSON.stringify(ownerFilters)));
+            newParams.set('ownerFilters', encodeURIComponent(JSON.stringify(ownerFilters)));
         }
-        
-        setSearchParams(params, { replace: true });
-    }, [searchQuery, propertyFilters, ownerFilters, setSearchParams]);
+
+        // Only update if something actually changed
+        if (currentQuery !== searchQuery ||
+            currentPropertyFilters !== (Object.keys(propertyFilters).length > 0 ? encodeURIComponent(JSON.stringify(propertyFilters)) : null) ||
+            currentOwnerFilters !== (Object.keys(ownerFilters).length > 0 ? encodeURIComponent(JSON.stringify(ownerFilters)) : null)) {
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchQuery, propertyFilters, ownerFilters, searchParams, setSearchParams]);
 
     // Generate suggestions based on current query
     useEffect(() => {
@@ -61,10 +70,10 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 ...propertyAddresses,
                 ...ownerNames,
                 ...cities
-            ].filter(item => 
+            ].filter(item =>
                 item.toLowerCase().includes(searchQuery.toLowerCase())
             ).slice(0, 10);
-            
+
             setSuggestions(allSuggestions);
         } else {
             setSuggestions([]);
@@ -78,7 +87,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             name,
             filters: { ...propertyFilters, ...ownerFilters }
         };
-        
+
         setSavedFilters(prev => {
             const updated = [...prev, newFilter];
             localStorage.setItem('savedFilters', JSON.stringify(updated));

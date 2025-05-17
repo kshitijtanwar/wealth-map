@@ -1,35 +1,31 @@
-// search-bar.tsx
 import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type SearchBarProps } from "@/types";
 import { useSearch } from "./search-provider";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
-export function SearchFilter({
-    placeholder = "Search...",
-    className,
-}: SearchBarProps) {
+export function SearchFilter({ placeholder = "Search...", className }: SearchBarProps) {
     const { setSearchQuery, suggestions } = useSearch();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const [query, setQuery] = useState(searchParams.get("q") || "");
+    const [query, setQuery] = useState(searchParams.get('q') || "");
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Update local query state when URL parameter changes
-    // useEffect(() => {
-    //     const urlQuery = searchParams.get('q') || "";
-    //     setQuery(urlQuery);
-    // }, [searchParams]);
+    useEffect(() => {
+        const urlQuery = searchParams.get('q') || "";
+        setQuery(urlQuery);
+    }, [searchParams]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setSearchQuery(query);
         setShowSuggestions(false);
-
-        if (location.pathname !== "/search") {
+        
+        if (location.pathname !== '/search') {
             navigate(`/search?q=${encodeURIComponent(query)}`);
         }
     };
@@ -38,8 +34,8 @@ export function SearchFilter({
         setQuery(suggestion);
         setSearchQuery(suggestion);
         setShowSuggestions(false);
-
-        if (location.pathname !== "/search") {
+        
+        if (location.pathname !== '/search') {
             console.log("suggestion", suggestion);
             console.log("navigating to search");
             navigate(`/search?q=${encodeURIComponent(suggestion)}`);
@@ -83,19 +79,17 @@ export function SearchFilter({
 
             {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
-                    <div className="max-h-60 overflow-auto py-1">
+                    <ul className="max-h-60 overflow-auto py-1">
                         {suggestions.map((suggestion, index) => (
-                            <Button
+                            <li
                                 key={index}
                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                                onClick={() =>
-                                    handleSuggestionClick(suggestion)
-                                }
+                                onClick={() => handleSuggestionClick(suggestion)}
                             >
                                 {suggestion}
-                            </Button>
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 </div>
             )}
         </div>
