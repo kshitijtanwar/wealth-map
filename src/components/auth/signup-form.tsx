@@ -15,7 +15,7 @@ import { authAPI } from "../../db/apiAuth";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FormError from "../utils/FormError";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import supabase from "@/db/supabase";
 
 interface FormValues {
@@ -432,9 +432,9 @@ export function SignUpForm({
 
             <div className="text-center text-sm">
                 Already have an account?{" "}
-                <a href="/" className="underline underline-offset-4">
+                <Link to="/login" className="underline underline-offset-4">
                     Sign in
-                </a>
+                </Link>
             </div>
         </form>
     );
