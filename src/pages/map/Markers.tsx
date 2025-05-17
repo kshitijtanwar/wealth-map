@@ -23,7 +23,7 @@ export const Markers: React.FC<MarkersProps> = ({
         markersRef.current.forEach((marker) => marker.setMap(null));
         markersRef.current = [];
 
-        const newMarkers = points.map((property) => {
+        const newMarkers = points?.map((property) => {
             const marker = new google.maps.Marker({
                 position: {
                     lat: property.coordinates.lat,
