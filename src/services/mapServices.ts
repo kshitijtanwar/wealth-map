@@ -1,8 +1,7 @@
 import type { Property } from "@/types";
 import axios from "axios";
 
-const BASE_URL =
-    import.meta.env.VITE_BACKEND_URL_PROD || import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = "https://wealthmap-backend.onrender.com/";
 
 export const getMapData = async (): Promise<Property[]> => {
     try {
