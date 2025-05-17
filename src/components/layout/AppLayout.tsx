@@ -88,7 +88,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     {location.pathname !== "/map" && (
                                         <>
                                             <SearchFilter />
-                                            <PropertyFilter />
+                                            {location.pathname === "/search" && (
+                                                <PropertyFilter />
+                                            )}
                                         </>
                                     )}
                                     {location.pathname == "/map" && (
