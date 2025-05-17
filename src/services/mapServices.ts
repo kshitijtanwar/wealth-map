@@ -1,8 +1,8 @@
-import { toast } from "sonner";
 import type { Property } from "@/types";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL =
+    import.meta.env.VITE_BACKEND_URL_PROD || import.meta.env.VITE_BACKEND_URL;
 
 export const getMapData = async (): Promise<Property[]> => {
     try {
@@ -10,7 +10,6 @@ export const getMapData = async (): Promise<Property[]> => {
         return response.data;
     } catch (error) {
         console.error("Failed to fetch map data:", error);
-        toast.error("Failed to fetch map data.");
         throw error;
     }
 };

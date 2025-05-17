@@ -16,27 +16,27 @@ interface FeatureProps {
 const features: FeatureProps[] = [
     {
         icon: <MedalIcon />,
-        title: "Accessibility",
+        title: "Access Control",
         description:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum quas provident cum",
+            "Manage employee access with role-based permissions, usage tracking, and company-wide data preferences.",
     },
     {
         icon: <MapIcon />,
-        title: "Community",
+        title: "Interactive Property Map",
         description:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum quas provident cum",
+            "Explore properties across the U.S. with dynamic filtering, clustering, and satellite view support.",
     },
     {
         icon: <PlaneIcon />,
-        title: "Scalability",
+        title: "Seamless Scalability",
         description:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum quas provident cum",
+            "From startups to enterprises, Wealth Map scales with your team's needs through robust APIs and performance optimization.",
     },
     {
         icon: <GiftIcon />,
-        title: "Gamification",
+        title: "Data-Driven Insights",
         description:
-            "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum quas provident cum",
+            "Unlock wealth estimates, ownership history, and financial breakdowns to support strategic decision-making.",
     },
 ];
 
@@ -54,8 +54,8 @@ export const HowItWorks = () => {
                 Step-by-Step Guide
             </h2>
             <p className="md:w-3/4 mx-auto mt-4 mb-8 text-xl text-muted-foreground">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                Veritatis dolor pariatur sit!
+                From signup to deep data insights, see how simple it is to get
+                started with Wealth Map and unlock powerful features.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
