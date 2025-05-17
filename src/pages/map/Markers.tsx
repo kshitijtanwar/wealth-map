@@ -20,10 +20,15 @@ export const Markers: React.FC<MarkersProps> = ({
 
     useEffect(() => {
         if (!map) return;
+
+        // Clear previous markers
         markersRef.current.forEach((marker) => marker.setMap(null));
         markersRef.current = [];
 
-        const newMarkers = points?.map((property) => {
+        // Ensure points is an array
+        const safePoints = Array.isArray(points) ? points : [];
+
+        const newMarkers = safePoints.map((property) => {
             const marker = new google.maps.Marker({
                 position: {
                     lat: property.coordinates.lat,
@@ -36,6 +41,7 @@ export const Markers: React.FC<MarkersProps> = ({
             });
             return marker;
         });
+
         markersRef.current = newMarkers;
 
         // Create or update clusterer
