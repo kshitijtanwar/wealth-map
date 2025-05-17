@@ -28,7 +28,7 @@ import { type Employee, type Invitation } from "@/types";
 import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
-import AccessDenied from "@/components/AccessDenied";
+import AccessDenied from "@/components/utils/AccessDenied";
 import {
     Card,
     CardDescription,

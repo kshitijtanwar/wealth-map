@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { debounce } from "lodash";
 import SearchMarker from "./SearchMarker";
-import { Input } from "../ui/input";
+import { Input } from "../../ui/input";
 import { Search } from "lucide-react";
 import type { RefObject } from "react";
 import { useOnClickOutside } from "@/hooks/use-on-click-outside";
@@ -94,7 +94,7 @@ export const SearchBar = () => {
             className="relative w-full max-w-sm backdrop-blur-sm rounded-lg p-1 z-[15]"
         >
             <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none z-10" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none z-10" />
                 <Input
                     ref={inputRef}
                     type="text"
