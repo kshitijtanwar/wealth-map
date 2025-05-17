@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 export const Hero = () => {
     const { session } = useAuth();
     return (
-        <section className="container grid lg:grid-cols-2 place-items-center py-20 md:py-16 gap-10">
+        <section className="container grid lg:grid-cols-2 place-items-center py-20 md:py- gap-10">
             <div className="text-center lg:text-start space-y-6">
                 <main className="text-5xl md:text-6xl font-bold">
                     <h1 className="inline">
@@ -28,11 +28,11 @@ export const Hero = () => {
                     intelligence.
                 </p>
 
-                <Button className="w-full md:w-1/3 cursor-pointer">
-                    <Link to={session ? "/dashboard" : "/login"}>
+                <Link to={session ? "/dashboard" : "/login"}>
+                    <Button className="w-full md:w-1/3 cursor-pointer">
                         {session ? "Dashboard" : "Get Started"}
-                    </Link>
-                </Button>
+                    </Button>
+                </Link>
             </div>
 
             {/* Hero cards sections */}

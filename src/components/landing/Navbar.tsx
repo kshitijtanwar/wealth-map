@@ -95,7 +95,7 @@ export const Navbar = () => {
                                         )
                                     )}
                                     <Link
-                                        to="/"
+                                        to={session ? "/dashboard" : "/login"}
                                         className={`w-[110px] border ${buttonVariants(
                                             {
                                                 variant: "secondary",
