@@ -84,17 +84,17 @@ export interface Property {
 export interface Owner {
     id: string;
     name: string;
-    type: "individual" | "entity";
+    type?: "individual" | "entity";
     estimatedNetWorth: number;
-    confidenceLevel: "low" | "medium" | "high";
+    confidenceLevel?: "low" | "medium" | "high";
     wealthComposition?: {
         realEstate: number;
         stocks: number;
         cash: number;
         other: number;
     };
-    properties: Property[];
-    lastUpdated: string;
+    properties?: Property[];
+    lastUpdated?: string;
 }
 
 export interface Report {

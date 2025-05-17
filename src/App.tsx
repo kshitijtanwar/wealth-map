@@ -19,7 +19,7 @@ import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Settings from "./pages/settings/Settings";
 import { ThemeProvider } from "./components/theme-provider";
-
+import Landing from "./pages/landing/LandingPage";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -33,7 +33,9 @@ const AppRoutes = () => {
             {/* Public routes */}
             <Route path="/accept-invitation" element={<AcceptInvite />} />
             <Route path="terms-and-service" element={<Terms />} />
-            <Route path="privacy" element={<Privacy />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/homepage" element={<Landing />} />
+
             {/*  Routes to navigate user if session exists */}
             <Route element={<PublicRoute />}>
                 <Route path="/" element={<LoginPage />} />
@@ -66,7 +68,7 @@ const AppRoutes = () => {
                     path="/search"
                     element={<AppLayout children={<SearchResult />} />}
                 />
-                  <Route
+                <Route
                     path="/settings"
                     element={<AppLayout children={<Settings />} />}
                 />
