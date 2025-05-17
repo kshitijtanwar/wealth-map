@@ -28,7 +28,49 @@ import { type Employee, type Invitation } from "@/types";
 import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
-import AccessDenied from "@/components/AccessDenied";
+import AccessDenied from "@/components/utils/AccessDenied";
+import {
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// TableRowSkeleton component for loading states
+const TableRowSkeleton = () => (
+    <TableRow>
+        <TableCell>
+            <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-5 w-28" />
+            </div>
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-5 w-40" />
+        </TableCell>
+        <TableCell>
+            <div className="flex items-center gap-1">
+                <Skeleton className="h-5 w-5 rounded-full" />
+                <Skeleton className="h-5 w-16" />
+            </div>
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-6 w-20 rounded-full" />
+        </TableCell>
+        <TableCell>
+            <Skeleton className="h-8 w-8 rounded-md" />
+        </TableCell>
+    </TableRow>
+);
 
 export default function Employees() {
     const { session } = useAuth();
@@ -313,16 +355,16 @@ export default function Employees() {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border mx-4">
-            <div className="p-6 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
-                <div className="text-center sm:text-left">
-                    <h1 className="text-2xl font-semibold text-gray-900">
+        <Card className="border-none bg-inherit shadow-none ">
+            <div className="px-6 py-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
+                <CardHeader className="text-center sm:text-left flex-1 p-0">
+                    <CardTitle className="text-2xl font-semibold">
                         Employee Management
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
+                    </CardTitle>
+                    <CardDescription className="mt-1">
                         Manage employee accounts and permissions
-                    </p>
-                </div>
+                    </CardDescription>
+                </CardHeader>
                 <Dialog
                     open={isInviteDialogOpen}
                     onOpenChange={setIsInviteDialogOpen}
@@ -332,7 +374,7 @@ export default function Employees() {
                             <Plus className="h-4 w-4" /> Invite Employee
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                         <DialogHeader>
                             <DialogTitle>Invite a new employee</DialogTitle>
                             <DialogDescription>
@@ -371,32 +413,44 @@ export default function Employees() {
                     </DialogContent>
                 </Dialog>
             </div>
-
-            <div className="overflow-x-auto">
-                {employees.length > 0 || invitations.length > 0 ? (
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b text-muted-foreground text-sm">
-                                <th className="text-left py-4 px-6 font-medium text-gray-500">
-                                    EMPLOYEE
-                                </th>
-                                <th className="text-left py-4 px-6 font-medium text-gray-500">
-                                    EMAIL
-                                </th>
-                                <th className="text-left py-4 px-6 font-medium text-gray-500">
-                                    ROLE
-                                </th>
-                                <th className="text-left py-4 px-6 font-medium text-gray-500">
-                                    STATUS
-                                </th>
-                                <th className="py-4 px-6"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {/* Active Employees */}
+            <div className="px-4">
+                {loadingState.fetchingEmployees ||
+                loadingState.fetchingInvitations ? (
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>EMPLOYEE</TableHead>
+                                <TableHead>EMAIL</TableHead>
+                                <TableHead>ROLE</TableHead>
+                                <TableHead>STATUS</TableHead>
+                                <TableHead></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Array(4)
+                                .fill(0)
+                                .map((_, index) => (
+                                    <TableRowSkeleton
+                                        key={`skeleton-${index}`}
+                                    />
+                                ))}
+                        </TableBody>
+                    </Table>
+                ) : employees.length > 0 || invitations.length > 0 ? (
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>EMPLOYEE</TableHead>
+                                <TableHead>EMAIL</TableHead>
+                                <TableHead>ROLE</TableHead>
+                                <TableHead>STATUS</TableHead>
+                                <TableHead></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {employees.map((employee) => (
-                                <tr key={employee.id} className="border-b">
-                                    <td className="py-4 px-6">
+                                <TableRow key={employee.id}>
+                                    <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
                                                 <AvatarImage
@@ -414,17 +468,13 @@ export default function Employees() {
                                                 {employee.name}
                                             </span>
                                         </div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        {employee.email}
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <div className="flex items-center gap-2">
-                                            <Shield className="h-5 w-5 text-indigo-500" />
-                                            {employee.role}
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-6">
+                                    </TableCell>
+                                    <TableCell>{employee.email}</TableCell>
+                                    <TableCell className="flex items-center gap-1">
+                                        <Shield className="h-5 w-5 text-indigo-500" />
+                                        {employee.role}
+                                    </TableCell>
+                                    <TableCell>
                                         <Badge
                                             variant="outline"
                                             className={`px-3 py-1 rounded-full ${
@@ -438,8 +488,8 @@ export default function Employees() {
                                         >
                                             {employee.status}
                                         </Badge>
-                                    </td>
-                                    <td className="py-4 px-6">
+                                    </TableCell>
+                                    <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button
@@ -487,14 +537,17 @@ export default function Employees() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ))}
 
                             {/* Pending Invitations */}
                             {invitations.map((invitation) => (
-                                <tr key={invitation.id} className="border-b">
-                                    <td className="py-4 px-6">
+                                <TableRow
+                                    key={invitation.id}
+                                    className="border-b"
+                                >
+                                    <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
                                                 <AvatarFallback>
@@ -507,25 +560,23 @@ export default function Employees() {
                                                 {invitation.email.split("@")[0]}
                                             </span>
                                         </div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        {invitation.email}
-                                    </td>
-                                    <td className="py-4 px-6">
+                                    </TableCell>
+                                    <TableCell>{invitation.email}</TableCell>
+                                    <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Shield className="h-5 w-5 text-indigo-500" />
                                             {invitation.permission_level}
                                         </div>
-                                    </td>
-                                    <td className="py-4 px-6">
+                                    </TableCell>
+                                    <TableCell>
                                         <Badge
                                             variant="outline"
                                             className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 border-yellow-200"
                                         >
                                             Pending
                                         </Badge>
-                                    </td>
-                                    <td className="py-4 px-6">
+                                    </TableCell>
+                                    <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button
@@ -554,11 +605,13 @@ export default function Employees() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
+
+                            {/* Loading Skeletons section removed */}
+                        </TableBody>
+                    </Table>
                 ) : (
                     <h1 className="text-center text-muted-foreground py-6">
                         No employees onboarded. Invite them to interact with
@@ -593,6 +646,6 @@ export default function Employees() {
                     onConfirm={handleConfirm}
                 />
             </AlertDialog>
-        </div>
+        </Card>
     );
 }

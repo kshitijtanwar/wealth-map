@@ -17,10 +17,13 @@ import LoadingScreen from "./components/utils/LoadingScreen";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Settings from "./pages/settings/Settings";
+import { ThemeProvider } from "./components/theme-provider";
+import Landing from "./pages/landing/LandingPage";
+import { SearchResults } from "./components/search/search-results";
+import { useIsMobile } from "./hooks/use-mobile";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
-
     if (loading) {
         return <LoadingScreen />;
     }
@@ -28,12 +31,14 @@ const AppRoutes = () => {
     return (
         <Routes>
             {/* Public routes */}
+            <Route path="/" element={<Landing />} />
             <Route path="/accept-invitation" element={<AcceptInvite />} />
             <Route path="terms-and-service" element={<Terms />} />
-            <Route path="privacy" element={<Privacy />} />
+            <Route path="/privacy" element={<Privacy />} />
+
             {/*  Routes to navigate user if session exists */}
             <Route element={<PublicRoute />}>
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUp />} />
             </Route>
             <Route path="/" element={<LoginPage />} />
@@ -60,6 +65,10 @@ const AppRoutes = () => {
                     element={<AppLayout children={<PropertyDetail />} />}
                 />
                 <Route
+                    path="/search"
+                    element={<AppLayout children={<SearchResults />} />}
+                />
+                <Route
                     path="/settings"
                     element={<AppLayout children={<Settings />} />}
                 />
@@ -69,13 +78,20 @@ const AppRoutes = () => {
 };
 
 const App = () => {
+    const isMobile = useIsMobile();
     return (
-        <AuthProvider>
-            <Toaster richColors closeButton />
-            <Router>
-                <AppRoutes />
-            </Router>
-        </AuthProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <AuthProvider>
+                <Toaster
+                    richColors
+                    closeButton
+                    position={isMobile ? "top-center" : "bottom-right"}
+                />
+                <Router>
+                    <AppRoutes />
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     );
 };
 

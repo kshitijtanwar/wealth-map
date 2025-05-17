@@ -41,7 +41,6 @@ export interface ButtonProps extends React.ComponentProps<"button"> {
 
 export interface SearchBarProps {
     placeholder?: string;
-    onSearch?: (value: string) => void;
     className?: string;
 }
 
@@ -79,23 +78,23 @@ export interface Property {
     value: number;
     size: number;
     images?: string[];
-    owner: Owner; 
+    owner: Owner;
 }
 
 export interface Owner {
     id: string;
     name: string;
-    type: "individual" | "entity";
+    type?: "individual" | "entity";
     estimatedNetWorth: number;
-    confidenceLevel: "low" | "medium" | "high";
+    confidenceLevel?: "low" | "medium" | "high";
     wealthComposition?: {
         realEstate: number;
         stocks: number;
         cash: number;
         other: number;
     };
-    properties: Property[]; 
-    lastUpdated: string;
+    properties?: Property[];
+    lastUpdated?: string;
 }
 
 export interface Report {
@@ -103,10 +102,10 @@ export interface Report {
     title: string;
     createdBy: string; // user ID
     createdAt: string;
-    properties: string[]; // property IDs
-    owners: string[]; // owner IDs
-    notes: string;
-    status: "draft" | "completed";
+    properties?: string[]; // property IDs
+    owners?: string[]; // owner IDs
+    notes?: string;
+    status: "Draft" | "Completed";
 }
 
 export interface OnboardingInfo {
@@ -135,7 +134,51 @@ export interface Invitation {
     expires_at: string;
     is_used: boolean;
 }
+// Add to index.ts
 
+// Search Types
+export interface SearchFilter {
+    id: string;
+    name: string;
+    filters: PropertyFilters & OwnerFilters;
+}
+
+export interface PropertyFilters {
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    minValue?: number;
+    maxValue?: number;
+    minSize?: number;
+    maxSize?: number;
+}
+
+export interface OwnerFilters {
+    name?: string;
+    type?: "individual" | "entity";
+    minNetWorth?: number;
+    maxNetWorth?: number;
+    confidenceLevel?: ("low" | "medium" | "high")[];
+}
+
+export interface SearchContextType {
+    searchQuery: string;
+    propertyFilters: PropertyFilters;
+    ownerFilters: OwnerFilters;
+    savedFilters: SearchFilter[];
+    suggestions: string[];
+    setSearchQuery: (query: string) => void;
+    setPropertyFilters: (filters: PropertyFilters) => void;
+    setOwnerFilters: (filters: OwnerFilters) => void;
+    saveFilter: (name: string) => void;
+    loadFilter: (filterId: string) => void;
+    deleteFilter: (filterId: string) => void;
+}
+
+export interface SearchProviderProps {
+    children: ReactNode;
+}
 
 // Loading state reducer types
 export type LoadingAction =

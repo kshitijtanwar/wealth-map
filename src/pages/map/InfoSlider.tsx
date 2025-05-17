@@ -2,29 +2,20 @@ import { Button } from "@/components/ui/button";
 import { SheetClose, SheetContent } from "@/components/ui/sheet";
 import { XCircle, Bookmark, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Property } from "@/types";
 
 export function InfoSlider({
     selectedProperty,
     onViewPropertyDetails,
 }: {
-    selectedProperty: {
-        address: string;
-        city: string;
-        state: string;
-        zipCode: string;
-        value: number;
-        size: number;
-        images?: string[];
-        owner: {
-            name: string;
-            type: string;
-            estimatedNetWorth: number;
-        };
-    };
+    selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
     return (
-        <SheetContent className="p-0 w-full sm:max-w-md overflow-y-auto">
+        <SheetContent
+            className="p-0 w-full sm:max-w-md overflow-y-auto"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+        >
             <div className="relative h-48 bg-gray-200">
                 {selectedProperty.images && selectedProperty.images[0] && (
                     <img
@@ -54,7 +45,10 @@ export function InfoSlider({
                     <div>
                         <p className="text-sm text-gray-500">Value</p>
                         <p className="text-lg font-medium">
-                            ${selectedProperty.value.toLocaleString()}
+                            $
+                            {selectedProperty.value
+                                ? selectedProperty.value?.toLocaleString()
+                                : "1.23M"}
                         </p>
                     </div>
                     <div>
@@ -75,13 +69,7 @@ export function InfoSlider({
                                         {selectedProperty.owner.name}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                        {selectedProperty.owner.type
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                            selectedProperty.owner.type.slice(
-                                                1
-                                            )}{" "}
-                                        Owner
+                                        Indivisual Owner
                                     </p>
                                 </div>
                                 <div className="text-right">
