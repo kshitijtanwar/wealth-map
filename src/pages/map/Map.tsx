@@ -24,8 +24,6 @@ const Map: React.FC = () => {
         staleTime: 1000 * 60,
     });
 
-    console.log(properties);
-
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <section className="h-full w-full p-2 pt-0">
