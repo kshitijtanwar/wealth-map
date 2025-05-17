@@ -31,14 +31,14 @@ const AppRoutes = () => {
     return (
         <Routes>
             {/* Public routes */}
+            <Route path="/" element={<Landing />} />
             <Route path="/accept-invitation" element={<AcceptInvite />} />
             <Route path="terms-and-service" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
-            <Route path="/homepage" element={<Landing />} />
 
             {/*  Routes to navigate user if session exists */}
             <Route element={<PublicRoute />}>
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUp />} />
             </Route>
             <Route path="/" element={<LoginPage />} />
