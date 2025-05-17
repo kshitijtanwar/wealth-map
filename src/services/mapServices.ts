@@ -1,8 +1,8 @@
-import axios from "axios";
 import { toast } from "sonner";
 import type { Property } from "@/types";
+import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const getMapData = async (): Promise<Property[]> => {
     try {
