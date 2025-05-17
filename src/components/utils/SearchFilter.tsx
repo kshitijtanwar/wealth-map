@@ -18,7 +18,8 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
     useEffect(() => {
         const urlQuery = searchParams.get('q') || "";
         setQuery(urlQuery);
-    }, [searchParams]);
+        setSearchQuery(urlQuery); // Also update the search context
+    }, [searchParams, setSearchQuery]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,6 +28,11 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         
         if (location.pathname !== '/search') {
             navigate(`/search?q=${encodeURIComponent(query)}`);
+        } else {
+            // Update the URL even on the search page
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('q', query);
+            navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
         }
     };
 
@@ -35,15 +41,38 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
         setSearchQuery(suggestion);
         setShowSuggestions(false);
         
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('q', suggestion);
+        
         if (location.pathname !== '/search') {
-            console.log("suggestion", suggestion);
-            console.log("navigating to search");
-            navigate(`/search?q=${encodeURIComponent(suggestion)}`);
+            navigate(`/search?${newParams.toString()}`);
+        } else {
+            // Update the URL even on the search page
+            navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
         }
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newQuery = e.target.value;
+        setQuery(newQuery);
+        setSearchQuery(newQuery);
+        setShowSuggestions(true);
+    };
+
+    // Hide suggestions when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (!(e.target as HTMLElement).closest('.search-container')) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     return (
-        <div className="relative w-full max-w-sm">
+        <div className="relative w-full max-w-sm search-container">
             <form
                 onSubmit={handleSubmit}
                 className={`relative flex w-full items-center ${className}`}
@@ -54,11 +83,7 @@ export function SearchFilter({ placeholder = "Search...", className }: SearchBar
                         type="search"
                         placeholder={placeholder}
                         value={query}
-                        onChange={(e) => {
-                            const newQuery = e.target.value;
-                            setQuery(newQuery);
-                            setSearchQuery(newQuery);
-                        }}
+                        onChange={handleInputChange}
                         onFocus={() => setShowSuggestions(true)}
                         className="w-full pl-9 pr-12"
                         aria-label="Search"
