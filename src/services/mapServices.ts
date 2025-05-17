@@ -1,7 +1,7 @@
 import type { Property } from "@/types";
 import axios from "axios";
 
-const BASE_URL = "https://wealthmap-backend.onrender.com/";
+const BASE_URL = "https://wealthmap-backend.onrender.com";
 
 export const getMapData = async (): Promise<Property[]> => {
     try {
