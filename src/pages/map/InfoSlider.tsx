@@ -48,7 +48,7 @@ export function InfoSlider({
                             $
                             {selectedProperty.value
                                 ? selectedProperty.value?.toLocaleString()
-                                : "1231241241"}
+                                : "1.23M"}
                         </p>
                     </div>
                     <div>

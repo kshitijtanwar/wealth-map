@@ -8,7 +8,7 @@ import { useTheme } from "@/components/theme-provider";
 import { Markers } from "./Markers";
 import { useMapData } from "@/hooks/useMapData";
 
-const DEFAULT_CENTER = { lat: 34.109166, lng: -118.431669 }; 
+const DEFAULT_CENTER = { lat: 34.109166, lng: -118.431669 };
 
 const Map: React.FC = () => {
     const { theme } = useTheme();

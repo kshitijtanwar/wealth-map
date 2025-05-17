@@ -59,7 +59,7 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
                     <div className="flex items-center">
                         <DollarSign size={16} className="text-gray-400 mr-2" />
                         <p className="text-sm">
-                            Owns {owner.properties.length} properties
+                            Owns {owner?.properties?.length || 1} properties
                         </p>
                     </div>
                 </div>
