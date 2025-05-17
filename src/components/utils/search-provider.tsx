@@ -2,12 +2,13 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { type OwnerFilters, type PropertyFilters, type SearchContextType, type SearchFilter } from "@/types";
 import { owners, properties } from "../../../dummyData";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
     const [searchParams, setSearchParams] = useSearchParams();
+    const location = useLocation();
 
     // Initialize state from URL parameters
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
@@ -31,41 +32,13 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [savedFilters, setSavedFilters] = useState<SearchFilter[]>([]);
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
-    // Update URL when search state changes
-    useEffect(() => {
-        const currentQuery = searchParams.get('q') || "";
-        const currentPropertyFilters = searchParams.get('propertyFilters');
-        const currentOwnerFilters = searchParams.get('ownerFilters');
-
-        const newParams = new URLSearchParams();
-
-        if (searchQuery) {
-            newParams.set('q', searchQuery);
-        }
-
-        if (Object.keys(propertyFilters).length > 0) {
-            newParams.set('propertyFilters', encodeURIComponent(JSON.stringify(propertyFilters)));
-        }
-
-        if (Object.keys(ownerFilters).length > 0) {
-            newParams.set('ownerFilters', encodeURIComponent(JSON.stringify(ownerFilters)));
-        }
-
-        // Only update if something actually changed
-        if (currentQuery !== searchQuery ||
-            currentPropertyFilters !== (Object.keys(propertyFilters).length > 0 ? encodeURIComponent(JSON.stringify(propertyFilters)) : null) ||
-            currentOwnerFilters !== (Object.keys(ownerFilters).length > 0 ? encodeURIComponent(JSON.stringify(ownerFilters)) : null)) {
-            setSearchParams(newParams, { replace: true });
-        }
-    }, [searchQuery, propertyFilters, ownerFilters, searchParams, setSearchParams]);
-
-    // Generate suggestions based on current query
+    // Update suggestions based on current query
     useEffect(() => {
         if (searchQuery.length > 1) {
             const propertyAddresses = properties.map(p => p.address);
             const ownerNames = owners.map(o => o.name);
             const cities = [...new Set(properties.map(p => p.city))];
-            console.log(cities);
+            
             const allSuggestions = [
                 ...propertyAddresses,
                 ...ownerNames,
@@ -79,6 +52,33 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             setSuggestions([]);
         }
     }, [searchQuery]);
+
+    // Update URL when search state changes
+    useEffect(() => {
+        if (location.pathname === '/search') {
+            const newParams = new URLSearchParams(searchParams);
+
+            if (searchQuery) {
+                newParams.set('q', searchQuery);
+            } else {
+                newParams.delete('q');
+            }
+
+            if (Object.keys(propertyFilters).length > 0) {
+                newParams.set('propertyFilters', encodeURIComponent(JSON.stringify(propertyFilters)));
+            } else {
+                newParams.delete('propertyFilters');
+            }
+
+            if (Object.keys(ownerFilters).length > 0) {
+                newParams.set('ownerFilters', encodeURIComponent(JSON.stringify(ownerFilters)));
+            } else {
+                newParams.delete('ownerFilters');
+            }
+
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchQuery, propertyFilters, ownerFilters, location.pathname, searchParams, setSearchParams]);
 
     // Save filter to localStorage
     const saveFilter = useCallback((name: string) => {
