@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { authAPI } from "../../db/apiAuth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { type FormValues } from "@/types";
 
 export function LoginForm({
@@ -100,9 +100,9 @@ export function LoginForm({
             </div>
             <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline underline-offset-4">
+                <Link to="/signup" className="underline underline-offset-4">
                     Sign up
-                </a>
+                </Link>
             </div>
         </form>
     );
