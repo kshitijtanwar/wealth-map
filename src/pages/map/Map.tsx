@@ -37,7 +37,7 @@ const Map: React.FC = () => {
                         colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
                     >
                         <Markers
-                            points={properties ?? []} // Markers rendered from fetched data
+                            points={properties ?? []}
                             setSelectedProperty={setSelectedProperty}
                             setSheetOpen={setSheetOpen}
                         />
