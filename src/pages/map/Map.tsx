@@ -6,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 import type { Property } from "@/types";
 import { useTheme } from "@/components/theme-provider";
 import { Markers } from "./Markers";
-import { useQuery } from "@tanstack/react-query";
-import { getMapData } from "@/services/mapServices";
+// import { useQuery } from "@tanstack/react-query";
+// import { getMapData } from "@/services/mapServices";
+import { properties } from "../../../dummyData";
 
 const DEFAULT_CENTER = { lat: 34.109166, lng: -118.431669 };
 
@@ -18,11 +19,11 @@ const Map: React.FC = () => {
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(
         null
     );
-    const { data: properties } = useQuery({
-        queryKey: ["mapData"],
-        queryFn: getMapData,
-        staleTime: 1000 * 60,
-    });
+    // const { data: properties } = useQuery({
+    //     queryKey: ["mapData"],
+    //     queryFn: getMapData,
+    //     staleTime: 1000 * 60,
+    // });
 
     return (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -37,7 +38,7 @@ const Map: React.FC = () => {
                         colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
                     >
                         <Markers
-                            points={properties ?? []} // Markers rendered from fetched data
+                            points={properties ?? []}
                             setSelectedProperty={setSelectedProperty}
                             setSheetOpen={setSheetOpen}
                         />
