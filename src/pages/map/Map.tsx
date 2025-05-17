@@ -26,7 +26,9 @@ const Map: React.FC = () => {
                 <div className="border rounded-md overflow-hidden w-full h-full">
                     <GoogleMap
                         mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
-                        defaultCenter={DEFAULT_CENTER}
+                        defaultCenter={
+                            properties[0]?.coordinates || DEFAULT_CENTER
+                        }
                         defaultZoom={13}
                         colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
                     >
