@@ -20,10 +20,10 @@ import Settings from "./pages/settings/Settings";
 import { ThemeProvider } from "./components/theme-provider";
 import Landing from "./pages/landing/LandingPage";
 import { SearchResults } from "./components/search/search-results";
+import { useIsMobile } from "./hooks/use-mobile";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
-
     if (loading) {
         return <LoadingScreen />;
     }
@@ -78,10 +78,15 @@ const AppRoutes = () => {
 };
 
 const App = () => {
+    const isMobile = useIsMobile();
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <AuthProvider>
-                <Toaster richColors closeButton />
+                <Toaster
+                    richColors
+                    closeButton
+                    position={isMobile ? "top-center" : "bottom-right"}
+                />
                 <Router>
                     <AppRoutes />
                 </Router>
