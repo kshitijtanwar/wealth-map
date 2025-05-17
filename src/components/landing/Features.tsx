@@ -39,7 +39,7 @@ export const Features = () => {
                 </CardHeader>
                 <CardContent>
                     <video
-                        src="https://videos.pexels.com/video-files/4549682/4549682-sd_640_360_30fps.mp4"
+                        src="https://ik.imagekit.io/hidnllbxz/Sarthak_s%20video.mp4?updatedAt=1747514543316"
                         autoPlay
                         loop
                         muted
