@@ -127,7 +127,7 @@ export const Navbar = () => {
 
                     <div className="hidden md:flex gap-2">
                         <Link
-                            to="/"
+                            to={session ? "/dashboard" : "/login"}
                             className={`border ${buttonVariants({
                                 variant: "secondary",
                             })}`}
