@@ -1,68 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Map as GoogleMap, useMap } from "@vis.gl/react-google-maps";
+import React, { useState } from "react";
+import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 import { Sheet } from "@/components/ui/sheet";
 import { InfoSlider } from "./InfoSlider";
 import { useNavigate } from "react-router-dom";
 import { properties } from "@/../dummyData";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Property } from "@/types";
 import { useTheme } from "@/components/theme-provider";
+import { Markers } from "./Markers";
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
-
-interface MarkersProps {
-    points: Property[];
-    setSelectedProperty: React.Dispatch<React.SetStateAction<Property | null>>;
-    setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const Markers: React.FC<MarkersProps> = ({
-    points,
-    setSelectedProperty,
-    setSheetOpen,
-}) => {
-    const map = useMap();
-    const clusterer = useRef<MarkerClusterer | null>(null);
-    const markersRef = useRef<google.maps.Marker[]>([]);
-
-    useEffect(() => {
-        if (!map) return;
-        markersRef.current.forEach((marker) => marker.setMap(null));
-        markersRef.current = [];
-
-        const newMarkers = points.map((property) => {
-            const marker = new google.maps.Marker({
-                position: {
-                    lat: property.coordinates.lat,
-                    lng: property.coordinates.lng,
-                },
-            });
-            marker.addListener("click", () => {
-                setSelectedProperty(property);
-                setSheetOpen(true);
-            });
-            return marker;
-        });
-        markersRef.current = newMarkers;
-
-        // Create or update clusterer
-        if (!clusterer.current) {
-            clusterer.current = new MarkerClusterer({
-                markers: newMarkers,
-                map,
-            });
-        } else {
-            clusterer.current.clearMarkers();
-            clusterer.current.addMarkers(newMarkers);
-        }
-
-        return () => {
-            newMarkers.forEach((marker) => marker.setMap(null));
-        };
-    }, [map, points, setSelectedProperty, setSheetOpen]);
-
-    return null;
-};
 
 const Map: React.FC = () => {
     const { theme } = useTheme();
@@ -83,7 +29,7 @@ const Map: React.FC = () => {
                         colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
                     >
                         <Markers
-                            points={properties}
+                            points={properties} // Markers rendered from fetched data
                             setSelectedProperty={setSelectedProperty}
                             setSheetOpen={setSheetOpen}
                         />
