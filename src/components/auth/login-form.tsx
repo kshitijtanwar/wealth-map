@@ -92,6 +92,7 @@ export function LoginForm({
                         {...register("password", {
                             required: "Password is required",
                         })}
+                        placeholder="••••••••"
                     />
                 </div>
                 <Button type="submit" className="w-full" isLoading={isLoading}>
