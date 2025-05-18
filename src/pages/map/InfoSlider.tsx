@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { SheetClose, SheetContent } from "@/components/ui/sheet";
-import { XCircle, Bookmark, Download } from "lucide-react";
+
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/types";
 import { Separator } from "@/components/ui/separator";
+import { XCircle, Bookmark, Download, BookmarkCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
 
 export function InfoSlider({
     selectedProperty,
@@ -12,6 +16,39 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
+    const [isBookmarked, setIsBookmarked] = useState(false);
+
+    useEffect(() => {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+        const isSaved = bookmarks.some((bookmark: Property) => bookmark.id === selectedProperty.id);
+        setIsBookmarked(isSaved);
+    }, [selectedProperty.id]);
+
+
+    const handleSaveProperty = () => {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+
+        if (isBookmarked) {
+            // Remove from bookmarks
+            const updatedBookmarks = bookmarks.filter(
+                (bookmark: Property) => bookmark.id !== selectedProperty.id
+            );
+            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            setIsBookmarked(false);
+            toast("Property removed", {
+                description: "This property has been removed from your bookmarks.",
+            });
+        } else {
+            // Add to bookmarks
+            const updatedBookmarks = [...bookmarks, selectedProperty];
+            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            setIsBookmarked(true);
+            toast("Property saved", {
+                description: "This property has been added to your bookmarks.",
+            });
+        }
+    };
+
     return (
         <SheetContent
             className="p-0 pb-10 w-full sm:max-w-md overflow-y-auto"
@@ -61,7 +98,7 @@ export function InfoSlider({
                     <h4 className="font-medium mb-2">Owner Information</h4>
 
                     {selectedProperty.owners &&
-                    selectedProperty.owners.length > 0 ? (
+                        selectedProperty.owners.length > 0 ? (
                         selectedProperty.owners.map((owner) => (
                             <Card key={owner.id} className="py-1">
                                 <CardHeader>
@@ -110,13 +147,23 @@ export function InfoSlider({
 
                     <div className="grid grid-cols-2 gap-3">
                         <Button
-                            variant="outline"
+                            variant={isBookmarked ? "default" : "outline"}
                             size="sm"
                             className="flex items-center gap-2"
                             tabIndex={-1}
+                            onClick={handleSaveProperty}
                         >
-                            <Bookmark size={16} />
-                            Save Property
+                            {isBookmarked ? (
+                                <>
+                                    <BookmarkCheck size={16} />
+                                    Saved
+                                </>
+                            ) : (
+                                <>
+                                    <Bookmark size={16} />
+                                    Save Property
+                                </>
+                            )}
                         </Button>
                         <Button
                             tabIndex={-1}

@@ -21,6 +21,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import Landing from "./pages/landing/LandingPage";
 import { SearchResults } from "./components/search/search-results";
 import { useIsMobile } from "./hooks/use-mobile";
+import BookmarkedProperties from "./components/utils/bookmarked-properties";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -71,6 +72,10 @@ const AppRoutes = () => {
                 <Route
                     path="/settings"
                     element={<AppLayout children={<Settings />} />}
+                />
+                <Route
+                    path="/bookmarks"
+                    element={<AppLayout children={<BookmarkedProperties />} />}
                 />
             </Route>
         </Routes>
