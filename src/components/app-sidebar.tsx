@@ -6,6 +6,7 @@ import {
     FileText,
     Settings,
     MapPinned,
+    Bookmark,
 } from "lucide-react";
 import {
     Sidebar,
@@ -51,6 +52,12 @@ const data = {
             title: "Reports",
             url: "/reports",
             icon: FileText,
+            requiresActive: true,
+        },
+        {
+            title: "Saved Properties",
+            url: "/bookmarks",
+            icon: Bookmark,
             requiresActive: true,
         },
         {

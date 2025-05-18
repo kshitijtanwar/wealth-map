@@ -25,6 +25,7 @@ const pageTitles: Record<string, string> = {
     "/reports": "Reports",
     "/settings": "Settings",
     "/search": "Search",
+    "/bookmarks": "Saved Properties",
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
