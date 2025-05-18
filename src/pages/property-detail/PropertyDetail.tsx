@@ -21,7 +21,6 @@ import { DataSourceCard } from "@/components/cards/DataSourceCard";
 import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
 import { PropertyReportPDF } from "@/components/utils/PropertyReportPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-
 import {
     Table,
     TableBody,
@@ -35,6 +34,7 @@ import { getPropertyDetail } from "@/services/propertyServices";
 import { useQuery } from "@tanstack/react-query";
 import type { PropertyDetail } from "@/types";
 import PropertySkeleton from "./PropertySkeleton";
+
 
 type TabsValue = "overview" | "owner" | "history";
 
@@ -53,11 +53,9 @@ const PropertyDetail: React.FC = () => {
 
     const [tab, setTab] = useState<TabsValue>("overview");
 
-
     if (isLoading) {
         return <PropertySkeleton />;
     }
-
 
     if (!property) {
         return <div className="p-4">Property not found.</div>;
@@ -76,18 +74,25 @@ const PropertyDetail: React.FC = () => {
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
                         <Button variant="outline">
-                        <PDFDownloadLink 
-                                document={<PropertyReportPDF property={property} owner={owner} />}
+                            {/* <PDFDownloadLink
+                                document={
+                                    <PropertyReportPDF
+                                        property={property}
+                                        owner={owner}
+                                    />
+                                }
                                 fileName={`${property.address}-report.pdf`}
                                 className="flex items-center gap-1"
                             >
                                 {({ loading }) => (
                                     <>
                                         <Download size={16} />
-                                        {loading ? 'Generating...' : 'Export PDF'}
+                                        {loading
+                                            ? "Generating..."
+                                            : "Export PDF"}
                                     </>
                                 )}
-                            </PDFDownloadLink>
+                            </PDFDownloadLink> */}
                         </Button>
                         <Button>
                             <FileText size={16} />
