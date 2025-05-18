@@ -76,9 +76,9 @@ export interface Property {
         lng: number;
     };
     value: number;
-    size: number;
+    size?: number;
     images?: string[];
-    owner: Owner;
+    owners: Owner[];
 }
 
 export interface Owner {
