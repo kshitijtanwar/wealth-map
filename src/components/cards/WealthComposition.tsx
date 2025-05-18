@@ -22,7 +22,7 @@ const WealthComposition = ({
                         Estimated Net Worth
                     </p>
                     <h1 className="text-3xl font-bold text-accent-foreground">
-                        ${wealth.toLocaleString()}
+                        ${Math.round(wealth).toLocaleString()}
                     </h1>
                 </div>
                 <div className="flex gap-4 text-sm justify-center">

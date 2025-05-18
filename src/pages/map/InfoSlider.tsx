@@ -72,7 +72,7 @@ export function InfoSlider({
                                                 net worth
                                             </span>
                                             $
-                                            {owner.estimatedNetWorth.toLocaleString()}
+                                            {Math.round(owner.estimatedNetWorth).toLocaleString()}
                                         </div>
                                     </CardTitle>
                                 </CardHeader>
