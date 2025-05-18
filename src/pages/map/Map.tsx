@@ -62,12 +62,7 @@ const Map: React.FC = () => {
                 <InfoSlider
                     selectedProperty={selectedProperty}
                     onViewPropertyDetails={() => {
-                        navigate("/property-detail", {
-                            state: {
-                                property: selectedProperty,
-                                owner: selectedProperty.owners,
-                            },
-                        });
+                        navigate(`/property-detail/${selectedProperty.id}`);
                     }}
                 />
             )}
