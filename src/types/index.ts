@@ -197,3 +197,48 @@ export interface LoadingState {
     revokingAccess: boolean;
     removingEmployee: boolean;
 }
+
+export interface PropertyDetail {
+    owners: RealOwner[];
+    property: RealProperty;
+}
+
+export interface RealOwner {
+    id: string;
+    full_name: string;
+    type: "individual" | "company";
+    confidence_level: "low" | "medium" | "high";
+    estimated_net_worth: number;
+    mailing_address: string;
+    created_at: string;
+    last_updated: string;
+}
+
+export interface RealProperty {
+    id: string;
+    address_line1: string;
+    address_line2: string;
+    site_address: string;
+    city: string;
+    state: string;
+    zip_code: string;
+    latitude: number;
+    longitude: number;
+    assessed_total_value: number;
+    market_total_value: number | null;
+    propertytype: string;
+    size: number;
+    year_built: number;
+    sale_amount: number;
+    sale_date: string;
+    sale_type: string | null;
+    tax_amount: number;
+    tax_year: number;
+    avm_value: number | null;
+    avm_high: number;
+    avm_low: number;
+    avm_score: number;
+    avm_last_updated: string | null;
+    attom_id: number;
+    created_at: string;
+}
