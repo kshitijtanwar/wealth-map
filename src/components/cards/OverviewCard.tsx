@@ -33,7 +33,7 @@ export function PropertyValueCard({
                             ${value ? value.toLocaleString() : "1.23M"}
                         </p>
                     </div>
-                    <div className="bg-blue-50 p-2 rounded-lg">
+                    <div className="bg-blue-50 dark:bg-blue-950 p-2 rounded-lg">
                         <Home className="h-6 w-6 text-blue-500" />
                     </div>
                 </div>
@@ -58,7 +58,7 @@ export function PropertySizeCard({ size, details }: PropertySizeCardProps) {
                             {size.toLocaleString()} sq ft
                         </p>
                     </div>
-                    <div className="bg-amber-50 p-2 rounded-lg">
+                    <div className="bg-amber-50 dark:bg-amber-950 p-2 rounded-lg">
                         <Globe className="h-6 w-6 text-amber-500" />
                     </div>
                 </div>
@@ -92,7 +92,7 @@ export function OwnerNetWorthCard({
                             ${(netWorth / 1_000_000).toFixed(1)}M
                         </p>
                     </div>
-                    <div className="bg-emerald-50 p-2 rounded-lg">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 p-2 rounded-lg">
                         <BarChart2 className="h-6 w-6 text-emerald-500" />
                     </div>
                 </div>

@@ -54,43 +54,55 @@ export function InfoSlider({
                     <div>
                         <p className="text-sm text-gray-500">Size</p>
                         <p className="text-lg font-medium">
-                            {selectedProperty.size.toLocaleString()} sq ft
+                            {selectedProperty.size?.toLocaleString()} sq ft
                         </p>
                     </div>
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 mb-4">
                     <h4 className="font-medium mb-2">Owner Information</h4>
-                    <Card className="bg-card">
-                        <CardContent className="p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="font-medium">
-                                        {selectedProperty.owner.name}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        Indivisual Owner
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-500">
-                                        Net Worth
-                                    </p>
-                                    <p className="font-semibold text-emerald-600">
-                                        $
-                                        {selectedProperty.owner
-                                            .estimatedNetWorth
-                                            ? (
-                                                  selectedProperty.owner
-                                                      .estimatedNetWorth /
-                                                  1_000_000
-                                              ).toFixed(1) + "M"
-                                            : "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {selectedProperty.owners &&
+                    selectedProperty.owners.length > 0 ? (
+                        selectedProperty.owners.map((owner) => (
+                            <Card className="bg-card mb-2" key={owner.id}>
+                                <CardContent className="p-3">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <p className="font-medium">
+                                                {owner.name}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                {owner.type
+                                                    ? owner.type ===
+                                                      "individual"
+                                                        ? "Individual Owner"
+                                                        : "Entity Owner"
+                                                    : "Owner"}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm text-gray-500">
+                                                Net Worth
+                                            </p>
+                                            <p className="font-semibold text-emerald-600">
+                                                {typeof owner.estimatedNetWorth ===
+                                                "number"
+                                                    ? `$${(
+                                                          owner.estimatedNetWorth /
+                                                          1_000_000
+                                                      ).toFixed(1)}M`
+                                                    : "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">
+                            No owner information available.
+                        </p>
+                    )}
                 </div>
 
                 <div className="space-y-3 mt-6">
