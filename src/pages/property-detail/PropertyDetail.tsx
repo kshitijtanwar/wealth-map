@@ -22,6 +22,15 @@ import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
 import { PropertyReportPDF } from "@/components/utils/PropertyReportPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 type TabsValue = "overview" | "owner" | "history";
 
@@ -117,7 +126,29 @@ const PropertyDetail: React.FC = () => {
                     </div>
                     <OtherPropertiesOwned />
                 </TabsContent>
-                <TabsContent value="history">Transaction History</TabsContent>
+                <TabsContent value="history">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Transaction Type</TableHead>
+                                <TableHead>Parties</TableHead>
+                                <TableHead>Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>2018-05-14</TableCell>
+                                <TableCell>Purchase</TableCell>
+                                <TableCell>Seller: David Johnson</TableCell>
+                                <TableCell>$2,560,000</TableCell>
+                            </TableRow>
+                        </TableBody>
+                        <TableCaption>
+                            List of recent Transactions regarding the property
+                        </TableCaption>
+                    </Table>
+                </TabsContent>
             </Tabs>
         </section>
     );
