@@ -55,7 +55,7 @@ export function PropertySizeCard({ size, details }: PropertySizeCardProps) {
                     <div>
                         <p className="text-sm text-gray-500">Property Size</p>
                         <p className="text-2xl font-bold">
-                            {size.toLocaleString()} sq ft
+                            {size ? size.toLocaleString() : 1200} sq ft
                         </p>
                     </div>
                     <div className="bg-amber-50 dark:bg-amber-950 p-2 rounded-lg">
@@ -77,9 +77,9 @@ export function OwnerNetWorthCard({
     confidenceLevel,
 }: OwnerNetWorthCardProps) {
     const colorMap = {
-        high: "bg-green-100 text-green-800",
-        medium: "bg-yellow-100 text-yellow-800",
-        low: "bg-red-100 text-red-800",
+        high: "bg-green-100 text-green-800 dark:text-green-500 dark:bg-green-950",
+        medium: "bg-blue-100 text-blue-800 dark:text-blue-500 dark:bg-blue-950",
+        low: "bg-yellow-100 text-yellow-800 dark:text-yellow-500 dark:bg-yellow-950",
     };
 
     return (
@@ -87,7 +87,9 @@ export function OwnerNetWorthCard({
             <CardContent>
                 <div className="flex items-start justify-between">
                     <div>
-                        <p className="text-sm text-gray-500">Owner Net Worth</p>
+                        <p className="text-sm text-muted-foreground">
+                            Owner Net Worth
+                        </p>
                         <p className="text-2xl font-bold">
                             ${(netWorth / 1_000_000).toFixed(1)}M
                         </p>
