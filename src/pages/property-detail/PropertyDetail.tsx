@@ -19,6 +19,9 @@ import OwnerInformationCard from "@/components/cards/OwnerInformationCard";
 import WealthComposition from "@/components/cards/WealthComposition";
 import { DataSourceCard } from "@/components/cards/DataSourceCard";
 import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
+import { PropertyReportPDF } from "@/components/utils/PropertyReportPDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+
 
 type TabsValue = "overview" | "owner" | "history";
 
@@ -28,6 +31,7 @@ const PropertyDetail: React.FC = () => {
     const owner = location.state?.owner;
 
     const [tab, setTab] = useState<TabsValue>("overview");
+
 
     if (!property) {
         return <div className="p-4">Property not found.</div>;
@@ -46,8 +50,18 @@ const PropertyDetail: React.FC = () => {
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
                         <Button variant="outline">
-                            <Download size={16} />
-                            Export
+                        <PDFDownloadLink 
+                                document={<PropertyReportPDF property={property} owner={owner} />}
+                                fileName={`${property.address}-report.pdf`}
+                                className="flex items-center gap-1"
+                            >
+                                {({ loading }) => (
+                                    <>
+                                        <Download size={16} />
+                                        {loading ? 'Generating...' : 'Export PDF'}
+                                    </>
+                                )}
+                            </PDFDownloadLink>
                         </Button>
                         <Button>
                             <FileText size={16} />
