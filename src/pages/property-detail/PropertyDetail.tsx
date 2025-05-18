@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
     Card,
     CardHeader,
@@ -31,15 +31,32 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { getPropertyDetail } from "@/services/propertyServices";
+import { useQuery } from "@tanstack/react-query";
+import type { PropertyDetail } from "@/types";
+import PropertySkeleton from "./PropertySkeleton";
 
 type TabsValue = "overview" | "owner" | "history";
 
 const PropertyDetail: React.FC = () => {
-    const location = useLocation();
-    const property = location.state?.property;
-    const owner = location.state?.owner;
+    const { id } = useParams<{ id: string }>();
+
+    const { data, isLoading } = useQuery<PropertyDetail>({
+        queryKey: ["property_details", id],
+        queryFn: () => getPropertyDetail({ id }),
+        staleTime: 1000 * 60 * 2,
+    });
+
+    const property = data?.property;
+    const owners = data?.owners;
+    console.log(data);
 
     const [tab, setTab] = useState<TabsValue>("overview");
+
+
+    if (isLoading) {
+        return <PropertySkeleton />;
+    }
 
 
     if (!property) {
@@ -51,10 +68,10 @@ const PropertyDetail: React.FC = () => {
             <Card className={`w-full`}>
                 <CardHeader className="flex flex-col sm:flex-row justify-between items-center">
                     <div className="space-y-1">
-                        <CardTitle>{property.address}</CardTitle>
+                        <CardTitle>{data?.property?.address_line1}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
-                            <MapPin size={15} /> {property.city},{" "}
-                            {property.state} {property.zipCode}
+                            <MapPin size={15} /> {property?.city},{" "}
+                            {property?.state} {property?.zip_code}
                         </CardDescription>
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
@@ -94,34 +111,41 @@ const PropertyDetail: React.FC = () => {
                     {/* Overview Section */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <PropertyValueCard
-                            value={property.value}
+                            value={property?.sale_amount as number}
                             lastAssessed="Oct 2023"
                         />
                         <PropertySizeCard
-                            size={property.size}
+                            size={property?.size as number}
                             details="5 bed, 4 bath"
                         />
                         <OwnerNetWorthCard
-                            netWorth={owner?.estimatedNetWorth ?? 0}
+                            netWorth={owners?.[0]?.estimated_net_worth ?? 0}
                             confidenceLevel={
-                                owner?.confidenceLevel ?? "unknown"
+                                owners?.[0]?.confidence_level ?? "low"
                             }
                         />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2">
-                            <PropertyDetailCard property={property} />
+                            <PropertyDetailCard />
                         </div>
-                        <OwnerInformationCard
-                            owner={owner}
-                            onViewWealthAnalysis={() => setTab("owner")}
-                        />
+                        {owners && (
+                            <OwnerInformationCard
+                                owner={owners[0]}
+                                onViewWealthAnalysis={() => setTab("owner")}
+                            />
+                        )}
                     </div>
                 </TabsContent>
                 <TabsContent value="owner" className="space-y-4">
                     <div className="flex flex-col lg:flex-row gap-4">
-                        <WealthComposition />
+                        <WealthComposition
+                            wealth={owners?.[0]?.estimated_net_worth ?? 0}
+                            confidence_level={
+                                owners?.[0]?.confidence_level as string
+                            }
+                        />
                         <DataSourceCard />
                     </div>
                     <OtherPropertiesOwned />

@@ -22,7 +22,6 @@ import Landing from "./pages/landing/LandingPage";
 import { SearchResults } from "./components/search/search-results";
 import { useIsMobile } from "./hooks/use-mobile";
 
-
 const AppRoutes = () => {
     const { loading } = useAuth();
     if (loading) {
@@ -62,7 +61,7 @@ const AppRoutes = () => {
                 />
                 <Route path="/map" element={<AppLayout children={<Map />} />} />
                 <Route
-                    path="/property-detail"
+                    path="/property-detail/:id"
                     element={<AppLayout children={<PropertyDetail />} />}
                 />
                 <Route
