@@ -28,8 +28,8 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
             </CardHeader>
             <CardContent>
                 <div className="flex items-center mb-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                        <User className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center mr-3">
+                        <User className="h-5 w-5 text-blue-500" />
                     </div>
                     <div>
                         <p className="font-medium">{owner.name}</p>
