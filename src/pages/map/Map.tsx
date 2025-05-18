@@ -65,7 +65,7 @@ const Map: React.FC = () => {
                         navigate("/property-detail", {
                             state: {
                                 property: selectedProperty,
-                                owner: selectedProperty.owner,
+                                owner: selectedProperty.owners,
                             },
                         });
                     }}
