@@ -809,6 +809,41 @@ export const authAPI = {
     },
 
     /**
+     * Update user password
+     */
+    async updatePassword(currentPassword: string, newPassword: string) {
+        try {
+            // First verify the current password by signing in
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: (await supabase.auth.getUser()).data.user?.email || '',
+                password: currentPassword
+            });
+
+            if (signInError) {
+                throw new Error("Current password is incorrect");
+            }
+
+            // Then update the password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+
+            if (updateError) throw updateError;
+
+            return {
+                success: true,
+                message: "Password updated successfully"
+            };
+        } catch (error) {
+            console.error("Password update error:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to update password"
+            };
+        }
+    },
+
+    /**
      * Get company employees
      */
     async getCompanyEmployees(companyId: string) {
