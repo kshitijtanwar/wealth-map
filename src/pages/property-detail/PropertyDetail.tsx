@@ -74,14 +74,14 @@ const PropertyDetail: React.FC = () => {
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
                         <Button variant="outline">
-                            {/* <PDFDownloadLink
+                            <PDFDownloadLink
                                 document={
                                     <PropertyReportPDF
                                         property={property}
-                                        owner={owner}
+                                        owner={owners?.[0]}
                                     />
                                 }
-                                fileName={`${property.address}-report.pdf`}
+                                fileName={`${property.address_line1}-report.pdf`}
                                 className="flex items-center gap-1"
                             >
                                 {({ loading }) => (
@@ -92,7 +92,7 @@ const PropertyDetail: React.FC = () => {
                                             : "Export PDF"}
                                     </>
                                 )}
-                            </PDFDownloadLink> */}
+                            </PDFDownloadLink>
                         </Button>
                         <Button>
                             <FileText size={16} />
