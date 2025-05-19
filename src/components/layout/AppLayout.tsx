@@ -16,12 +16,12 @@ import { SearchFilter } from "../search/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { ModeToggle } from "../utils/mode-toggle";
 import { SearchBar } from "../search/maps/search-bar";
+import { getPageTitle } from "@/utils/helper";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
     "/map": "Map",
-    "/property-detail": "Property Detail",
     "/reports": "Reports",
     "/settings": "Settings",
     "/search": "Search",
@@ -32,7 +32,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const { session } = useAuth();
     const [hasActiveCompany, setHasActiveCompany] = useState(true);
-    const pageTitle = pageTitles[location.pathname] || "Dashboard";
+
+    const pageTitle = getPageTitle(pageTitles);
 
     useEffect(() => {
         const checkActiveCompany = async () => {
