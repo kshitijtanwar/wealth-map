@@ -30,7 +30,7 @@ export function PropertyValueCard({
                             Property Value
                         </p>
                         <p className="text-2xl font-bold">
-                            ${value ? value.toLocaleString() : "1.23M"}
+                            ${value ? value.toLocaleString() : "N/A"}
                         </p>
                     </div>
                     <div className="bg-blue-50 dark:bg-blue-950 p-2 rounded-lg">
@@ -55,7 +55,7 @@ export function PropertySizeCard({ size, details }: PropertySizeCardProps) {
                     <div>
                         <p className="text-sm text-gray-500">Property Size</p>
                         <p className="text-2xl font-bold">
-                            {size ? size.toLocaleString() : 1200} sq ft
+                            {size ? size.toLocaleString() : "N/A"} sq ft
                         </p>
                     </div>
                     <div className="bg-amber-50 dark:bg-amber-950 p-2 rounded-lg">
