@@ -60,7 +60,7 @@ export const authAPI = {
             if (authError || !authData.user) {
                 throw new Error(
                     "User creation failed: " +
-                        (authError?.message || "Unknown error")
+                    (authError?.message || "Unknown error")
                 );
             }
 
@@ -525,6 +525,124 @@ export const authAPI = {
             return { success: true };
         } catch {
             return { success: false, error: "Unexpected error occurred." };
+        }
+    },// Add this to your authAPI object in src/lib/apiAuth.ts
+
+    /**
+     * Get revoked employees (where is_active = false)
+     */
+    async getRevokedEmployees(companyId: string) {
+        try {
+            const { data, error } = await supabase
+                .from("company_employees")
+                .select(
+                    `
+                    id,
+                    permission_level,
+                    is_active,
+                    invitation_accepted_at,
+                    employees:employees!company_employees_employee_id_fkey (
+                        id,
+                        email,
+                        fullname,
+                        last_login,
+                        created_at,
+                        is_active
+                    ),
+                    companies (
+                        name
+                    )
+                `
+                )
+                .eq("company_id", companyId)
+                .eq("is_active", false)
+                .not("invitation_accepted_at", "is", null)
+                .order("invitation_accepted_at", { ascending: false });
+
+            if (error) throw error;
+
+            return {
+                success: true,
+                employees: data,
+            };
+        } catch (error) {
+            console.error("Error fetching revoked employees:", error);
+            return {
+                success: false,
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to fetch revoked employees",
+            };
+        }
+    },
+
+    /**
+     * Reactivate a revoked employee
+     */
+    async reactivateEmployee(companyId: string, employeeId: string) {
+        try {
+            // Update company_employees association
+            const { error: ceError } = await supabase
+                .from("company_employees")
+                .update({
+                    is_active: true,
+                })
+                .eq("company_id", companyId)
+                .eq("employee_id", employeeId);
+
+            if (ceError) throw ceError;
+
+            // Reactivate the employee account if it was deactivated
+            await supabase
+                .from("employees")
+                .update({
+                    is_active: true,
+                })
+                .eq("id", employeeId);
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error reactivating employee:", error);
+            return {
+                success: false,
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to reactivate employee",
+            };
+        }
+    },
+
+    /**
+     * Check if current employee is active in a company
+     */
+    async checkEmployeeActiveStatus(companyId: string, employeeId: string) {
+        try {
+            const { data, error } = await supabase
+                .from("company_employees")
+                .select("is_active")
+                .eq("company_id", companyId)
+                .eq("employee_id", employeeId)
+                .single();
+
+            if (error) throw error;
+            if (!data) throw new Error("Employee not found in company");
+
+            return {
+                success: true,
+                isActive: data.is_active,
+            };
+        } catch (error) {
+            console.error("Error checking employee status:", error);
+            return {
+                success: false,
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to check employee status",
+                isActive: false,
+            };
         }
     },
 
