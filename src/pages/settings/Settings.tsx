@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 interface Employee {
     id: string;
@@ -64,6 +65,32 @@ const Settings = () => {
             fetchRevokedEmployees();
         }
     }, [company_id]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [avatarUploading, setAvatarUploading] = useState(false);
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !session?.user?.id) return;
+
+        setAvatarUploading(true);
+        try {
+            const { success, avatarUrl, error } = await authAPI.updateAvatar(
+                file
+            );
+
+            if (success && avatarUrl) {
+                toast.success("Avatar updated successfully");
+                // You might need to update your auth context here with the new avatar
+                // For example, if you have a way to update the session in your AuthProvider
+            } else {
+                throw new Error(error);
+            }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Failed to update avatar");
+        } finally {
+            setAvatarUploading(false);
+        }
+    };
 
     const fetchRevokedEmployees = async () => {
         setLoadingRevoked(true);
@@ -141,14 +168,32 @@ const Settings = () => {
                             <div className="flex items-center space-x-4">
                                 <Avatar className="h-20 w-20 border">
                                     <AvatarImage
-                                        src={
-                                            company_logo ||
-                                            "https://github.com/shadcn.png"
-                                        }
+                                        src={company_logo || "https://github.com/shadcn.png"}
+                                        alt={fullname}
                                     />
-                                    <AvatarFallback>CN</AvatarFallback>
+                                    <AvatarFallback>
+                                        {fullname?.split(' ').map((n: string) => n[0]).join('')}
+                                    </AvatarFallback>
                                 </Avatar>
-                                <Button variant="outline">Change Avatar</Button>
+                                <div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={avatarUploading}
+                                    >
+                                        {avatarUploading ? "Uploading..." : "Change Avatar"}
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleAvatarChange}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        JPG, GIF or PNG. Max size 2MB.
+                                    </p>
+                                </div>
                             </div>
 
                             <form onSubmit={handleAccountSave}>
