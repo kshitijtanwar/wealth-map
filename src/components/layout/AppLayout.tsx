@@ -83,7 +83,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     className="mr-2 !h-8"
                                 />
                                 <div className="flex w-full items-center gap-2">
-                                    <span className="flex-1">{pageTitle}</span>
+                                    <span className="flex-1 font-medium">
+                                        {pageTitle}
+                                    </span>
                                     <ModeToggle />
                                     {location.pathname == "/map" ? (
                                         <SearchBar />

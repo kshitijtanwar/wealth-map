@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     Card,
     CardHeader,
     CardDescription,
     CardTitle,
 } from "@/components/ui/card";
-import { MapPin, Download, FileText } from "lucide-react";
+import { MapPin, Download, FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -39,16 +39,16 @@ type TabsValue = "overview" | "owner" | "history";
 
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
 
     const { data, isLoading } = useQuery<PropertyDetailData>({
         queryKey: ["property_details", id],
         queryFn: () => getPropertyDetail({ id }),
-        staleTime: 1000 * 60 * 2,
+        staleTime: Infinity,
     });
 
     const property = data?.property;
     const owners = data?.owners;
-    console.log(data);
 
     const [tab, setTab] = useState<TabsValue>("overview");
 
@@ -62,10 +62,16 @@ const PropertyDetail: React.FC = () => {
 
     return (
         <section className="space-y-4 p-4">
+            <Button variant={`link`} onClick={() => navigate("/map")}>
+                <ArrowLeft /> Head to map
+            </Button>
             <Card className={`w-full`}>
                 <CardHeader className="flex flex-col sm:flex-row justify-between items-center">
                     <div className="space-y-1">
-                        <CardTitle>{data?.property?.address_line1}</CardTitle>
+                        <CardTitle>
+                            {data?.property?.address_line1 ||
+                                data?.property?.site_address}
+                        </CardTitle>
                         <CardDescription className="flex items-center gap-1">
                             <MapPin size={15} /> {property?.city},{" "}
                             {property?.state} {property?.zip_code}
@@ -83,14 +89,8 @@ const PropertyDetail: React.FC = () => {
                                 fileName={`${property.address_line1}-report.pdf`}
                                 className="flex items-center gap-1"
                             >
-                                {({ loading }) => (
-                                    <>
-                                        <Download size={16} />
-                                        {loading
-                                            ? "Generating..."
-                                            : "Export PDF"}
-                                    </>
-                                )}
+                                <Download size={16} />
+                                Export PDF
                             </PDFDownloadLink>
                         </Button>
                         <Button>
@@ -104,10 +104,23 @@ const PropertyDetail: React.FC = () => {
                 value={tab}
                 onValueChange={(value) => setTab(value as TabsValue)}
             >
-                <TabsList className="overflow-auto">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="owner">Owner Analysis</TabsTrigger>
-                    <TabsTrigger value="history">
+                <TabsList className="w-full md:w-1/2 bg-inherit border-b mt-3">
+                    <TabsTrigger
+                        value="overview"
+                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                    >
+                        Overview
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="owner"
+                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                    >
+                        Owner Analysis
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="history"
+                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                    >
                         Transaction History
                     </TabsTrigger>
                 </TabsList>

@@ -176,7 +176,7 @@ const Settings = () => {
     return (
         <div className="container mx-auto">
             <Tabs defaultValue="account">
-                <TabsList className="w-full md:w-1/2 bg-inhert">
+                <TabsList className="w-full md:w-1/2 bg-inherit border-b">
                     <TabsTrigger
                         value="account"
                         className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
