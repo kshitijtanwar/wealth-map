@@ -8,7 +8,6 @@ import { XCircle, Bookmark, Download, BookmarkCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-
 export function InfoSlider({
     selectedProperty,
     onViewPropertyDetails,
@@ -16,32 +15,45 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
+    console.log(selectedProperty);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
-        const isSaved = bookmarks.some((bookmark: Property) => bookmark.id === selectedProperty.id);
+        const bookmarks = JSON.parse(
+            localStorage.getItem("bookmarkedProperties") || "[]"
+        );
+        const isSaved = bookmarks.some(
+            (bookmark: Property) => bookmark.id === selectedProperty.id
+        );
         setIsBookmarked(isSaved);
     }, [selectedProperty.id]);
 
-
     const handleSaveProperty = () => {
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+        const bookmarks = JSON.parse(
+            localStorage.getItem("bookmarkedProperties") || "[]"
+        );
 
         if (isBookmarked) {
             // Remove from bookmarks
             const updatedBookmarks = bookmarks.filter(
                 (bookmark: Property) => bookmark.id !== selectedProperty.id
             );
-            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            localStorage.setItem(
+                "bookmarkedProperties",
+                JSON.stringify(updatedBookmarks)
+            );
             setIsBookmarked(false);
             toast("Property removed", {
-                description: "This property has been removed from your bookmarks.",
+                description:
+                    "This property has been removed from your bookmarks.",
             });
         } else {
             // Add to bookmarks
             const updatedBookmarks = [...bookmarks, selectedProperty];
-            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            localStorage.setItem(
+                "bookmarkedProperties",
+                JSON.stringify(updatedBookmarks)
+            );
             setIsBookmarked(true);
             toast("Property saved", {
                 description: "This property has been added to your bookmarks.",
@@ -98,7 +110,7 @@ export function InfoSlider({
                     <h4 className="font-medium mb-2">Owner Information</h4>
 
                     {selectedProperty.owners &&
-                        selectedProperty.owners.length > 0 ? (
+                    selectedProperty.owners.length > 0 ? (
                         selectedProperty.owners.map((owner) => (
                             <Card key={owner.id} className="py-1">
                                 <CardHeader>
@@ -109,7 +121,9 @@ export function InfoSlider({
                                                 net worth
                                             </span>
                                             $
-                                            {Math.round(owner.estimatedNetWorth).toLocaleString()}
+                                            {Math.round(
+                                                owner.estimatedNetWorth
+                                            ).toLocaleString()}
                                         </div>
                                     </CardTitle>
                                 </CardHeader>

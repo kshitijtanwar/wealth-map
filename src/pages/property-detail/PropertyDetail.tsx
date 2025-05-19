@@ -115,7 +115,7 @@ const PropertyDetail: React.FC = () => {
                     {/* Overview Section */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <PropertyValueCard
-                            value={property?.sale_amount as number}
+                            value={property?.assessed_total_value as number}
                             lastAssessed="Oct 2023"
                         />
                         <PropertySizeCard
