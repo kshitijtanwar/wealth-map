@@ -7,6 +7,7 @@ import {
     type EmployeeAccountSetup,
 } from "@/types";
 import { sendInvitationEmail } from "@/utils/emailService";
+
 // import { sendEmail } from '@/lib/emailSender';
 
 // Auth API object
@@ -719,6 +720,59 @@ export const authAPI = {
             };
         }
     },
+    /**
+ * Update user avatar
+ */
+    async updateAvatar(file: File) {
+        try {
+            // Generate a unique filename with timestamp
+            const timestamp = Date.now();
+            const fileName = `logos/${timestamp}-${file.name}`;
+
+
+            // Upload to Supabase storage
+            const { error: uploadError } = await supabase.storage
+                .from("logo-url")
+                .upload(fileName, file, {
+                    cacheControl: "3600",
+                    upsert: false,
+                });
+
+            if (uploadError) throw uploadError;
+
+            // Get signed URL that matches the reference format
+            const { data: signedUrlData } = await supabase.storage
+                .from("logo-url")
+                .createSignedUrl(fileName, 31536000); // 1 year expiration
+
+            if (!signedUrlData?.signedUrl) {
+                throw new Error("Failed to generate signed URL");
+            }
+
+            const publicUrl = signedUrlData.signedUrl;
+
+            // Update user metadata with the new avatar URL
+            const { data: { user }, error: updateError } = await supabase.auth.updateUser({
+                data: {
+                    company_logo: publicUrl
+                }
+            });
+
+            if (updateError || !user) throw updateError || new Error("User update failed");
+
+            return {
+                success: true,
+                avatarUrl: publicUrl,
+                user
+            };
+        } catch (error) {
+            console.error("Avatar update error:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to update avatar"
+            };
+        }
+    },
 
     /**
      * Get current user's companies
@@ -750,6 +804,41 @@ export const authAPI = {
                     error instanceof Error
                         ? error.message
                         : "Failed to fetch companies",
+            };
+        }
+    },
+
+    /**
+     * Update user password
+     */
+    async updatePassword(currentPassword: string, newPassword: string) {
+        try {
+            // First verify the current password by signing in
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: (await supabase.auth.getUser()).data.user?.email || '',
+                password: currentPassword
+            });
+
+            if (signInError) {
+                throw new Error("Current password is incorrect");
+            }
+
+            // Then update the password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+
+            if (updateError) throw updateError;
+
+            return {
+                success: true,
+                message: "Password updated successfully"
+            };
+        } catch (error) {
+            console.error("Password update error:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to update password"
             };
         }
     },
