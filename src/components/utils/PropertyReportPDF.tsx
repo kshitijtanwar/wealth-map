@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer"
-import type { Property, Owner } from "@/types"
+import type { RealProperty, RealOwner } from "@/types"
 
 // Create styles
 const styles = StyleSheet.create({
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
 })
 
 interface PropertyReportPDFProps {
-  property: Property
-  owner?: Owner
+  property: RealProperty
+  owner?: RealOwner
   generatedDate?: Date
 }
 
@@ -168,9 +168,9 @@ export const PropertyReportPDF = ({ property, owner, generatedDate = new Date() 
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.title}>{property.address}</Text>
+          <Text style={styles.title}>{property.site_address}</Text>
           <Text style={styles.subtitle}>
-            {property.city}, {property.state} {property.zipCode}
+            {property.city}, {property.state} {property.zip_code}
           </Text>
           <Text style={styles.dateText}>
             Report generated on{" "}
@@ -181,19 +181,19 @@ export const PropertyReportPDF = ({ property, owner, generatedDate = new Date() 
             })}
           </Text>
         </View>
-        <View style={styles.headerRight}>{/* Placeholder for property image or logo */}</View>
+        <View style={styles.headerRight}>{/* Placeholder for image/logo */}</View>
       </View>
 
       {/* Overview Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Property Overview</Text>
         <View style={styles.grid}>
-          {/* Property Value */}
+          {/* Market Value */}
           <View style={[styles.highlightCard, styles.gridItem]}>
-            <Text style={styles.label}>Property Value</Text>
-            <Text style={styles.value}>${property.value?.toLocaleString()}</Text>
+            <Text style={styles.label}>Market Value</Text>
+            <Text style={styles.value}>${property.market_total_value?.toLocaleString() || "N/A"}</Text>
             <View style={styles.divider} />
-            <Text style={styles.subValue}>Last Assessed: Oct 2023</Text>
+            <Text style={styles.subValue}>Last Assessed: {property.tax_year}</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>Premium</Text>
             </View>
@@ -202,18 +202,18 @@ export const PropertyReportPDF = ({ property, owner, generatedDate = new Date() 
           {/* Property Size */}
           <View style={[styles.card, styles.gridItem]}>
             <Text style={styles.label}>Property Size</Text>
-            <Text style={styles.value}>{property.size} sq ft</Text>
+            <Text style={styles.value}>{property.size.toLocaleString()} sq ft</Text>
             <View style={styles.divider} />
-            <Text style={styles.subValue}>5 bed, 4 bath</Text>
+            <Text style={styles.subValue}>Type: {property.propertytype}</Text>
           </View>
 
           {/* Owner Net Worth */}
           {owner && (
             <View style={[styles.card, styles.gridItem]}>
               <Text style={styles.label}>Owner Net Worth</Text>
-              <Text style={styles.value}>${owner.estimatedNetWorth?.toLocaleString()}</Text>
+              <Text style={styles.value}>${owner.estimated_net_worth?.toLocaleString()}</Text>
               <View style={styles.divider} />
-              <Text style={styles.subValue}>Confidence: {owner.confidenceLevel || "unknown"}</Text>
+              <Text style={styles.subValue}>Confidence: {owner.confidence_level || "unknown"}</Text>
             </View>
           )}
         </View>
@@ -226,23 +226,24 @@ export const PropertyReportPDF = ({ property, owner, generatedDate = new Date() 
           <View style={styles.column}>
             <View style={styles.card}>
               <Text style={styles.label}>Year Built</Text>
-              {/* <Text style={styles.value}>{property.yearBuilt || "N/A"}</Text> */}
+              <Text style={styles.value}>{property.year_built || "N/A"}</Text>
               <View style={styles.divider} />
               <Text style={styles.label}>Property Type</Text>
-              {/* <Text style={styles.value}>{property.type || "Residential"}</Text> */}
+              <Text style={styles.value}>{property.propertytype || "Residential"}</Text>
               <View style={styles.divider} />
               <Text style={styles.label}>Lot Size</Text>
-              {/* <Text style={styles.value}>{property.size || "N/A"}</Text> */}
+              <Text style={styles.value}>{property.size.toLocaleString()} sq ft</Text>
             </View>
           </View>
+
           {owner && (
             <View style={styles.column}>
               <View style={styles.highlightCard}>
                 <Text style={styles.label}>Owner</Text>
-                <Text style={styles.value}>{owner.name}</Text>
+                <Text style={styles.value}>{owner.full_name}</Text>
                 <View style={styles.divider} />
                 <Text style={styles.label}>Contact</Text>
-                {/* <Text style={styles.value}>{owner.contact || "Not available"}</Text> */}
+                <Text style={styles.value}>{owner.mailing_address || "Not available"}</Text>
                 <View style={styles.divider} />
                 <Text style={styles.label}>Ownership Duration</Text>
                 {/* <Text style={styles.value}>{owner.ownershipDuration || "N/A"}</Text> */}
@@ -281,30 +282,17 @@ export const PropertyReportPDF = ({ property, owner, generatedDate = new Date() 
                 <Text style={styles.value}>10%</Text>
               </View>
             </View>
+
             <View style={styles.column}>
               <View style={styles.card}>
                 <Text style={styles.label}>Data Sources</Text>
                 <View style={styles.divider} />
-
-                <View style={styles.dataSourceItem}>
-                  <View style={styles.dot} />
-                  <Text style={styles.subValue}>Public Records</Text>
-                </View>
-
-                <View style={styles.dataSourceItem}>
-                  <View style={styles.dot} />
-                  <Text style={styles.subValue}>Tax Assessments</Text>
-                </View>
-
-                <View style={styles.dataSourceItem}>
-                  <View style={styles.dot} />
-                  <Text style={styles.subValue}>Market Analysis</Text>
-                </View>
-
-                <View style={styles.dataSourceItem}>
-                  <View style={styles.dot} />
-                  <Text style={styles.subValue}>Property History</Text>
-                </View>
+                {["Public Records", "Tax Assessments", "Market Analysis", "Property History"].map((source) => (
+                  <View key={source} style={styles.dataSourceItem}>
+                    <View style={styles.dot} />
+                    <Text style={styles.subValue}>{source}</Text>
+                  </View>
+                ))}
               </View>
             </View>
           </View>
