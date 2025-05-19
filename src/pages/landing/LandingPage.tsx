@@ -14,9 +14,9 @@ const Landing = () => {
         <section className="flex justify-center items-center flex-col px-4 overflow-hidden">
             <Navbar />
             <Hero />
-            <About />
-            <HowItWorks />
             <Features />
+            <HowItWorks />
+            <About />
             <Testimonials />
             <Team />
             <FAQ />
