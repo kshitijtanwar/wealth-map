@@ -26,7 +26,7 @@ const PropertyDetailCard: React.FC<{
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Year Built</p>
-                            <p className="font-medium">{yearBuilt || NaN}</p>
+                            <p className="font-medium">{yearBuilt || "N/A"}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Lot Size</p>
