@@ -26,8 +26,9 @@ const Map: React.FC = () => {
         queryKey: ["mapData"],
         queryFn: getMapData,
         staleTime: 1000 * 60 * 5,
-        
     });
+
+
 
     const [cameraProps, setCameraProps] = useState<MapCameraProps>(
         getInitialCameraProps()
