@@ -32,16 +32,15 @@ import {
 } from "@/components/ui/table";
 import { getPropertyDetail } from "@/services/propertyServices";
 import { useQuery } from "@tanstack/react-query";
-import type { PropertyDetail } from "@/types";
+import type { PropertyDetail as PropertyDetailData } from "@/types";
 import PropertySkeleton from "./PropertySkeleton";
-
 
 type TabsValue = "overview" | "owner" | "history";
 
 const PropertyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
 
-    const { data, isLoading } = useQuery<PropertyDetail>({
+    const { data, isLoading } = useQuery<PropertyDetailData>({
         queryKey: ["property_details", id],
         queryFn: () => getPropertyDetail({ id }),
         staleTime: 1000 * 60 * 2,
