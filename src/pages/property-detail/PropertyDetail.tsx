@@ -114,6 +114,12 @@ const PropertyDetail: React.FC = () => {
                 <TabsContent value="overview" className="space-y-6">
                     {/* Overview Section */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <OwnerNetWorthCard
+                            netWorth={owners?.[0]?.estimated_net_worth ?? 0}
+                            confidenceLevel={
+                                owners?.[0]?.confidence_level ?? "low"
+                            }
+                        />
                         <PropertyValueCard
                             value={property?.assessed_total_value as number}
                             lastAssessed="Oct 2023"
@@ -122,17 +128,14 @@ const PropertyDetail: React.FC = () => {
                             size={property?.size as number}
                             details="5 bed, 4 bath"
                         />
-                        <OwnerNetWorthCard
-                            netWorth={owners?.[0]?.estimated_net_worth ?? 0}
-                            confidenceLevel={
-                                owners?.[0]?.confidence_level ?? "low"
-                            }
-                        />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2">
-                            <PropertyDetailCard />
+                            <PropertyDetailCard
+                                type={property.propertytype}
+                                yearBuilt={property.year_built}
+                            />
                         </div>
                         {owners && (
                             <OwnerInformationCard
