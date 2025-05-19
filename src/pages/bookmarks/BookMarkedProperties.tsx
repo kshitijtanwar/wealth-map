@@ -49,7 +49,7 @@ export default function BookmarkedProperties() {
             {properties.length === 0 ? (
                 <div className="text-center py-12">
                     <Bookmark className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-muted-foreground">
                         No saved properties
                     </h3>
                     <p className="mt-1 text-sm text-foreground-muted">
