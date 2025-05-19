@@ -479,11 +479,11 @@ export default function Employees() {
                                             variant="outline"
                                             className={`px-3 py-1 rounded-full ${
                                                 employee.status === "Active"
-                                                    ? "bg-green-100 text-green-800 border-green-200"
+                                                    ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-600"
                                                     : employee.status ===
                                                       "Pending"
-                                                    ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                                                    : "bg-red-100 text-red-800 border-red-200"
+                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-600"
+                                                    : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-600"
                                             }`}
                                         >
                                             {employee.status}
@@ -571,7 +571,7 @@ export default function Employees() {
                                     <TableCell>
                                         <Badge
                                             variant="outline"
-                                            className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 border-yellow-200"
+                                            className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-600"
                                         >
                                             Pending
                                         </Badge>

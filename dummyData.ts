@@ -40,7 +40,7 @@ export const owners: Owner[] = [
 // Step 2: Define properties, referencing owners
 export const properties: Property[] = [
     {
-        id: "1",
+        id: "0bce805e-8038-435e-8a09-c4625416c04c",
         address: "123 Park Avenue",
         city: "New York",
         state: "NY",
@@ -51,10 +51,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg",
         ],
-        owner: owners[0],
+        owners: [owners[0]],
     },
     {
-        id: "2",
+        id: "fbd36899-ffda-4a9c-9e92-266ddcc99baa",
         address: "456 Ocean Drive",
         city: "Miami",
         state: "FL",
@@ -65,10 +65,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg",
         ],
-        owner: owners[1],
+        owners: [owners[1]],
     },
     {
-        id: "3",
+        id: "dcc60864-e2ab-43bf-bf7d-350b0bb9976e",
         address: "789 Sunset Blvd",
         city: "Los Angeles",
         state: "CA",
@@ -79,10 +79,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg",
         ],
-        owner: owners[2],
+        owners: [owners[2]],
     },
     {
-        id: "4",
+        id: "33932668-7616-4db7-ac9d-2ae4bd41a0c9",
         address: "101 Market Street",
         city: "San Francisco",
         state: "CA",
@@ -93,10 +93,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
         ],
-        owner: owners[0],
+        owners: [owners[0]],
     },
     {
-        id: "5",
+        id: "3e9df901-8d28-4ccb-8539-ef5c3f143272",
         address: "202 Mission Street",
         city: "San Francisco",
         state: "CA",
@@ -107,10 +107,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg",
         ],
-        owner: owners[1],
+        owners: [owners[1]],
     },
     {
-        id: "6",
+        id: "f2b95dc9-a412-4eb5-bac3-c6dd82c17a45",
         address: "303 Howard Street",
         city: "San Francisco",
         state: "CA",
@@ -121,10 +121,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/210617/pexels-photo-210617.jpeg",
         ],
-        owner: owners[2],
+        owners: [owners[2]],
     },
     {
-        id: "7",
+        id: "a00ece62-b947-4fc4-8e5e-56c93329548f",
         address: "400 Folsom Street",
         city: "San Francisco",
         state: "CA",
@@ -135,10 +135,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg",
         ],
-        owner: owners[0],
+        owners: [owners[0]],
     },
     {
-        id: "8",
+        id: "28b3f7de-89f0-45ea-9402-6cd16f6818c3",
         address: "500 Harrison Street",
         city: "San Francisco",
         state: "CA",
@@ -149,10 +149,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/210622/pexels-photo-210622.jpeg",
         ],
-        owner: owners[1],
+        owners: [owners[1]],
     },
     {
-        id: "9",
+        id: "3fe7dd0b-4b39-4696-a3de-65a41396a994",
         address: "600 Howard Street",
         city: "San Francisco",
         state: "CA",
@@ -163,10 +163,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/210617/pexels-photo-210617.jpeg",
         ],
-        owner: owners[2],
+        owners: [owners[2]],
     },
     {
-        id: "10",
+        id: "700e5eb1-45af-4ead-a3bf-51bb67a0781b",
         address: "700 Main Street",
         city: "San Francisco",
         state: "CA",
@@ -177,10 +177,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/259962/pexels-photo-259962.jpeg",
         ],
-        owner: owners[0],
+        owners: [owners[0]],
     },
     {
-        id: "11",
+        id: "69e795a1-a8c0-4b65-ac7e-bd7a6b295bce",
         address: "800 Beale Street",
         city: "San Francisco",
         state: "CA",
@@ -191,10 +191,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
         ],
-        owner: owners[1],
+        owners: [owners[1]],
     },
     {
-        id: "12",
+        id: "337056eb-f7d7-49a6-bad0-d9e2ae4996dd",
         address: "900 Bryant Street",
         city: "San Francisco",
         state: "CA",
@@ -205,10 +205,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/210617/pexels-photo-210617.jpeg",
         ],
-        owner: owners[2],
+        owners: [owners[2]],
     },
     {
-        id: "13",
+        id: "fc013492-f52d-4623-87ad-3e95ec80a29d",
         address: "1000 Harrison Street",
         city: "San Francisco",
         state: "CA",
@@ -219,10 +219,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/210622/pexels-photo-210622.jpeg",
         ],
-        owner: owners[0],
+        owners: [owners[0]],
     },
     {
-        id: "14",
+        id: "6fc67712-56c0-4cce-8681-cd0ac30465f9",
         address: "1100 Folsom Street",
         city: "San Francisco",
         state: "CA",
@@ -233,10 +233,10 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg",
         ],
-        owner: owners[1],
+        owners: [owners[1]],
     },
     {
-        id: "15",
+        id: "adfffd6e-83a6-4bc5-84e2-e6b59a553d29",
         address: "1200 Mission Street",
         city: "San Francisco",
         state: "CA",
@@ -247,7 +247,7 @@ export const properties: Property[] = [
         images: [
             "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg",
         ],
-        owner: owners[2],
+        owners: [owners[2]],
     },
 ];
 
