@@ -9,6 +9,11 @@ import { authAPI } from "../../db/apiAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { type FormValues } from "@/types";
 
+const DEMO_CREDENTIALS = {
+    email: "viyileg538@magpit.com",
+    password: "12345678",
+};
+
 export function LoginForm({
     className,
     ...props
@@ -18,6 +23,7 @@ export function LoginForm({
         register,
         handleSubmit,
         formState: { errors },
+        setValue,
     } = useForm<FormValues>();
     const navigate = useNavigate();
 
@@ -52,6 +58,12 @@ export function LoginForm({
         }
     };
 
+    const fillDemoCredentials = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setValue("email", DEMO_CREDENTIALS.email);
+        setValue("password", DEMO_CREDENTIALS.password);
+    };
+
     return (
         <form
             className={cn("flex flex-col gap-6", className)}
@@ -66,7 +78,16 @@ export function LoginForm({
             </div>
             <div className="grid gap-6">
                 <div className="grid gap-3">
-                    <Label htmlFor="email">Email</Label>
+                    <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Button
+                            variant={"link"}
+                            className="!p-0 !m-0"
+                            onClick={fillDemoCredentials}
+                        >
+                            Use demo credentials
+                        </Button>
+                    </div>
                     <Input
                         id="email"
                         type="email"
