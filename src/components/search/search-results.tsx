@@ -3,6 +3,7 @@ import { useSearch } from "@/context/search-provider";
 import { properties, owners } from "../../../dummyData";
 import type { Property, Owner } from "@/types";
 import { PropertyFilter } from "./property-filter";
+import { useNavigate } from "react-router-dom";
 
 export function SearchResults() {
     const { searchQuery, propertyFilters, ownerFilters } = useSearch();
@@ -15,7 +16,7 @@ export function SearchResults() {
             property.address
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase()) ||
-            property.owner.name
+            property.owners[0].name
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase()) ||
             property.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -41,25 +42,28 @@ export function SearchResults() {
             (!propertyFilters.maxValue ||
                 property.value <= propertyFilters.maxValue) &&
             (!propertyFilters.minSize ||
-                property.size >= propertyFilters.minSize) &&
+                (property.size !== undefined &&
+                    property.size >= propertyFilters.minSize)) &&
             (!propertyFilters.maxSize ||
-                property.size <= propertyFilters.maxSize);
-
-        // Owner filters
+                (property.size !== undefined &&
+                    property.size <= propertyFilters.maxSize));
         const matchesOwnerFilters =
             (!ownerFilters.name ||
-                property.owner.name
+                property.owners?.[0].name
                     .toLowerCase()
                     .includes(ownerFilters.name.toLowerCase())) &&
-            (!ownerFilters.type || property.owner.type === ownerFilters.type) &&
+            (!ownerFilters.type ||
+                property.owners?.[0].type === ownerFilters.type) &&
             (!ownerFilters.minNetWorth ||
-                property.owner.estimatedNetWorth >= ownerFilters.minNetWorth) &&
+                property.owners?.[0].estimatedNetWorth >=
+                    ownerFilters.minNetWorth) &&
             (!ownerFilters.maxNetWorth ||
-                property.owner.estimatedNetWorth <= ownerFilters.maxNetWorth) &&
+                property.owners?.[0].estimatedNetWorth <=
+                    ownerFilters.maxNetWorth) &&
             (!ownerFilters.confidenceLevel ||
-                (property?.owner?.confidenceLevel !== undefined &&
+                (property?.owners?.[0].confidenceLevel !== undefined &&
                     ownerFilters.confidenceLevel.includes(
-                        property.owner.confidenceLevel
+                        property.owners?.[0]?.confidenceLevel
                     )));
 
         return matchesQuery && matchesPropertyFilters && matchesOwnerFilters;
@@ -134,8 +138,13 @@ export function SearchResults() {
 
 // Helper components for displaying results
 function PropertyCard({ property }: { property: Property }) {
+    const navigate = useNavigate();
     return (
-        <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div
+            role="button"
+            className="border rounded-lg p-4 cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => navigate(`/property-detail/${property.id}`)}
+        >
             <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
                 {property.images?.[0] && (
                     <img
@@ -154,13 +163,15 @@ function PropertyCard({ property }: { property: Property }) {
                     ${property.value.toLocaleString()}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                    {property.size.toLocaleString()} sq ft
+                    {property?.size?.toLocaleString()} sq ft
                 </span>
             </div>
             <div className="mt-2 pt-2 border-t">
                 <p className="text-sm">
                     Owner:{" "}
-                    <span className="font-medium">{property.owner.name}</span>
+                    <span className="font-medium">
+                        {property?.owners?.[0].name}
+                    </span>
                 </p>
             </div>
         </div>
