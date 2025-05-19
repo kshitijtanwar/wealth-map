@@ -14,7 +14,7 @@ const UserActivity = ({ className, ...props }: CardProps) => {
                 <div className="flex flex-col items-center">
                     <div className="flex flex-col justify-center items-center gap-8 xs:flex-row">
                         <div className="text-center">
-                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-3">
+                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-950 mb-3 transition-colors duration-150">
                                 <Activity className="h-8 w-8 text-emerald-600" />
                             </div>
                             <h4 className="text-2xl font-bold">78%</h4>
@@ -23,8 +23,8 @@ const UserActivity = ({ className, ...props }: CardProps) => {
                             </p>
                         </div>
 
-                        <div className="text-center">
-                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-3">
+                        <div className="text-center ">
+                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-amber-100  dark:bg-amber-950 mb-3 transition-colors duration-150">
                                 <Map className="h-8 w-8 text-amber-600" />
                             </div>
                             <h4 className="text-2xl font-bold">124</h4>
@@ -34,7 +34,7 @@ const UserActivity = ({ className, ...props }: CardProps) => {
                         </div>
 
                         <div className="text-center">
-                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-3">
+                            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-950 mb-3 transition-colors duration-150">
                                 <FileText className="h-8 w-8 text-blue-600" />
                             </div>
                             <h4 className="text-2xl font-bold">36</h4>

@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Owner } from "@/types";
+import type { RealOwner } from "@/types";
 import {
     User,
-    Briefcase,
     MapPin,
     Calendar,
     DollarSign,
@@ -11,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface OwnerInformationCardProps {
-    owner: Owner;
+    owner: RealOwner;
     onViewWealthAnalysis?: () => void;
 }
 
@@ -28,11 +27,11 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
             </CardHeader>
             <CardContent>
                 <div className="flex items-center mb-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                        <User className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center mr-3">
+                        <User className="h-5 w-5 text-blue-500" />
                     </div>
                     <div>
-                        <p className="font-medium">{owner.name}</p>
+                        <p className="font-medium">{owner.full_name}</p>
                         <p className="text-xs text-gray-500">
                             {owner.type === "individual"
                                 ? "Individual Owner"
@@ -42,10 +41,6 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                    <div className="flex items-center">
-                        <Briefcase size={16} className="text-gray-400 mr-2" />
-                        <p className="text-sm">CEO at Smith Enterprises</p>
-                    </div>
                     <div className="flex items-center">
                         <MapPin size={16} className="text-gray-400 mr-2" />
                         <p className="text-sm">
@@ -59,7 +54,7 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
                     <div className="flex items-center">
                         <DollarSign size={16} className="text-gray-400 mr-2" />
                         <p className="text-sm">
-                            Owns {owner?.properties?.length || 1} properties
+                            Owns 3 properties
                         </p>
                     </div>
                 </div>

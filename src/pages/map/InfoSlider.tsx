@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { SheetClose, SheetContent } from "@/components/ui/sheet";
-import { XCircle, Bookmark, Download } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/types";
+import { Separator } from "@/components/ui/separator";
+import { XCircle, Bookmark, Download, BookmarkCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
 
 export function InfoSlider({
     selectedProperty,
@@ -11,9 +16,42 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
+    const [isBookmarked, setIsBookmarked] = useState(false);
+
+    useEffect(() => {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+        const isSaved = bookmarks.some((bookmark: Property) => bookmark.id === selectedProperty.id);
+        setIsBookmarked(isSaved);
+    }, [selectedProperty.id]);
+
+
+    const handleSaveProperty = () => {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+
+        if (isBookmarked) {
+            // Remove from bookmarks
+            const updatedBookmarks = bookmarks.filter(
+                (bookmark: Property) => bookmark.id !== selectedProperty.id
+            );
+            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            setIsBookmarked(false);
+            toast("Property removed", {
+                description: "This property has been removed from your bookmarks.",
+            });
+        } else {
+            // Add to bookmarks
+            const updatedBookmarks = [...bookmarks, selectedProperty];
+            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            setIsBookmarked(true);
+            toast("Property saved", {
+                description: "This property has been added to your bookmarks.",
+            });
+        }
+    };
+
     return (
         <SheetContent
-            className="p-0 w-full sm:max-w-md overflow-y-auto"
+            className="p-0 pb-10 w-full sm:max-w-md overflow-y-auto"
             onOpenAutoFocus={(e) => e.preventDefault()}
         >
             <div className="relative h-48 bg-gray-200">
@@ -24,11 +62,8 @@ export function InfoSlider({
                         className="w-full h-full object-cover"
                     />
                 )}
-                <SheetClose
-                    className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md"
-                    tabIndex={-1}
-                >
-                    <XCircle size={24} className="text-gray-600" />
+                <SheetClose className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md">
+                    <XCircle size={24} className="text-muted-foreground" />
                 </SheetClose>
             </div>
 
@@ -36,14 +71,14 @@ export function InfoSlider({
                 <h3 className="text-xl font-semibold">
                     {selectedProperty.address}
                 </h3>
-                <p className="text-gray-600 mb-2">
+                <p className="text-muted-foreground mb-2">
                     {selectedProperty.city}, {selectedProperty.state}{" "}
                     {selectedProperty.zipCode}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <p className="text-sm text-gray-500">Value</p>
+                        <p className="text-sm text-muted-foreground">Value</p>
                         <p className="text-lg font-medium">
                             $
                             {selectedProperty.value
@@ -52,45 +87,52 @@ export function InfoSlider({
                         </p>
                     </div>
                     <div>
-                        <p className="text-sm text-gray-500">Size</p>
+                        <p className="text-sm text-muted-foreground">Size</p>
                         <p className="text-lg font-medium">
-                            {selectedProperty.size.toLocaleString()} sq ft
+                            {selectedProperty.size || 2400} sq ft
                         </p>
                     </div>
                 </div>
-
-                <div className="border-t border-gray-200 pt-4 mb-4">
+                <Separator />
+                <div className="pt-4 mb-4 space-y-2">
                     <h4 className="font-medium mb-2">Owner Information</h4>
-                    <Card className="bg-card">
-                        <CardContent className="p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="font-medium">
-                                        {selectedProperty.owner.name}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        Indivisual Owner
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-500">
-                                        Net Worth
-                                    </p>
-                                    <p className="font-semibold text-emerald-600">
-                                        $
-                                        {selectedProperty.owner
-                                            .estimatedNetWorth
-                                            ? (
-                                                  selectedProperty.owner
-                                                      .estimatedNetWorth /
-                                                  1_000_000
-                                              ).toFixed(1) + "M"
-                                            : "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+
+                    {selectedProperty.owners &&
+                        selectedProperty.owners.length > 0 ? (
+                        selectedProperty.owners.map((owner) => (
+                            <Card key={owner.id} className="py-1">
+                                <CardHeader>
+                                    <CardTitle className="text-sm flex justify-between items-center">
+                                        {owner.name}
+                                        <div className="flex flex-col text-sm">
+                                            <span className="capitalize text-emerald-700">
+                                                net worth
+                                            </span>
+                                            $
+                                            {Math.round(owner.estimatedNetWorth).toLocaleString()}
+                                        </div>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardFooter className="text-xs ">
+                                    Confidence:
+                                    <span
+                                        className={`ml-1 capitalize ${
+                                            owner.confidenceLevel === "low"
+                                                ? "text-yellow-600"
+                                                : owner.confidenceLevel ===
+                                                  "medium"
+                                                ? "text-blue-600"
+                                                : "text-green-600"
+                                        }`}
+                                    >
+                                        {owner.confidenceLevel}
+                                    </span>
+                                </CardFooter>
+                            </Card>
+                        ))
+                    ) : (
+                        <p>No owner information available</p>
+                    )}
                 </div>
 
                 <div className="space-y-3 mt-6">
@@ -105,13 +147,23 @@ export function InfoSlider({
 
                     <div className="grid grid-cols-2 gap-3">
                         <Button
-                            variant="outline"
+                            variant={isBookmarked ? "default" : "outline"}
                             size="sm"
                             className="flex items-center gap-2"
                             tabIndex={-1}
+                            onClick={handleSaveProperty}
                         >
-                            <Bookmark size={16} />
-                            Save Property
+                            {isBookmarked ? (
+                                <>
+                                    <BookmarkCheck size={16} />
+                                    Saved
+                                </>
+                            ) : (
+                                <>
+                                    <Bookmark size={16} />
+                                    Save Property
+                                </>
+                            )}
                         </Button>
                         <Button
                             tabIndex={-1}

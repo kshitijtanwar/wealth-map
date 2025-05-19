@@ -25,8 +25,10 @@ const Map: React.FC = () => {
     const { data: properties } = useQuery({
         queryKey: ["mapData"],
         queryFn: getMapData,
-        staleTime: 1000 * 60,
+        staleTime: 1000 * 60 * 5,
     });
+
+
 
     const [cameraProps, setCameraProps] = useState<MapCameraProps>(
         getInitialCameraProps()
@@ -62,12 +64,7 @@ const Map: React.FC = () => {
                 <InfoSlider
                     selectedProperty={selectedProperty}
                     onViewPropertyDetails={() => {
-                        navigate("/property-detail", {
-                            state: {
-                                property: selectedProperty,
-                                owner: selectedProperty.owner,
-                            },
-                        });
+                        navigate(`/property-detail/${selectedProperty.id}`);
                     }}
                 />
             )}
