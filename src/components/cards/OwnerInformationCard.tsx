@@ -1,12 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { RealOwner } from "@/types";
-import {
-    User,
-    MapPin,
-    Calendar,
-    DollarSign,
-    ArrowRight,
-} from "lucide-react";
+import { User, MapPin, Calendar, DollarSign, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface OwnerInformationCardProps {
@@ -42,9 +36,12 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
 
                 <div className="space-y-2">
                     <div className="flex items-center">
-                        <MapPin size={16} className="text-gray-400 mr-2" />
-                        <p className="text-sm">
-                            Primary Residence: New York, NY
+                        <MapPin
+                            size={16}
+                            className="text-gray-400 mr-2 h-4 w-4 min-h-4 min-w-4"
+                        />
+                        <p className="text-sm line-clamp-2">
+                            Primary Residence: {owner.mailing_address}
                         </p>
                     </div>
                     <div className="flex items-center">
@@ -53,9 +50,7 @@ const OwnerInformationCard: React.FC<OwnerInformationCardProps> = ({
                     </div>
                     <div className="flex items-center">
                         <DollarSign size={16} className="text-gray-400 mr-2" />
-                        <p className="text-sm">
-                            Owns 3 properties
-                        </p>
+                        <p className="text-sm">Owns 3 properties</p>
                     </div>
                 </div>
                 <Button
