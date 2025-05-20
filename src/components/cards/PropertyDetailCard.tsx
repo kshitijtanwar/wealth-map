@@ -2,7 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 const PropertyDetailCard: React.FC<{
     type: string;
     yearBuilt: number;
-}> = ({ type, yearBuilt }) => {
+    address: string;
+}> = ({ type, yearBuilt, address }) => {
     return (
         <Card className="!pb-6 !pt-0 !overflow-hidden">
             <CardContent className="p-0">
@@ -14,26 +15,38 @@ const PropertyDetailCard: React.FC<{
                     />
                 </div>
                 <div className="p-4">
-                    <h3 className="font-medium text-lg mb-2">
-                        Property Details
+                    <h3 className="font-medium text-lg mb-2 underline">
+                        Property Specific Details
                     </h3>
+                    <div className="mb-4">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                            Address
+                        </p>
+                        <h1>{address || "NA"}</h1>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                                 Property Type
                             </p>
                             <p className="font-medium">{type}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">Year Built</p>
+                            <p className="text-sm text-muted-foreground">
+                                Year Built
+                            </p>
                             <p className="font-medium">{yearBuilt || "N/A"}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">Lot Size</p>
+                            <p className="text-sm text-muted-foreground">
+                                Lot Size
+                            </p>
                             <p className="font-medium">0.25 acres</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">Zoning</p>
+                            <p className="text-sm text-muted-foreground">
+                                Zoning
+                            </p>
                             <p className="font-medium">Residential</p>
                         </div>
                     </div>
