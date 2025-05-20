@@ -48,12 +48,14 @@ const Settings = () => {
     const { company_logo, fullname, email, company_id } =
         session?.user?.user_metadata || {};
     const [isPending, setIsPending] = useState(false);
-    const [revokedEmployees, setRevokedEmployees] = useState<RevokedEmployee[]>([]);
+    const [revokedEmployees, setRevokedEmployees] = useState<RevokedEmployee[]>(
+        []
+    );
     const [loadingRevoked, setLoadingRevoked] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordError, setPasswordError] = useState('');
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
     const navigate = useNavigate();
     const handleAccountSave = (e: React.FormEvent) => {
@@ -73,7 +75,9 @@ const Settings = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarUploading, setAvatarUploading] = useState(false);
 
-    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAvatarChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = e.target.files?.[0];
         if (!file || !session?.user?.id) return;
 
@@ -91,7 +95,11 @@ const Settings = () => {
                 throw new Error(error);
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to update avatar");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update avatar"
+            );
         } finally {
             setAvatarUploading(false);
         }
@@ -99,7 +107,9 @@ const Settings = () => {
 
     const fetchRevokedEmployees = async () => {
         setLoadingRevoked(true);
-        const { success, employees, error } = await authAPI.getRevokedEmployees(company_id);
+        const { success, employees, error } = await authAPI.getRevokedEmployees(
+            company_id
+        );
         if (success && employees) {
             setRevokedEmployees(employees as unknown as RevokedEmployee[]);
         } else {
@@ -122,7 +132,7 @@ const Settings = () => {
     };
     const handlePasswordUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
-        setPasswordError('');
+        setPasswordError("");
 
         // Validate passwords
         if (newPassword !== confirmPassword) {
@@ -145,14 +155,18 @@ const Settings = () => {
             if (success) {
                 toast.success("Password updated successfully");
                 // Clear the form
-                setCurrentPassword('');
-                setNewPassword('');
-                setConfirmPassword('');
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
             } else {
                 throw new Error(error);
             }
         } catch (error) {
-            setPasswordError(error instanceof Error ? error.message : "Failed to update password");
+            setPasswordError(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update password"
+            );
             toast.error("Failed to update password");
         } finally {
             setIsUpdatingPassword(false);
@@ -162,7 +176,7 @@ const Settings = () => {
     return (
         <div className="container mx-auto">
             <Tabs defaultValue="account">
-                <TabsList className="w-full md:w-1/2 bg-inhert">
+                <TabsList className="w-full md:w-1/2 bg-inherit border-b">
                     <TabsTrigger
                         value="account"
                         className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
@@ -187,7 +201,8 @@ const Settings = () => {
                     >
                         Security
                     </TabsTrigger>
-                    {session?.user?.user_metadata?.permission_level === "admin" && (
+                    {session?.user?.user_metadata?.permission_level ===
+                        "admin" && (
                         <TabsTrigger
                             value="revoked"
                             className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
@@ -211,20 +226,31 @@ const Settings = () => {
                             <div className="flex items-center space-x-4">
                                 <Avatar className="h-20 w-20 border">
                                     <AvatarImage
-                                        src={company_logo || "https://github.com/shadcn.png"}
+                                        src={
+                                            company_logo ||
+                                            "https://github.com/shadcn.png"
+                                        }
                                         alt={fullname}
+                                        className="object-cover"
                                     />
                                     <AvatarFallback>
-                                        {fullname?.split(' ').map((n: string) => n[0]).join('')}
+                                        {fullname
+                                            ?.split(" ")
+                                            .map((n: string) => n[0])
+                                            .join("")}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <Button
                                         variant="outline"
-                                        onClick={() => fileInputRef.current?.click()}
+                                        onClick={() =>
+                                            fileInputRef.current?.click()
+                                        }
                                         disabled={avatarUploading}
                                     >
-                                        {avatarUploading ? "Uploading..." : "Change Avatar"}
+                                        {avatarUploading
+                                            ? "Uploading..."
+                                            : "Change Avatar"}
                                     </Button>
                                     <input
                                         type="file"
@@ -410,11 +436,15 @@ const Settings = () => {
                         <CardHeader>
                             <CardTitle>Security Settings</CardTitle>
                             <CardDescription>
-                                Manage your account security and authentication methods.
+                                Manage your account security and authentication
+                                methods.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                            <form
+                                onSubmit={handlePasswordUpdate}
+                                className="space-y-4"
+                            >
                                 <h3 className="text-lg font-medium">
                                     Change Password
                                 </h3>
@@ -433,7 +463,9 @@ const Settings = () => {
                                         id="current-password"
                                         type="password"
                                         value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        onChange={(e) =>
+                                            setCurrentPassword(e.target.value)
+                                        }
                                         required
                                     />
                                 </div>
@@ -446,7 +478,9 @@ const Settings = () => {
                                         id="new-password"
                                         type="password"
                                         value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        onChange={(e) =>
+                                            setNewPassword(e.target.value)
+                                        }
                                         required
                                     />
                                 </div>
@@ -459,7 +493,9 @@ const Settings = () => {
                                         id="confirm-password"
                                         type="password"
                                         value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        onChange={(e) =>
+                                            setConfirmPassword(e.target.value)
+                                        }
                                         required
                                     />
                                 </div>
@@ -468,7 +504,9 @@ const Settings = () => {
                                     type="submit"
                                     disabled={isUpdatingPassword}
                                 >
-                                    {isUpdatingPassword ? "Updating..." : "Update Password"}
+                                    {isUpdatingPassword
+                                        ? "Updating..."
+                                        : "Update Password"}
                                 </Button>
                             </form>
 
@@ -482,7 +520,8 @@ const Settings = () => {
                                             Enable 2FA
                                         </div>
                                         <div className="text-muted-foreground text-sm">
-                                            Add an extra layer of security to your account
+                                            Add an extra layer of security to
+                                            your account
                                         </div>
                                     </div>
                                     <Switch />
@@ -490,14 +529,15 @@ const Settings = () => {
                             </div>
                         </CardContent>
                     </Card>
-                </TabsContent>  
+                </TabsContent>
                 {session?.user?.user_metadata?.permission_level === "admin" && (
                     <TabsContent value="revoked">
                         <Card className="border-none shadow-none bg-inherit">
                             <CardHeader>
                                 <CardTitle>Revoked Employee Access</CardTitle>
                                 <CardDescription>
-                                    Manage employees who have had their access revoked
+                                    Manage employees who have had their access
+                                    revoked
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -517,22 +557,40 @@ const Settings = () => {
                                                 <div className="flex items-center space-x-4">
                                                     <Avatar>
                                                         <AvatarImage
-                                                            src={employee.employees.avatar_url}
-                                                            alt={employee.employees.fullname}
+                                                            src={
+                                                                employee
+                                                                    .employees
+                                                                    .avatar_url
+                                                            }
+                                                            alt={
+                                                                employee
+                                                                    .employees
+                                                                    .fullname
+                                                            }
                                                         />
                                                         <AvatarFallback>
                                                             {employee.employees.fullname
                                                                 .split(" ")
-                                                                .map((n) => n[0])
+                                                                .map(
+                                                                    (n) => n[0]
+                                                                )
                                                                 .join("")}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div>
                                                         <div className="font-medium">
-                                                            {employee.employees.fullname}
+                                                            {
+                                                                employee
+                                                                    .employees
+                                                                    .fullname
+                                                            }
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {employee.employees.email}
+                                                            {
+                                                                employee
+                                                                    .employees
+                                                                    .email
+                                                            }
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
                                                             Revoked on:{" "}
@@ -546,7 +604,8 @@ const Settings = () => {
                                                     variant="outline"
                                                     onClick={() =>
                                                         handleReactivate(
-                                                            employee.employees.id
+                                                            employee.employees
+                                                                .id
                                                         )
                                                     }
                                                 >

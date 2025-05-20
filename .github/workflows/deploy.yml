@@ -1,0 +1,21 @@
+name: Deploy to Render
+
+on:
+    push:
+        branches:
+            - main # or your deployment branch
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Deploy to Render
+              env:
+                  RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+              run: |
+                  curl -X POST https://api.render.com/deploy/srv-d0hn5k24d50c73bnuuq0 \
+                    -H 'Authorization: Bearer $RENDER_TOKEN'
