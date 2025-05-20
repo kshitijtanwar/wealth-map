@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Card,
@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { toast } from "sonner";
-import { useRef } from "react";
 
 interface Employee {
     id: string;
@@ -89,8 +88,6 @@ const Settings = () => {
 
             if (success && avatarUrl) {
                 toast.success("Avatar updated successfully");
-                // You might need to update your auth context here with the new avatar
-                // For example, if you have a way to update the session in your AuthProvider
             } else {
                 throw new Error(error);
             }
@@ -176,40 +173,42 @@ const Settings = () => {
     return (
         <div className="container mx-auto">
             <Tabs defaultValue="account">
-                <TabsList className="w-full md:w-1/2 bg-inherit border-b">
-                    <TabsTrigger
-                        value="account"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        My Account
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="billing"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Billing
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="notifications"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Notifications
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="security"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Security
-                    </TabsTrigger>
-                    {session?.user?.user_metadata?.permission_level ===
-                        "admin" && (
+                <TabsList className="max-w-full bg-inherit">
+                    <div className="flex items-center overflow-x-auto pb-2">
                         <TabsTrigger
-                            value="revoked"
+                            value="account"
                             className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
                         >
-                            Revoked Access
+                            My Account
                         </TabsTrigger>
-                    )}
+                        <TabsTrigger
+                            value="billing"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Billing
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="notifications"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Notifications
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="security"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Security
+                        </TabsTrigger>
+                        {session?.user?.user_metadata?.permission_level ===
+                            "admin" && (
+                            <TabsTrigger
+                                value="revoked"
+                                className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                            >
+                                Revoked Access
+                            </TabsTrigger>
+                        )}
+                    </div>
                 </TabsList>
 
                 {/* Account Tab */}
@@ -277,11 +276,21 @@ const Settings = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="email">
+                                                Email{" "}
+                                            </Label>
+                                            <span className="text-muted-foreground text-xs">
+                                                Email can't be modified as of
+                                                now
+                                            </span>
+                                        </div>
                                         <Input
                                             id="email"
                                             type="email"
                                             defaultValue={email}
+                                            readOnly
+                                            className="cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -441,68 +450,69 @@ const Settings = () => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <form
-                                onSubmit={handlePasswordUpdate}
-                                className="space-y-4"
-                            >
-                                <h3 className="text-lg font-medium">
-                                    Change Password
-                                </h3>
-
+                            <form onSubmit={handlePasswordUpdate}>
                                 {passwordError && (
                                     <div className="text-sm text-destructive">
                                         {passwordError}
                                     </div>
                                 )}
+                                <div className="flex flex-col w-full md:w-1/2 gap-4">
+                                    <h3 className="text-lg font-medium">
+                                        Change Password
+                                    </h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="current-password">
+                                            Current Password
+                                        </Label>
+                                        <Input
+                                            id="current-password"
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) =>
+                                                setCurrentPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="current-password">
-                                        Current Password
-                                    </Label>
-                                    <Input
-                                        id="current-password"
-                                        type="password"
-                                        value={currentPassword}
-                                        onChange={(e) =>
-                                            setCurrentPassword(e.target.value)
-                                        }
-                                        required
-                                    />
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-password">
+                                            New Password
+                                        </Label>
+                                        <Input
+                                            id="new-password"
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) =>
+                                                setNewPassword(e.target.value)
+                                            }
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confirm-password">
+                                            Confirm Password
+                                        </Label>
+                                        <Input
+                                            id="confirm-password"
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) =>
+                                                setConfirmPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
                                 </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="new-password">
-                                        New Password
-                                    </Label>
-                                    <Input
-                                        id="new-password"
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) =>
-                                            setNewPassword(e.target.value)
-                                        }
-                                        required
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="confirm-password">
-                                        Confirm Password
-                                    </Label>
-                                    <Input
-                                        id="confirm-password"
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) =>
-                                            setConfirmPassword(e.target.value)
-                                        }
-                                        required
-                                    />
-                                </div>
-
                                 <Button
                                     type="submit"
                                     disabled={isUpdatingPassword}
+                                    className="mt-4"
                                 >
                                     {isUpdatingPassword
                                         ? "Updating..."
@@ -552,7 +562,7 @@ const Settings = () => {
                                         {revokedEmployees.map((employee) => (
                                             <div
                                                 key={employee.employees.id}
-                                                className="flex items-center justify-between p-4 border rounded-md"
+                                                className="flex flex-col xs:flex-row gap-2 xs:items-center justify-between p-4 border rounded-md"
                                             >
                                                 <div className="flex items-center space-x-4">
                                                     <Avatar>
@@ -608,6 +618,7 @@ const Settings = () => {
                                                                 .id
                                                         )
                                                     }
+                                                    className="w-full xs:w-fit"
                                                 >
                                                     Restore Access
                                                 </Button>
