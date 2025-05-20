@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-    Card,
-    CardHeader,
-    CardDescription,
-    CardTitle,
-} from "@/components/ui/card";
-import { MapPin, Download, FileText, ArrowLeft } from "lucide-react";
+import { Download, FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -15,7 +9,6 @@ import {
     OwnerNetWorthCard,
 } from "@/components/cards/OverviewCard";
 import PropertyDetailCard from "@/components/cards/PropertyDetailCard";
-import OwnerInformationCard from "@/components/cards/OwnerInformationCard";
 import WealthComposition from "@/components/cards/WealthComposition";
 import { DataSourceCard } from "@/components/cards/DataSourceCard";
 import OtherPropertiesOwned from "@/components/cards/OtherPropertiesOwned";
@@ -62,49 +55,42 @@ const PropertyDetail: React.FC = () => {
 
     return (
         <section className="space-y-4 p-4">
-            <Button variant={`link`} onClick={() => navigate("/map")}>
-                <ArrowLeft /> Head to map
-            </Button>
-            <Card className={`w-full`}>
-                <CardHeader className="flex flex-col sm:flex-row justify-between items-center">
-                    <div className="space-y-1">
-                        <CardTitle>
-                            {data?.property?.address_line1 ||
-                                data?.property?.site_address}
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-1">
-                            <MapPin size={15} /> {property?.city},{" "}
-                            {property?.state} {property?.zip_code}
-                        </CardDescription>
-                    </div>
-                    <div className="mt-4 md:mt-0 flex space-x-2">
-                        <Button variant="outline">
-                            <PDFDownloadLink
-                                document={
-                                    <PropertyReportPDF
-                                        property={property}
-                                        owner={owners?.[0]}
-                                    />
-                                }
-                                fileName={`${property.address_line1}-report.pdf`}
-                                className="flex items-center gap-1"
-                            >
-                                <Download size={16} />
-                                Export PDF
-                            </PDFDownloadLink>
-                        </Button>
-                        <Button>
-                            <FileText size={16} />
-                            Save Report
-                        </Button>
-                    </div>
-                </CardHeader>
-            </Card>
+            <div className="flex flex-col md:flex-row items-start justify-between md:items-center">
+                <Button
+                    variant={`link`}
+                    onClick={() => navigate("/map")}
+                    className="text-base flex items-center"
+                >
+                    <ArrowLeft size={16} /> Head to map
+                </Button>
+
+                <div className="mt-4 md:mt-0 flex w-full md:w-fit gap-2 ml-auto">
+                    <Button variant="outline" className="w-1/2 md:w-fit">
+                        <PDFDownloadLink
+                            document={
+                                <PropertyReportPDF
+                                    property={property}
+                                    owner={owners?.[0]}
+                                />
+                            }
+                            fileName={`${property.address_line1}-report.pdf`}
+                            className="flex items-center gap-1"
+                        >
+                            <Download size={16} />
+                            Export PDF
+                        </PDFDownloadLink>
+                    </Button>
+                    <Button className="w-1/2 md:w-fit">
+                        <FileText size={16} />
+                        Save Report
+                    </Button>
+                </div>
+            </div>
             <Tabs
                 value={tab}
                 onValueChange={(value) => setTab(value as TabsValue)}
             >
-                <TabsList className="w-full md:w-1/2 bg-inherit border-b mt-3">
+                <TabsList className="w-full lg:w-1/2 bg-inherit border-b mt-3">
                     <TabsTrigger
                         value="overview"
                         className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
@@ -124,47 +110,37 @@ const PropertyDetail: React.FC = () => {
                         Transaction History
                     </TabsTrigger>
                 </TabsList>
+                {/* Overview Section */}
                 <TabsContent value="overview" className="space-y-6">
-                    {/* Overview Section */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <OwnerNetWorthCard
-                            netWorth={owners?.[0]?.estimated_net_worth ?? 0}
-                            confidenceLevel={
-                                owners?.[0]?.confidence_level ?? "low"
-                            }
-                        />
-                        <PropertyValueCard
-                            value={property?.assessed_total_value as number}
-                            lastAssessed="Oct 2023"
-                        />
-                        <PropertySizeCard
-                            size={property?.size as number}
-                            details="5 bed, 4 bath"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 md:gap-2">
+                        <div className="flex flex-col justify-between gap-2">
+                            <PropertyValueCard
+                                value={property?.assessed_total_value as number}
+                                lastAssessed={property?.created_at}
+                            />
+                            <OwnerNetWorthCard owners={owners || []} />
+                            <PropertySizeCard
+                                size={property?.size as number}
+                                details="5 bed, 4 bath"
+                            />
+                        </div>
+                        <div className="col-span-2 mt-2 md:mt-0">
                             <PropertyDetailCard
                                 type={property.propertytype}
                                 yearBuilt={property.year_built}
+                                address={property.site_address}
                             />
                         </div>
-                        {owners && (
-                            <OwnerInformationCard
-                                owner={owners[0]}
-                                onViewWealthAnalysis={() => setTab("owner")}
-                            />
-                        )}
                     </div>
                 </TabsContent>
+
                 <TabsContent value="owner" className="space-y-4">
                     <div className="flex flex-col lg:flex-row gap-4">
                         <WealthComposition
-                            wealth={owners?.[0]?.estimated_net_worth ?? 0}
                             confidence_level={
                                 owners?.[0]?.confidence_level as string
                             }
+                            owners={owners || []}
                         />
                         <DataSourceCard />
                     </div>
@@ -189,7 +165,8 @@ const PropertyDetail: React.FC = () => {
                             </TableRow>
                         </TableBody>
                         <TableCaption>
-                            List of recent Transactions regarding the property
+                            List of recent Transactions regarding the property.
+                            (Currently filled with dummy data)
                         </TableCaption>
                     </Table>
                 </TabsContent>
