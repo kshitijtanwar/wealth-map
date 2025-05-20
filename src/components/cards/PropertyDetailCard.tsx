@@ -1,4 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
+import {
+    CalendarFold,
+    Fence,
+    LandPlot,
+    MapPinHouse,
+    Ruler,
+} from "lucide-react";
 const PropertyDetailCard: React.FC<{
     type: string;
     yearBuilt: number;
@@ -19,32 +26,37 @@ const PropertyDetailCard: React.FC<{
                         Property Specific Details
                     </h3>
                     <div className="mb-4">
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2 flex items-center gap-1">
+                            <MapPinHouse size={16} />
                             Address
                         </p>
                         <h1>{address || "NA"}</h1>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Fence size={16} />
                                 Property Type
                             </p>
                             <p className="font-medium">{type}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <CalendarFold size={16} />
                                 Year Built
                             </p>
                             <p className="font-medium">{yearBuilt || "N/A"}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Ruler size={16} />
                                 Lot Size
                             </p>
                             <p className="font-medium">0.25 acres</p>
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <LandPlot size={16} />
                                 Zoning
                             </p>
                             <p className="font-medium">Residential</p>
