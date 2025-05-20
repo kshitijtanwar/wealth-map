@@ -15,7 +15,6 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
-    console.log(selectedProperty);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
