@@ -116,6 +116,42 @@ export const authAPI = {
             };
         }
     },
+    /**
+ * Update user full name
+ */
+    async updateUserName(userId: string, newName: string) {
+        try {
+            // Update user metadata in auth
+            const { data: { user }, error: authError } = await supabase.auth.updateUser({
+                data: {
+                    fullname: newName
+                }
+            });
+
+            if (authError || !user) throw authError || new Error("User update failed");
+
+            // Update employee record
+            const { error: employeeError } = await supabase
+                .from('employees')
+                .update({ fullname: newName })
+                .eq('id', userId);
+
+            if (employeeError) throw employeeError;
+
+            return {
+                success: true,
+                user,
+                message: "Name updated successfully"
+            };
+        } catch (error) {
+            console.error("Name update error:", error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Failed to update name"
+            };
+        }
+    },
+
 
     /**
      * Send employee invitation
@@ -527,7 +563,7 @@ export const authAPI = {
         } catch {
             return { success: false, error: "Unexpected error occurred." };
         }
-    },// Add this to your authAPI object in src/lib/apiAuth.ts
+    },
 
     /**
      * Get revoked employees (where is_active = false)
