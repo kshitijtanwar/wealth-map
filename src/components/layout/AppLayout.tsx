@@ -16,12 +16,12 @@ import { SearchFilter } from "../search/SearchFilter";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { ModeToggle } from "../utils/mode-toggle";
 import { SearchBar } from "../search/maps/search-bar";
+import { getPageTitle } from "@/utils/helper";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
     "/map": "Map",
-    "/property-detail": "Property Detail",
     "/reports": "Reports",
     "/settings": "Settings",
     "/search": "Search",
@@ -32,7 +32,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const { session } = useAuth();
     const [hasActiveCompany, setHasActiveCompany] = useState(true);
-    const pageTitle = pageTitles[location.pathname] || "Dashboard";
+
+    const pageTitle = getPageTitle(pageTitles);
 
     useEffect(() => {
         const checkActiveCompany = async () => {
@@ -83,7 +84,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     className="mr-2 !h-8"
                                 />
                                 <div className="flex w-full items-center gap-2">
-                                    <span className="flex-1">{pageTitle}</span>
+                                    <span className="flex-1 font-medium">
+                                        {pageTitle}
+                                    </span>
                                     <ModeToggle />
                                     {location.pathname == "/map" ? (
                                         <SearchBar />

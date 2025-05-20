@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bookmark, BookmarkCheck, Home, MapPin } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Property } from "@/types";
 import { toast } from "sonner";
@@ -35,21 +35,15 @@ export default function BookmarkedProperties() {
 
     return (
         <div className="container px-4 mx-auto">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold">Saved Properties</h1>
-                <Button
-                    onClick={() => navigate("/map")}
-                    className="flex items-center gap-2"
-                >
-                    <Home className="h-4 w-4" />
-                    Back to Map
-                </Button>
-            </div>
+            <Button onClick={() => navigate("/map")} variant={"link"} className="my-4">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Map
+            </Button>
 
             {properties.length === 0 ? (
                 <div className="text-center py-12">
                     <Bookmark className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-muted-foreground">
                         No saved properties
                     </h3>
                     <p className="mt-1 text-sm text-foreground-muted">

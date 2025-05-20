@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-const PropertyDetailCard: React.FC = () => {
+const PropertyDetailCard: React.FC<{
+    type: string;
+    yearBuilt: number;
+}> = ({ type, yearBuilt }) => {
     return (
         <Card className="!pb-6 !pt-0 !overflow-hidden">
             <CardContent className="p-0">
@@ -19,13 +22,11 @@ const PropertyDetailCard: React.FC = () => {
                             <p className="text-sm text-gray-500">
                                 Property Type
                             </p>
-                            <p className="font-medium">
-                                Single Family Residence
-                            </p>
+                            <p className="font-medium">{type}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Year Built</p>
-                            <p className="font-medium">2005</p>
+                            <p className="font-medium">{yearBuilt || "N/A"}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Lot Size</p>

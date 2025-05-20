@@ -4,10 +4,9 @@ import { SheetClose, SheetContent } from "@/components/ui/sheet";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/types";
 import { Separator } from "@/components/ui/separator";
-import { XCircle, Bookmark, Download, BookmarkCheck } from "lucide-react";
+import { XCircle, Bookmark, BookmarkCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
 
 export function InfoSlider({
     selectedProperty,
@@ -16,32 +15,45 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
+    console.log(selectedProperty);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
-        const isSaved = bookmarks.some((bookmark: Property) => bookmark.id === selectedProperty.id);
+        const bookmarks = JSON.parse(
+            localStorage.getItem("bookmarkedProperties") || "[]"
+        );
+        const isSaved = bookmarks.some(
+            (bookmark: Property) => bookmark.id === selectedProperty.id
+        );
         setIsBookmarked(isSaved);
     }, [selectedProperty.id]);
 
-
     const handleSaveProperty = () => {
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedProperties') || '[]');
+        const bookmarks = JSON.parse(
+            localStorage.getItem("bookmarkedProperties") || "[]"
+        );
 
         if (isBookmarked) {
             // Remove from bookmarks
             const updatedBookmarks = bookmarks.filter(
                 (bookmark: Property) => bookmark.id !== selectedProperty.id
             );
-            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            localStorage.setItem(
+                "bookmarkedProperties",
+                JSON.stringify(updatedBookmarks)
+            );
             setIsBookmarked(false);
             toast("Property removed", {
-                description: "This property has been removed from your bookmarks.",
+                description:
+                    "This property has been removed from your bookmarks.",
             });
         } else {
             // Add to bookmarks
             const updatedBookmarks = [...bookmarks, selectedProperty];
-            localStorage.setItem('bookmarkedProperties', JSON.stringify(updatedBookmarks));
+            localStorage.setItem(
+                "bookmarkedProperties",
+                JSON.stringify(updatedBookmarks)
+            );
             setIsBookmarked(true);
             toast("Property saved", {
                 description: "This property has been added to your bookmarks.",
@@ -83,7 +95,7 @@ export function InfoSlider({
                             $
                             {selectedProperty.value
                                 ? selectedProperty.value?.toLocaleString()
-                                : "1.23M"}
+                                : "N/A"}
                         </p>
                     </div>
                     <div>
@@ -98,7 +110,7 @@ export function InfoSlider({
                     <h4 className="font-medium mb-2">Owner Information</h4>
 
                     {selectedProperty.owners &&
-                        selectedProperty.owners.length > 0 ? (
+                    selectedProperty.owners.length > 0 ? (
                         selectedProperty.owners.map((owner) => (
                             <Card key={owner.id} className="py-1">
                                 <CardHeader>
@@ -109,7 +121,9 @@ export function InfoSlider({
                                                 net worth
                                             </span>
                                             $
-                                            {Math.round(owner.estimatedNetWorth).toLocaleString()}
+                                            {Math.round(
+                                                owner.estimatedNetWorth
+                                            ).toLocaleString()}
                                         </div>
                                     </CardTitle>
                                 </CardHeader>
@@ -135,7 +149,25 @@ export function InfoSlider({
                     )}
                 </div>
 
-                <div className="space-y-3 mt-6">
+                <div className="grid grid-cols-2 gap-3">
+                    <Button
+                        variant={isBookmarked ? "default" : "outline"}
+                        className="flex items-center gap-2"
+                        tabIndex={-1}
+                        onClick={handleSaveProperty}
+                    >
+                        {isBookmarked ? (
+                            <>
+                                <BookmarkCheck size={16} />
+                                Saved
+                            </>
+                        ) : (
+                            <>
+                                <Bookmark size={16} />
+                                Save Property
+                            </>
+                        )}
+                    </Button>
                     <Button
                         tabIndex={-1}
                         variant="default"
@@ -144,37 +176,6 @@ export function InfoSlider({
                     >
                         View Detailed Report
                     </Button>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <Button
-                            variant={isBookmarked ? "default" : "outline"}
-                            size="sm"
-                            className="flex items-center gap-2"
-                            tabIndex={-1}
-                            onClick={handleSaveProperty}
-                        >
-                            {isBookmarked ? (
-                                <>
-                                    <BookmarkCheck size={16} />
-                                    Saved
-                                </>
-                            ) : (
-                                <>
-                                    <Bookmark size={16} />
-                                    Save Property
-                                </>
-                            )}
-                        </Button>
-                        <Button
-                            tabIndex={-1}
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-2"
-                        >
-                            <Download size={16} />
-                            Export Data
-                        </Button>
-                    </div>
                 </div>
             </div>
         </SheetContent>
