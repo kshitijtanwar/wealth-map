@@ -22,6 +22,7 @@ import Landing from "./pages/landing/LandingPage";
 import { SearchResults } from "./components/search/search-results";
 import { useIsMobile } from "./hooks/use-mobile";
 import BookmarkedProperties from "./pages/bookmarks/BookMarkedProperties";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -92,9 +93,11 @@ const App = () => {
                     closeButton
                     position={isMobile ? "top-center" : "bottom-right"}
                 />
-                <Router>
-                    <AppRoutes />
-                </Router>
+                <TooltipProvider>
+                    <Router>
+                        <AppRoutes />
+                    </Router>
+                </TooltipProvider>
             </AuthProvider>
         </ThemeProvider>
     );
