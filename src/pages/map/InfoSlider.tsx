@@ -100,7 +100,7 @@ export function InfoSlider({
                     <div>
                         <p className="text-sm text-muted-foreground">Size</p>
                         <p className="text-lg font-medium">
-                            {selectedProperty.size || 2400} sq ft
+                            {selectedProperty.size || "NA"} sq ft
                         </p>
                     </div>
                 </div>
