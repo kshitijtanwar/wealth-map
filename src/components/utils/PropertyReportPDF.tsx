@@ -1,5 +1,6 @@
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import type { RealProperty, RealOwner } from "@/types";
+import { Map } from "lucide-react";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -173,9 +174,7 @@ export const PropertyReportPDF = ({
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
                     <Text style={styles.title}>{property.site_address}</Text>
-                    <Text style={styles.subtitle}>
-                        {property.city}, {property.state} {property.zip_code}
-                    </Text>
+                    <Text style={styles.subtitle}>{property.site_address}</Text>
                     <Text style={styles.dateText}>
                         Report generated on{" "}
                         {generatedDate.toLocaleDateString("en-US", {
@@ -186,6 +185,7 @@ export const PropertyReportPDF = ({
                     </Text>
                 </View>
                 <View style={styles.headerRight}>
+                    <Map />
                     {/* Placeholder for image/logo */}
                 </View>
             </View>
@@ -194,12 +194,12 @@ export const PropertyReportPDF = ({
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Property Overview</Text>
                 <View style={styles.grid}>
-                    {/* Market Value */}
+                    {/* Assessed Value */}
                     <View style={[styles.highlightCard, styles.gridItem]}>
-                        <Text style={styles.label}>Market Value</Text>
+                        <Text style={styles.label}>Assessed Value</Text>
                         <Text style={styles.value}>
                             $
-                            {property.market_total_value?.toLocaleString() ||
+                            {property.assessed_total_value?.toLocaleString() ||
                                 "N/A"}
                         </Text>
                         <View style={styles.divider} />
@@ -294,7 +294,7 @@ export const PropertyReportPDF = ({
 
             {/* Owner Analysis */}
             {owner && (
-                <View style={styles.section}>
+                <View style={styles.section} break>
                     <Text style={styles.sectionTitle}>Owner Analysis</Text>
                     <View style={styles.twoColumn}>
                         <View style={styles.column}>
