@@ -40,7 +40,7 @@ export const owners: Owner[] = [
 // Step 2: Define properties, referencing owners
 export const properties: Property[] = [
     {
-        id: "0bce805e-8038-435e-8a09-c4625416c04c",
+        id: "85665192-a8cf-43b8-8618-520ec8b277e1",
         address: "123 Park Avenue",
         city: "New York",
         state: "NY",
@@ -54,7 +54,7 @@ export const properties: Property[] = [
         owners: [owners[0]],
     },
     {
-        id: "fbd36899-ffda-4a9c-9e92-266ddcc99baa",
+        id: "c7013085-1714-475b-91f4-00d060f8d6d0",
         address: "456 Ocean Drive",
         city: "Miami",
         state: "FL",
@@ -68,7 +68,7 @@ export const properties: Property[] = [
         owners: [owners[1]],
     },
     {
-        id: "dcc60864-e2ab-43bf-bf7d-350b0bb9976e",
+        id: "87f23140-bfc4-4927-ad20-b51019c35a71",
         address: "789 Sunset Blvd",
         city: "Los Angeles",
         state: "CA",
@@ -82,7 +82,7 @@ export const properties: Property[] = [
         owners: [owners[2]],
     },
     {
-        id: "33932668-7616-4db7-ac9d-2ae4bd41a0c9",
+        id: "3e5a82d5-ea2b-4cb8-a738-867dfbf65600",
         address: "101 Market Street",
         city: "San Francisco",
         state: "CA",
@@ -96,7 +96,7 @@ export const properties: Property[] = [
         owners: [owners[0]],
     },
     {
-        id: "3e9df901-8d28-4ccb-8539-ef5c3f143272",
+        id: "ecc40275-3e78-461a-9920-4231b27991f9",
         address: "202 Mission Street",
         city: "San Francisco",
         state: "CA",
@@ -110,7 +110,7 @@ export const properties: Property[] = [
         owners: [owners[1]],
     },
     {
-        id: "f2b95dc9-a412-4eb5-bac3-c6dd82c17a45",
+        id: "afade853-2872-4867-93d5-0455b4be2296",
         address: "303 Howard Street",
         city: "San Francisco",
         state: "CA",
@@ -124,7 +124,7 @@ export const properties: Property[] = [
         owners: [owners[2]],
     },
     {
-        id: "a00ece62-b947-4fc4-8e5e-56c93329548f",
+        id: "0e4640a9-bd0f-42b5-bc35-4ce5992fd576",
         address: "400 Folsom Street",
         city: "San Francisco",
         state: "CA",
@@ -138,7 +138,7 @@ export const properties: Property[] = [
         owners: [owners[0]],
     },
     {
-        id: "28b3f7de-89f0-45ea-9402-6cd16f6818c3",
+        id: "72a886c0-458e-443b-88cf-18c73cd06bb6",
         address: "500 Harrison Street",
         city: "San Francisco",
         state: "CA",
@@ -152,7 +152,7 @@ export const properties: Property[] = [
         owners: [owners[1]],
     },
     {
-        id: "3fe7dd0b-4b39-4696-a3de-65a41396a994",
+        id: "bd28d68c-00e8-4d2f-8aae-1ef7177defcc",
         address: "600 Howard Street",
         city: "San Francisco",
         state: "CA",
@@ -166,7 +166,7 @@ export const properties: Property[] = [
         owners: [owners[2]],
     },
     {
-        id: "700e5eb1-45af-4ead-a3bf-51bb67a0781b",
+        id: "4042f103-13d9-4a01-bc78-7e1c23f51a99",
         address: "700 Main Street",
         city: "San Francisco",
         state: "CA",
@@ -180,7 +180,7 @@ export const properties: Property[] = [
         owners: [owners[0]],
     },
     {
-        id: "69e795a1-a8c0-4b65-ac7e-bd7a6b295bce",
+        id: "cf51a8d5-8593-4324-b5f9-d1aa1ef4a6ff",
         address: "800 Beale Street",
         city: "San Francisco",
         state: "CA",
@@ -194,7 +194,7 @@ export const properties: Property[] = [
         owners: [owners[1]],
     },
     {
-        id: "337056eb-f7d7-49a6-bad0-d9e2ae4996dd",
+        id: "cb129a21-6941-40b0-8bed-e0db7a841163",
         address: "900 Bryant Street",
         city: "San Francisco",
         state: "CA",
@@ -208,7 +208,7 @@ export const properties: Property[] = [
         owners: [owners[2]],
     },
     {
-        id: "fc013492-f52d-4623-87ad-3e95ec80a29d",
+        id: "b6b4f082-2dca-4543-9678-eb455aa95e41",
         address: "1000 Harrison Street",
         city: "San Francisco",
         state: "CA",
@@ -222,7 +222,7 @@ export const properties: Property[] = [
         owners: [owners[0]],
     },
     {
-        id: "6fc67712-56c0-4cce-8681-cd0ac30465f9",
+        id: "37d0a1f3-c52e-4dba-98e6-7c0bd5cb61e9",
         address: "1100 Folsom Street",
         city: "San Francisco",
         state: "CA",
@@ -236,7 +236,7 @@ export const properties: Property[] = [
         owners: [owners[1]],
     },
     {
-        id: "adfffd6e-83a6-4bc5-84e2-e6b59a553d29",
+        id: "4f642ab9-4578-40da-bea2-d59a8c8465f5",
         address: "1200 Mission Street",
         city: "San Francisco",
         state: "CA",
