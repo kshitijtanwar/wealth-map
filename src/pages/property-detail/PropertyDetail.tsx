@@ -43,7 +43,7 @@ const PropertyDetail: React.FC = () => {
     const property = data?.property;
     const owners = data?.owners;
 
-    const [tab, setTab] = useState<TabsValue>("overview");
+    const [tab, setTab] = useState<TabsValue>("owner");
 
     if (isLoading) {
         return <PropertySkeleton />;
@@ -92,16 +92,16 @@ const PropertyDetail: React.FC = () => {
             >
                 <TabsList className="w-full lg:w-1/2 bg-inherit border-b mt-3">
                     <TabsTrigger
-                        value="overview"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Overview
-                    </TabsTrigger>
-                    <TabsTrigger
                         value="owner"
                         className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
                     >
                         Owner Analysis
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="overview"
+                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                    >
+                        Property Overview
                     </TabsTrigger>
                     <TabsTrigger
                         value="history"
