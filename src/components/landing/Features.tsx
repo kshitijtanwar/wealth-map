@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BorderBeam } from "../magicui/border-beam";
 
 const featureList: string[] = [
     "Dark/Light theme",
@@ -31,7 +32,7 @@ export const Features = () => {
                 ))}
             </div>
 
-            <Card>
+            <Card className="relative">
                 <CardHeader>
                     <CardTitle className="text-center">
                         Introducing our latest and greatest interactive Map
@@ -46,6 +47,7 @@ export const Features = () => {
                         className="w-full h-full object-cover rounded-lg"
                     ></video>
                 </CardContent>
+                <BorderBeam duration={8} size={200} />
             </Card>
         </section>
     );
