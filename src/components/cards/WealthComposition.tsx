@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type RealOwner } from "@/types";
 import { TooltipTrigger, TooltipContent, Tooltip } from "../ui/tooltip";
+import { Badge } from "../ui/badge";
 
 const WealthComposition = ({
     confidence_level,
@@ -23,7 +24,7 @@ const WealthComposition = ({
         owners.length > 0 ? totalNetWorth / owners.length : 0;
 
     return (
-        <Card className="w-full">
+        <Card className="w-full bg-inherit">
             <CardHeader>
                 <CardTitle>Wealth Composition</CardTitle>
             </CardHeader>
@@ -48,11 +49,14 @@ const WealthComposition = ({
                     </div>
                     <span>
                         {owners?.[0]?.created_at
-                            ? new Date(owners[0].created_at).toLocaleDateString("en-US", {
-                                    day: "numeric",
-                                    month: "long",
-                                    year: "numeric",
-                                })
+                            ? new Date(owners[0].created_at).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric",
+                                  }
+                              )
                             : ""}
                     </span>
                 </div>
@@ -69,10 +73,14 @@ const WealthComposition = ({
                                 className="p-3 rounded-md border-b"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="font-medium text-primary dark:brightness-150 line-clamp-1 mr-2">
-                                        {owner.full_name}
+                                    <span className="line-clamp-1 mr-2 font-bold">
+                                        {owner.full_name
+                                            .toLowerCase()
+                                            .replace(/\b\w/g, (char) =>
+                                                char.toUpperCase()
+                                            )}
                                     </span>
-                                    <span className="text-sm text-emerald-600 font-bold mt-1 sm:mt-0">
+                                    <Badge>
                                         {owner.estimated_net_worth.toLocaleString(
                                             "en-US",
                                             {
@@ -81,11 +89,11 @@ const WealthComposition = ({
                                                 maximumFractionDigits: 0,
                                             }
                                         )}
-                                    </span>
+                                    </Badge>
                                 </div>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <p className="text-sm line-clamp-2 text-muted-foreground">
+                                        <p className="text-xs line-clamp-2 text-muted-foreground brightness-125 text-left">
                                             {owner.mailing_address}
                                         </p>
                                     </TooltipTrigger>

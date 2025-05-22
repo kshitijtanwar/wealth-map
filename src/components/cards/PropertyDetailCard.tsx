@@ -12,7 +12,7 @@ const PropertyDetailCard: React.FC<{
     address: string;
 }> = ({ type, yearBuilt, address }) => {
     return (
-        <Card className="!pb-6 !pt-0 !overflow-hidden">
+        <Card className="!pb-6 !pt-0 !overflow-hidden bg-inherit">
             <CardContent className="p-0">
                 <div className="aspect-w-16 aspect-h-9 bg-gray-200">
                     <img
