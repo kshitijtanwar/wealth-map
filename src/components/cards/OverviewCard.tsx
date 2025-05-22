@@ -26,7 +26,7 @@ export function PropertyValueCard({
     lastAssessed,
 }: PropertyValueCardProps) {
     return (
-        <Card className="h-full">
+        <Card className="h-full bg-inherit">
             <CardContent>
                 <div className="flex items-start justify-between">
                     <div>
@@ -64,7 +64,7 @@ export function PropertyValueCard({
 // Property Size Card
 export function PropertySizeCard({ size, details }: PropertySizeCardProps) {
     return (
-        <Card className="h-full">
+        <Card className="h-full bg-inherit">
             <CardContent>
                 <div className="flex items-start justify-between">
                     <div>
@@ -117,7 +117,7 @@ export function OwnerNetWorthCard({ owners }: OwnerNetWorthCardProps) {
     };
 
     return (
-        <Card className="h-full">
+        <Card className="h-full bg-inherit">
             <CardContent>
                 <div className="flex items-start justify-between">
                     <div>
