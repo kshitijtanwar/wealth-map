@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type RealOwner } from "@/types";
 import { TooltipTrigger, TooltipContent, Tooltip } from "../ui/tooltip";
+import { Badge } from "../ui/badge";
 
 const WealthComposition = ({
     confidence_level,
@@ -23,7 +24,7 @@ const WealthComposition = ({
         owners.length > 0 ? totalNetWorth / owners.length : 0;
 
     return (
-        <Card className="w-full">
+        <Card className="w-full bg-inherit">
             <CardHeader>
                 <CardTitle>Wealth Composition</CardTitle>
             </CardHeader>
@@ -79,7 +80,7 @@ const WealthComposition = ({
                                                 char.toUpperCase()
                                             )}
                                     </span>
-                                    <span className="text-xs bg-primary font-medium text-white p-1 rounded-lg mt-1 sm:mt-0">
+                                    <Badge>
                                         {owner.estimated_net_worth.toLocaleString(
                                             "en-US",
                                             {
@@ -88,11 +89,11 @@ const WealthComposition = ({
                                                 maximumFractionDigits: 0,
                                             }
                                         )}
-                                    </span>
+                                    </Badge>
                                 </div>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <p className="text-xs line-clamp-2 text-muted-foreground brightness-125">
+                                        <p className="text-xs line-clamp-2 text-muted-foreground brightness-125 text-left">
                                             {owner.mailing_address}
                                         </p>
                                     </TooltipTrigger>
