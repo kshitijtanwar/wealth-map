@@ -84,7 +84,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     className="mr-2 !h-8"
                                 />
                                 <div className="flex w-full items-center gap-2">
-                                    <span className="flex-1 font-medium">
+                                    <span className="flex-1 font-medium mr-4">
                                         {pageTitle}
                                     </span>
                                     <ModeToggle />

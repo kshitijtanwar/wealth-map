@@ -11,7 +11,7 @@ import {
 
 const OtherPropertiesOwned = () => {
     return (
-        <Card>
+        <Card className="w-full bg-inherit">
             <CardHeader>
                 <CardTitle>Other Properties Owned</CardTitle>
             </CardHeader>
