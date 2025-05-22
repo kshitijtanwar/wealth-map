@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type RealOwner } from "@/types";
 import { TooltipTrigger, TooltipContent, Tooltip } from "../ui/tooltip";
 import { Badge } from "../ui/badge";
+import { NumberTicker } from "../magicui/number-ticker";
 
 const WealthComposition = ({
     confidence_level,
@@ -21,7 +22,7 @@ const WealthComposition = ({
         0
     );
     const averageNetWorth =
-        owners.length > 0 ? totalNetWorth / owners.length : 0;
+        owners.length > 0 ? Math.round(totalNetWorth / owners.length) : 0;
 
     return (
         <Card className="w-full bg-inherit">
@@ -34,7 +35,11 @@ const WealthComposition = ({
                         Average Net Worth
                     </p>
                     <h1 className="text-3xl font-bold text-accent-foreground">
-                        ${Math.round(averageNetWorth).toLocaleString()}
+                        {/* ${Math.round(averageNetWorth).toLocaleString()} */}
+                        <NumberTicker
+                            value={averageNetWorth}
+                            startValue={averageNetWorth - 100}
+                        />
                     </h1>
                 </div>
                 <div className="flex gap-4 text-sm justify-center">
