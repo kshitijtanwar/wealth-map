@@ -35,7 +35,11 @@ export default function BookmarkedProperties() {
 
     return (
         <div className="container px-4 mx-auto">
-            <Button onClick={() => navigate("/map")} variant={"link"} className="my-4">
+            <Button
+                onClick={() => navigate("/map")}
+                variant={"link"}
+                className="my-4"
+            >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Map
             </Button>
@@ -68,6 +72,14 @@ export default function BookmarkedProperties() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-2">
+                                <div className="col-span-2 mb-2">
+                                    <p className="text-sm text-foreground-muted">
+                                        Owner
+                                    </p>
+                                    <p className="font-medium">
+                                        {property.owners?.[0]?.name}{" "}
+                                    </p>
+                                </div>
                                 <div>
                                     <p className="text-sm text-foreground-muted">
                                         Value

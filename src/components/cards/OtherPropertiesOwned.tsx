@@ -18,7 +18,7 @@ const OtherPropertiesOwned = () => {
             <CardContent>
                 <Table>
                     <TableCaption>
-                        A list of recent properties owned
+                        A list of recent properties owned. (Currently filled with mock data)
                     </TableCaption>
                     <TableHeader>
                         <TableRow>
