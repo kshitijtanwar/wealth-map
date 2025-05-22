@@ -35,7 +35,7 @@ const WealthComposition = ({
                         Average Net Worth
                     </p>
                     <h1 className="text-3xl font-bold text-accent-foreground">
-                        {/* ${Math.round(averageNetWorth).toLocaleString()} */}
+                        $
                         <NumberTicker
                             value={averageNetWorth}
                             startValue={averageNetWorth - 100}
