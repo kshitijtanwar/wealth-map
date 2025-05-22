@@ -28,12 +28,12 @@ const routeList: RouteProps[] = [
         label: "Features",
     },
     {
-        href: "#testimonials",
-        label: "Testimonials",
+        href: "#howItWorks",
+        label: "How it works",
     },
     {
-        href: "#features",
-        label: "Features",
+        href: "#testimonials",
+        label: "Testimonials",
     },
     {
         href: "#faq",
@@ -50,7 +50,7 @@ export const Navbar = () => {
                 <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between ">
                     <NavigationMenuItem className="font-bold flex">
                         <Link
-                            to="/homepage"
+                            to="/"
                             className="font-bold text-xl flex items-center gap-2"
                         >
                             <Map className="text-primary" />
@@ -74,7 +74,8 @@ export const Navbar = () => {
 
                             <SheetContent side={"left"}>
                                 <SheetHeader>
-                                    <SheetTitle className="font-bold text-xl">
+                                    <SheetTitle className="font-bold text-xl flex items-center gap-2">
+                                        <Map className="text-primary" />
                                         Wealth Map
                                     </SheetTitle>
                                 </SheetHeader>
