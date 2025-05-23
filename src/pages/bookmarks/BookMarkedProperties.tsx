@@ -12,10 +12,38 @@ import { ArrowLeft, Bookmark, BookmarkCheck, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Property } from "@/types";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthProvider";
+import { AlertCircle } from "lucide-react";
+import { supabase } from "@/db/supabase";
 
 export default function BookmarkedProperties() {
     const [properties, setProperties] = useState<Property[]>([]);
+    const [hasActiveCompany, setHasActiveCompany] = useState(true);
+    const [showAccessDenied, setShowAccessDenied] = useState(false);
     const navigate = useNavigate();
+    const { session } = useAuth();
+
+    useEffect(() => {
+        const checkActiveCompany = async () => {
+            if (!session?.user?.id) return;
+
+            const { data: activeCompanies, error } = await supabase
+                .from("company_employees")
+                .select("id")
+                .eq("employee_id", session.user.id)
+                .eq("is_active", true);
+
+            if (error) {
+                console.error("Error checking active companies:", error);
+                return;
+            }
+
+            const isActive = activeCompanies && activeCompanies.length > 0;
+            setHasActiveCompany(isActive);
+        };
+
+        checkActiveCompany();
+    }, [session?.user?.id]);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -32,6 +60,42 @@ export default function BookmarkedProperties() {
         localStorage.setItem("bookmarkedProperties", JSON.stringify(updated));
         toast.success("Removed from bookmarks");
     };
+
+    const handleViewDetails = (propertyId: string) => {
+        if (!hasActiveCompany) {
+            setShowAccessDenied(true);
+            return;
+        }
+        navigate(`/property-detail/${propertyId}`);
+    };
+
+    if (showAccessDenied) {
+        return (
+            <div className="container px-4 mx-auto">
+                <Button
+                    onClick={() => setShowAccessDenied(false)}
+                    variant={"link"}
+                    className="my-4"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Bookmarks
+                </Button>
+                <div className="flex flex-col items-center justify-center h-[80vh] p-4">
+                    <div className="flex flex-col items-center text-center max-w-md">
+                        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+                        <h2 className="text-2xl font-semibold mb-2">
+                            Access Restricted
+                        </h2>
+                        <p className="text-muted-foreground mb-4">
+                            You need an active company to view property details. Please
+                            contact your administrator or check your company status in
+                            settings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container px-4 mx-auto">
@@ -104,11 +168,7 @@ export default function BookmarkedProperties() {
                             <CardFooter className="flex items-center justify-between gap-4">
                                 <Button
                                     variant="outline"
-                                    onClick={() =>
-                                        navigate(
-                                            `/property-detail/${property.id}`
-                                        )
-                                    }
+                                    onClick={() => handleViewDetails(property.id)}
                                 >
                                     View Details
                                 </Button>
