@@ -1,10 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { HeroCards } from "./HeroCards";
 import { useAuth } from "@/context/AuthProvider";
 import { Link } from "react-router-dom";
+import example from "@/assets/landing/example.png";
+import lightExample from "@/assets/landing/light_example.png";
+import { useTheme } from "../theme-provider";
+import { BorderBeam } from "../magicui/border-beam";
+import { Card, CardContent } from "../ui/card";
 
 export const Hero = () => {
     const { session } = useAuth();
+    const { theme } = useTheme();
     return (
         <section className="container grid lg:grid-cols-2 place-items-center py-20 md:py- gap-10">
             <div className="text-center lg:text-start space-y-6">
@@ -34,11 +39,15 @@ export const Hero = () => {
                     </Button>
                 </Link>
             </div>
-
-            {/* Hero cards sections */}
-            <div className="z-10">
-                <HeroCards />
-            </div>
+            <Card className="relative p-0 hidden lg:block">
+                <CardContent className="p-0">
+                    <img
+                        src={theme === "dark" ? example : lightExample}
+                        alt="hero"
+                    />
+                </CardContent>
+                <BorderBeam duration={8} size={100} />
+            </Card>
         </section>
     );
 };
