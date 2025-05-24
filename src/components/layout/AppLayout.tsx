@@ -21,7 +21,7 @@ import { getPageTitle } from "@/utils/helper";
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
-    "/map": "Map",
+    "/map": "Property Map",
     "/reports": "Reports",
     "/settings": "Settings",
     "/search": "Search",
@@ -78,13 +78,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <AppSidebar />
                         <SidebarInset>
                             <header className="flex h-16 shrink-0 items-center gap-2 px-4 mb-2">
-                                <SidebarTrigger className="-ml-1" />
+                                <SidebarTrigger className="-ml-1 cursor-pointer hover:text-primary" />
                                 <Separator
                                     orientation="vertical"
                                     className="mr-2 !h-8"
                                 />
                                 <div className="flex w-full items-center gap-2">
-                                    <span className="flex-1 font-medium mr-4">
+                                    <span className="flex-1 font-medium mr-4 text-lg">
                                         {pageTitle}
                                     </span>
                                     <ModeToggle />

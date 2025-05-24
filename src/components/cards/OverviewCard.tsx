@@ -91,10 +91,9 @@ export function PropertySizeCard({ size, details }: PropertySizeCardProps) {
 // Owner Net Worth Card
 export function OwnerNetWorthCard({ owners }: OwnerNetWorthCardProps) {
     const averageNetWorth = owners.length
-        ? owners.reduce(
-              (sum, owner) => sum + (owner.estimated_net_worth || 0),
-              0
-          ) / owners.length
+        ? owners.reduce((sum, owner) => {
+              return sum + (owner.estimated_net_worth || 0);
+          }, 0) / owners.length
         : 0;
 
     // Determine overall confidence level based on most common level
@@ -125,7 +124,7 @@ export function OwnerNetWorthCard({ owners }: OwnerNetWorthCardProps) {
                             Average Owner Net Worth
                         </p>
                         <p className="text-2xl font-bold">
-                            ${(averageNetWorth / 1_000_000).toFixed(1)}M
+                            ${(averageNetWorth / 1_000_000).toFixed(4)}M
                         </p>
                         <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                             <Tooltip>

@@ -55,7 +55,7 @@ export default function Reports() {
 
     return (
         <Card className="border-none bg-inherit px-4 shadow-none">
-            <CardHeader className="px-3 py-2 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
+            <CardHeader className="px-3 pb-2 flex flex-col sm:flex-row gap-3 justify-between items-center border-b">
                 <div className="text-center sm:text-left">
                     <h1 className="text-2xl font-semibold">Reports</h1>
                     <p className="mt-1">

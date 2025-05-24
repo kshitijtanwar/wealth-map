@@ -171,7 +171,7 @@ const Settings = () => {
     };
 
     return (
-        <div className="container mx-auto">
+        <section className="container mx-auto p-4">
             <Tabs defaultValue="account">
                 <TabsList className="max-w-full bg-inherit">
                     <div className="flex items-center overflow-x-auto pb-2">
@@ -631,7 +631,7 @@ const Settings = () => {
                     </TabsContent>
                 )}
             </Tabs>
-        </div>
+        </section>
     );
 };
 
