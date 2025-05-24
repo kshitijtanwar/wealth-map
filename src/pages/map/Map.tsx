@@ -13,26 +13,29 @@ import {
     type MapCameraProps,
 } from "@vis.gl/react-google-maps";
 import { getInitialCameraProps } from "@/utils/mapStorage";
+import { useAuth } from "@/context/AuthProvider";
+import { useHasActiveCompany } from "@/hooks/useHasActiveCompany";
 
 const Map: React.FC = () => {
     const { theme } = useTheme();
+    const { session } = useAuth();
     const navigate = useNavigate();
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(
         null
     );
+    const [cameraProps, setCameraProps] = useState<MapCameraProps>(
+        getInitialCameraProps()
+    );
+    const hasActiveCompany = useHasActiveCompany(session?.user?.id);
 
     const { data: properties } = useQuery({
         queryKey: ["mapData"],
         queryFn: getMapData,
-        staleTime: 1000 * 60 * 5,
+        enabled: hasActiveCompany === true,
     });
 
-
-
-    const [cameraProps, setCameraProps] = useState<MapCameraProps>(
-        getInitialCameraProps()
-    );
+    if (hasActiveCompany !== true) return null;
 
     const handleCameraChange = (ev: MapCameraChangedEvent) => {
         const newCameraProps = ev.detail;

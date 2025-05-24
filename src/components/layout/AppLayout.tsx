@@ -8,8 +8,6 @@ import {
 import { SearchProvider } from "../../context/search-provider";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import supabase from "@/db/supabase";
 import { useAuth } from "@/context/AuthProvider";
 import AccessDenied from "../utils/AccessDenied";
 import { SearchFilter } from "../search/SearchFilter";
@@ -17,6 +15,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { ModeToggle } from "../utils/mode-toggle";
 import { SearchBar } from "../search/maps/search-bar";
 import { getPageTitle } from "@/utils/helper";
+import { useHasActiveCompany } from "@/hooks/useHasActiveCompany";
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -32,31 +31,9 @@ const pageTitles: Record<string, string> = {
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const { session } = useAuth();
-    const [hasActiveCompany, setHasActiveCompany] = useState(true);
-
     const pageTitle = getPageTitle(pageTitles);
 
-    useEffect(() => {
-        const checkActiveCompany = async () => {
-            if (!session?.user?.id) return;
-
-            const { data: activeCompanies, error } = await supabase
-                .from("company_employees")
-                .select("id")
-                .eq("employee_id", session.user.id)
-                .eq("is_active", true);
-
-            if (error) {
-                console.error("Error checking active companies:", error);
-                return;
-            }
-
-            const isActive = activeCompanies && activeCompanies.length > 0;
-            setHasActiveCompany(isActive);
-        };
-
-        checkActiveCompany();
-    }, [session?.user?.id]);
+    const hasActiveCompany = useHasActiveCompany(session?.user?.id);
 
     const shouldShowAccessDenied =
         !hasActiveCompany &&
