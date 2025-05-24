@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Card,
@@ -18,39 +18,12 @@ import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { toast } from "sonner";
 
-interface Employee {
-    id: string;
-    email: string;
-    fullname: string;
-    avatar_url?: string;
-    last_login: string;
-    created_at: string;
-    is_active: boolean;
-}
-
-interface Company {
-    name: string;
-}
-
-interface RevokedEmployee {
-    id: string;
-    permission_level: string;
-    is_active: boolean;
-    invitation_accepted_at: string;
-    employees: Employee;
-    companies: Company;
-    created_at: string;
-}
-
 const Settings = () => {
     const { session } = useAuth();
-    const { company_logo, fullname, email, company_id } =
+    const { company_logo, fullname, email } =
         session?.user?.user_metadata || {};
     const [isPending, setIsPending] = useState(false);
-    const [revokedEmployees, setRevokedEmployees] = useState<RevokedEmployee[]>(
-        []
-    );
-    const [loadingRevoked, setLoadingRevoked] = useState(false);
+
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -66,11 +39,7 @@ const Settings = () => {
             navigate("/dashboard");
         }, 1000);
     };
-    useEffect(() => {
-        if (company_id) {
-            fetchRevokedEmployees();
-        }
-    }, [company_id]);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarUploading, setAvatarUploading] = useState(false);
 
@@ -102,31 +71,6 @@ const Settings = () => {
         }
     };
 
-    const fetchRevokedEmployees = async () => {
-        setLoadingRevoked(true);
-        const { success, employees, error } = await authAPI.getRevokedEmployees(
-            company_id
-        );
-        if (success && employees) {
-            setRevokedEmployees(employees as unknown as RevokedEmployee[]);
-        } else {
-            toast.error(error || "Failed to load revoked employees");
-        }
-        setLoadingRevoked(false);
-    };
-
-    const handleReactivate = async (employeeId: string) => {
-        const { success, error } = await authAPI.reactivateEmployee(
-            company_id,
-            employeeId
-        );
-        if (success) {
-            toast.success("Employee access has been restored");
-            fetchRevokedEmployees(); // Refresh the list
-        } else {
-            toast.error(error || "Failed to reactivate employee");
-        }
-    };
     const handlePasswordUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setPasswordError("");
@@ -199,15 +143,6 @@ const Settings = () => {
                         >
                             Security
                         </TabsTrigger>
-                        {session?.user?.user_metadata?.permission_level ===
-                            "admin" && (
-                            <TabsTrigger
-                                value="revoked"
-                                className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                            >
-                                Revoked Access
-                            </TabsTrigger>
-                        )}
                     </div>
                 </TabsList>
 
@@ -540,96 +475,6 @@ const Settings = () => {
                         </CardContent>
                     </Card>
                 </TabsContent>
-                {session?.user?.user_metadata?.permission_level === "admin" && (
-                    <TabsContent value="revoked">
-                        <Card className="border-none shadow-none bg-inherit">
-                            <CardHeader>
-                                <CardTitle>Revoked Employee Access</CardTitle>
-                                <CardDescription>
-                                    Manage employees who have had their access
-                                    revoked
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {loadingRevoked ? (
-                                    <div>Loading revoked employees...</div>
-                                ) : revokedEmployees.length === 0 ? (
-                                    <div className="text-muted-foreground">
-                                        No employees with revoked access
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {revokedEmployees.map((employee) => (
-                                            <div
-                                                key={employee.employees.id}
-                                                className="flex flex-col xs:flex-row gap-2 xs:items-center justify-between p-4 border rounded-md"
-                                            >
-                                                <div className="flex items-center space-x-4">
-                                                    <Avatar>
-                                                        <AvatarImage
-                                                            src={
-                                                                employee
-                                                                    .employees
-                                                                    .avatar_url
-                                                            }
-                                                            alt={
-                                                                employee
-                                                                    .employees
-                                                                    .fullname
-                                                            }
-                                                        />
-                                                        <AvatarFallback>
-                                                            {employee.employees.fullname
-                                                                .split(" ")
-                                                                .map(
-                                                                    (n) => n[0]
-                                                                )
-                                                                .join("")}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <div className="font-medium">
-                                                            {
-                                                                employee
-                                                                    .employees
-                                                                    .fullname
-                                                            }
-                                                        </div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {
-                                                                employee
-                                                                    .employees
-                                                                    .email
-                                                            }
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            Revoked on:{" "}
-                                                            {new Date(
-                                                                employee.created_at
-                                                            ).toLocaleDateString()}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        handleReactivate(
-                                                            employee.employees
-                                                                .id
-                                                        )
-                                                    }
-                                                    className="w-full xs:w-fit"
-                                                >
-                                                    Restore Access
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                )}
             </Tabs>
         </section>
     );

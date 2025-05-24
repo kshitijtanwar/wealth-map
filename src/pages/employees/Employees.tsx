@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -14,12 +16,17 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, Shield } from "lucide-react";
+import {
+    MoreVertical,
+    Shield,
+    ChevronDown,
+    PlusIcon,
+    ShieldAlert,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
@@ -44,6 +51,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
 
 const TableRowSkeleton = () => (
     <TableRow>
@@ -80,6 +88,7 @@ export default function Employees() {
         permission_level: userPermissionLevel,
     } = session?.user?.user_metadata || {};
 
+    const [open, setOpen] = useState<true | false>(false);
     const [modalAction, setModalAction] = useState<{
         type: "revoke" | "remove" | null;
         id?: string;
@@ -366,13 +375,12 @@ export default function Employees() {
                 </CardHeader>
                 <Dialog
                     open={isInviteDialogOpen}
-                    onOpenChange={setIsInviteDialogOpen}
+                    onOpenChange={(open) => {
+                        setIsInviteDialogOpen(open);
+                        if (!open)
+                            setNewEmployee({ email: "", role: "Employee" });
+                    }}
                 >
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="h-4 w-4" /> Invite Employee
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                         <DialogHeader>
                             <DialogTitle>Invite a new employee</DialogTitle>
@@ -411,6 +419,33 @@ export default function Employees() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+                <DropdownMenu open={open} onOpenChange={setOpen}>
+                    <DropdownMenuTrigger asChild>
+                        <Button>
+                            Employee Actions{" "}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setIsInviteDialogOpen(true);
+                                    setOpen(false);
+                                }}
+                            >
+                                <PlusIcon className="mr-2" /> Invite Employee
+                            </DropdownMenuItem>
+                            <Link to={"/employees/revoked"}>
+                                <DropdownMenuItem>
+                                    <ShieldAlert className="mr-2" /> Revoked
+                                    Employees
+                                </DropdownMenuItem>
+                            </Link>
+                        </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="px-4">
                 {loadingState.fetchingEmployees ||

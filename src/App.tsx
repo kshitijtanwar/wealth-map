@@ -23,6 +23,7 @@ import { SearchResults } from "./components/search/search-results";
 import { useIsMobile } from "./hooks/use-mobile";
 import BookmarkedProperties from "./pages/bookmarks/BookMarkedProperties";
 import { TooltipProvider } from "./components/ui/tooltip";
+import RevokedEmployees from "./pages/employees/RevokedEmployees";
 
 const AppRoutes = () => {
     const { loading } = useAuth();
@@ -56,6 +57,10 @@ const AppRoutes = () => {
                 <Route
                     path="/employees"
                     element={<AppLayout children={<Employees />} />}
+                />
+                <Route
+                    path="/employees/revoked"
+                    element={<AppLayout children={<RevokedEmployees />} />}
                 />
                 <Route
                     path="/reports"
