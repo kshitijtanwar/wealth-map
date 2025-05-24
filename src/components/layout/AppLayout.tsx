@@ -21,6 +21,7 @@ import { getPageTitle } from "@/utils/helper";
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/employees": "Employees",
+    "/employees/revoked": "Employees",
     "/map": "Property Map",
     "/reports": "Reports",
     "/settings": "Settings",

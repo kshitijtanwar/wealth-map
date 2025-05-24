@@ -117,7 +117,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarMenu className="gap-2">
                         {filteredNavItems.map((item) => {
-                            const isActive = location.pathname === item.url;
+                            const isActive =
+                                item.url === "/employees"
+                                    ? location.pathname.startsWith("/employees")
+                                    : location.pathname === item.url;
                             return (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
