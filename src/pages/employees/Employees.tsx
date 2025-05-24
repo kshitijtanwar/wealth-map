@@ -35,7 +35,6 @@ import { type Employee, type Invitation } from "@/types";
 import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
-import AccessDenied from "@/components/utils/AccessDenied";
 import {
     Card,
     CardDescription,
@@ -85,7 +84,6 @@ export default function Employees() {
         company_name: companyName,
         fullname: senderName,
         company_id: companyId,
-        permission_level: userPermissionLevel,
     } = session?.user?.user_metadata || {};
 
     const [open, setOpen] = useState<true | false>(false);
@@ -222,10 +220,6 @@ export default function Employees() {
         }
     }, [companyId, fetchInvitations, fetchEmployees]);
 
-    // Prevent access if user is not an admin
-    if (userPermissionLevel !== "admin") {
-        return <AccessDenied />;
-    }
 
     const handleInvite = async () => {
         dispatch({ type: "INVITE_START" });
