@@ -61,8 +61,8 @@ const PropertyDetail: React.FC = () => {
     }
 
     return (
-        <section className="space-y-4 p-4">
-            <Breadcrumb>
+        <section className="p-4">
+            <Breadcrumb className="mb-2">
                 <BreadcrumbList>
                     <BreadcrumbItem>
                         <Link to="/map">
@@ -80,8 +80,8 @@ const PropertyDetail: React.FC = () => {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="flex flex-col md:flex-row items-start justify-between md:items-center">
-                <h1 className="text-xl font-bold mt-3">
+            <div className="flex flex-col md:flex-row items-start justify-between md:items-center space-y-4">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium">
                     Owner and Property Insights
                 </h1>
                 <div className="mt-4 md:mt-0 flex w-full md:w-fit gap-2 ml-auto">
