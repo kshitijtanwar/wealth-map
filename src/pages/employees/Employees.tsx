@@ -45,7 +45,6 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// TableRowSkeleton component for loading states
 const TableRowSkeleton = () => (
     <TableRow>
         <TableCell>
@@ -355,8 +354,8 @@ export default function Employees() {
     };
 
     return (
-        <Card className="border-none bg-inherit shadow-none ">
-            <div className="px-6 py-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
+        <Card className="border-none bg-inherit shadow-none">
+            <div className="px-6 pb-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
                 <CardHeader className="text-center sm:text-left flex-1 p-0">
                     <CardTitle className="text-2xl font-semibold">
                         Employee Management

@@ -3,9 +3,11 @@ import { useMap, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { debounce } from "lodash";
 import SearchMarker from "./SearchMarker";
 import { Input } from "../../ui/input";
-import { Search } from "lucide-react";
+import { Info, Search } from "lucide-react";
 import type { RefObject } from "react";
 import { useOnClickOutside } from "@/hooks/use-on-click-outside";
+import { Tooltip } from "@radix-ui/react-tooltip";
+import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const SearchBar = () => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -98,12 +100,23 @@ export const SearchBar = () => {
                 <Input
                     ref={inputRef}
                     type="text"
-                    placeholder="Search for locations..."
+                    placeholder="Search for places..."
                     onChange={handleInput}
                     onFocus={() => setIsFocused(true)}
                     onClick={() => setIsFocused(true)}
                     className="w-full pl-9 pr-4 py-2"
                 />
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Info
+                            size={16}
+                            className="absolute right-2 top-1/2 -translate-y-1/2"
+                        />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Search to navigate map to a specific place</p>
+                    </TooltipContent>
+                </Tooltip>
             </div>
 
             {suggestions.length > 0 && isFocused && (
