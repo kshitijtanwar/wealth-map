@@ -59,7 +59,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }, [session?.user?.id]);
 
     const shouldShowAccessDenied =
-        !hasActiveCompany && location.pathname === "/map";
+        !hasActiveCompany &&
+        (location.pathname === "/map" ||
+            location.pathname.startsWith("/property-detail/"));
 
     return (
         <SearchProvider>
