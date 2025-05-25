@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Card,
@@ -18,37 +18,17 @@ import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { toast } from "sonner";
 
-interface Employee {
-    id: string;
-    email: string;
-    fullname: string;
-    avatar_url?: string;
-    last_login: string;
-    created_at: string;
-    is_active: boolean;
-}
-
-interface Company {
-    name: string;
-}
-
-interface RevokedEmployee {
-    id: string;
-    permission_level: string;
-    is_active: boolean;
-    invitation_accepted_at: string;
-    employees: Employee;
-    companies: Company;
-    created_at: string;
-}
-
 const Settings = () => {
     const { session } = useAuth();
-    const { company_logo, fullname, email, company_id } =
+    const { company_logo, fullname, email } =
         session?.user?.user_metadata || {};
     const [isPending, setIsPending] = useState(false);
-    const [revokedEmployees, setRevokedEmployees] = useState<RevokedEmployee[]>([]);
-    const [loadingRevoked, setLoadingRevoked] = useState(false);
+
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
     const navigate = useNavigate();
     const handleAccountSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,72 +39,111 @@ const Settings = () => {
             navigate("/dashboard");
         }, 1000);
     };
-    useEffect(() => {
-        if (company_id) {
-            fetchRevokedEmployees();
-        }
-    }, [company_id]);
 
-    const fetchRevokedEmployees = async () => {
-        setLoadingRevoked(true);
-        const { success, employees, error } = await authAPI.getRevokedEmployees(company_id);
-        if (success && employees) {
-            setRevokedEmployees(employees as unknown as RevokedEmployee[]);
-        } else {
-            toast.error(error || "Failed to load revoked employees");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [avatarUploading, setAvatarUploading] = useState(false);
+
+    const handleAvatarChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file || !session?.user?.id) return;
+
+        setAvatarUploading(true);
+        try {
+            const { success, avatarUrl, error } = await authAPI.updateAvatar(
+                file
+            );
+
+            if (success && avatarUrl) {
+                toast.success("Avatar updated successfully");
+            } else {
+                throw new Error(error);
+            }
+        } catch (error) {
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update avatar"
+            );
+        } finally {
+            setAvatarUploading(false);
         }
-        setLoadingRevoked(false);
     };
 
-    const handleReactivate = async (employeeId: string) => {
-        const { success, error } = await authAPI.reactivateEmployee(
-            company_id,
-            employeeId
-        );
-        if (success) {
-            toast.success("Employee access has been restored");
-            fetchRevokedEmployees(); // Refresh the list
-        } else {
-            toast.error(error || "Failed to reactivate employee");
+    const handlePasswordUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPasswordError("");
+
+        // Validate passwords
+        if (newPassword !== confirmPassword) {
+            setPasswordError("New passwords don't match");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setPasswordError("Password must be at least 6 characters");
+            return;
+        }
+
+        setIsUpdatingPassword(true);
+        try {
+            const { success, error } = await authAPI.updatePassword(
+                currentPassword,
+                newPassword
+            );
+
+            if (success) {
+                toast.success("Password updated successfully");
+                // Clear the form
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+            } else {
+                throw new Error(error);
+            }
+        } catch (error) {
+            setPasswordError(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update password"
+            );
+            toast.error("Failed to update password");
+        } finally {
+            setIsUpdatingPassword(false);
         }
     };
 
     return (
-        <div className="container mx-auto">
+        <section className="container mx-auto p-4">
             <Tabs defaultValue="account">
-                <TabsList className="w-full md:w-1/2 bg-inhert">
-                    <TabsTrigger
-                        value="account"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        My Account
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="billing"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Billing
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="notifications"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Notifications
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="security"
-                        className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
-                    >
-                        Security
-                    </TabsTrigger>
-                    {session?.user?.user_metadata?.permission_level === "admin" && (
+                <TabsList className="max-w-full bg-inherit">
+                    <div className="flex items-center overflow-x-auto pb-2">
                         <TabsTrigger
-                            value="revoked"
+                            value="account"
                             className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
                         >
-                            Revoked Access
+                            My Account
                         </TabsTrigger>
-                    )}
+                        <TabsTrigger
+                            value="billing"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Billing
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="notifications"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Notifications
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="security"
+                            className="data [&[data-state=active]]:border-b-2 [&[data-state=active]]:border-primary transition-colors"
+                        >
+                            Security
+                        </TabsTrigger>
+                    </div>
                 </TabsList>
 
                 {/* Account Tab */}
@@ -145,10 +164,39 @@ const Settings = () => {
                                             company_logo ||
                                             "https://github.com/shadcn.png"
                                         }
+                                        alt={fullname}
+                                        className="object-cover"
                                     />
-                                    <AvatarFallback>CN</AvatarFallback>
+                                    <AvatarFallback>
+                                        {fullname
+                                            ?.split(" ")
+                                            .map((n: string) => n[0])
+                                            .join("")}
+                                    </AvatarFallback>
                                 </Avatar>
-                                <Button variant="outline">Change Avatar</Button>
+                                <div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() =>
+                                            fileInputRef.current?.click()
+                                        }
+                                        disabled={avatarUploading}
+                                    >
+                                        {avatarUploading
+                                            ? "Uploading..."
+                                            : "Change Avatar"}
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleAvatarChange}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        JPG, GIF or PNG. Max size 2MB.
+                                    </p>
+                                </div>
                             </div>
 
                             <form onSubmit={handleAccountSave}>
@@ -163,11 +211,21 @@ const Settings = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="email">
+                                                Email{" "}
+                                            </Label>
+                                            <span className="text-muted-foreground text-xs">
+                                                Email can't be modified as of
+                                                now
+                                            </span>
+                                        </div>
                                         <Input
                                             id="email"
                                             type="email"
                                             defaultValue={email}
+                                            readOnly
+                                            className="cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -327,36 +385,75 @@ const Settings = () => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-medium">
-                                    Change Password
-                                </h3>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="current-password">
-                                        Current Password
-                                    </Label>
-                                    <Input
-                                        id="current-password"
-                                        type="password"
-                                    />
+                            <form onSubmit={handlePasswordUpdate}>
+                                {passwordError && (
+                                    <div className="text-sm text-destructive">
+                                        {passwordError}
+                                    </div>
+                                )}
+                                <div className="flex flex-col w-full md:w-1/2 gap-4">
+                                    <h3 className="text-lg font-medium">
+                                        Change Password
+                                    </h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="current-password">
+                                            Current Password
+                                        </Label>
+                                        <Input
+                                            id="current-password"
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) =>
+                                                setCurrentPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-password">
+                                            New Password
+                                        </Label>
+                                        <Input
+                                            id="new-password"
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) =>
+                                                setNewPassword(e.target.value)
+                                            }
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confirm-password">
+                                            Confirm Password
+                                        </Label>
+                                        <Input
+                                            id="confirm-password"
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) =>
+                                                setConfirmPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="new-password">
-                                        New Password
-                                    </Label>
-                                    <Input id="new-password" type="password" />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="confirm-password">
-                                        Confirm Password
-                                    </Label>
-                                    <Input
-                                        id="confirm-password"
-                                        type="password"
-                                    />
-                                </div>
-                                <Button>Update Password</Button>
-                            </div>
+                                <Button
+                                    type="submit"
+                                    disabled={isUpdatingPassword}
+                                    className="mt-4"
+                                >
+                                    {isUpdatingPassword
+                                        ? "Updating..."
+                                        : "Update Password"}
+                                </Button>
+                            </form>
 
                             <div className="pt-4 border-t">
                                 <h3 className="text-lg font-medium mb-2">
@@ -378,77 +475,8 @@ const Settings = () => {
                         </CardContent>
                     </Card>
                 </TabsContent>
-                {session?.user?.user_metadata?.permission_level === "admin" && (
-                    <TabsContent value="revoked">
-                        <Card className="border-none shadow-none bg-inherit">
-                            <CardHeader>
-                                <CardTitle>Revoked Employee Access</CardTitle>
-                                <CardDescription>
-                                    Manage employees who have had their access revoked
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {loadingRevoked ? (
-                                    <div>Loading revoked employees...</div>
-                                ) : revokedEmployees.length === 0 ? (
-                                    <div className="text-muted-foreground">
-                                        No employees with revoked access
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {revokedEmployees.map((employee) => (
-                                            <div
-                                                key={employee.employees.id}
-                                                className="flex items-center justify-between p-4 border rounded-md"
-                                            >
-                                                <div className="flex items-center space-x-4">
-                                                    <Avatar>
-                                                        <AvatarImage
-                                                            src={employee.employees.avatar_url}
-                                                            alt={employee.employees.fullname}
-                                                        />
-                                                        <AvatarFallback>
-                                                            {employee.employees.fullname
-                                                                .split(" ")
-                                                                .map((n) => n[0])
-                                                                .join("")}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <div className="font-medium">
-                                                            {employee.employees.fullname}
-                                                        </div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {employee.employees.email}
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            Revoked on:{" "}
-                                                            {new Date(
-                                                                employee.created_at
-                                                            ).toLocaleDateString()}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        handleReactivate(
-                                                            employee.employees.id
-                                                        )
-                                                    }
-                                                >
-                                                    Restore Access
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                )}
             </Tabs>
-        </div>
+        </section>
     );
 };
 

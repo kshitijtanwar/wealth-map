@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bookmark, BookmarkCheck, Home, MapPin } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Property } from "@/types";
 import { toast } from "sonner";
@@ -16,7 +16,6 @@ import { toast } from "sonner";
 export default function BookmarkedProperties() {
     const [properties, setProperties] = useState<Property[]>([]);
     const navigate = useNavigate();
-
     useEffect(() => {
         if (typeof window !== "undefined") {
             const saved = JSON.parse(
@@ -33,18 +32,20 @@ export default function BookmarkedProperties() {
         toast.success("Removed from bookmarks");
     };
 
+    const handleViewDetails = (propertyId: string) => {
+        navigate(`/property-detail/${propertyId}`);
+    };
+
     return (
         <div className="container px-4 mx-auto">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold">Saved Properties</h1>
-                <Button
-                    onClick={() => navigate("/map")}
-                    className="flex items-center gap-2"
-                >
-                    <Home className="h-4 w-4" />
-                    Back to Map
-                </Button>
-            </div>
+            <Button
+                onClick={() => navigate("/map")}
+                variant={"link"}
+                className="my-4"
+            >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Map
+            </Button>
 
             {properties.length === 0 ? (
                 <div className="text-center py-12">
@@ -74,6 +75,14 @@ export default function BookmarkedProperties() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-2">
+                                <div className="col-span-2 mb-2">
+                                    <p className="text-sm text-foreground-muted">
+                                        Owner
+                                    </p>
+                                    <p className="font-medium">
+                                        {property.owners?.[0]?.name}{" "}
+                                    </p>
+                                </div>
                                 <div>
                                     <p className="text-sm text-foreground-muted">
                                         Value
@@ -99,9 +108,7 @@ export default function BookmarkedProperties() {
                                 <Button
                                     variant="outline"
                                     onClick={() =>
-                                        navigate(
-                                            `/property-detail/${property.id}`
-                                        )
+                                        handleViewDetails(property.id)
                                     }
                                 >
                                     View Details

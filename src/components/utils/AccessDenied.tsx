@@ -10,8 +10,7 @@ const AccessDenied = () => {
                 </h2>
                 <p className="text-muted-foreground mb-4">
                     You need an active company to access this feature. Please
-                    contact your administrator or check your company status in
-                    settings.
+                    contact your administrator.
                 </p>
             </div>
         </div>

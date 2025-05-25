@@ -7,7 +7,7 @@ import { useSearch } from "../../context/search-provider";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
 export function SearchFilter({
-    placeholder = "Search...",
+    placeholder = "Search for properties, owners etc...",
     className,
 }: SearchBarProps) {
     const { setSearchQuery, suggestions } = useSearch();

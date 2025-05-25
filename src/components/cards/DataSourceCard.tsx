@@ -10,7 +10,7 @@ import { BarChart2, Briefcase, Home } from "lucide-react";
 
 export function DataSourceCard() {
     return (
-        <Card className="w-full">
+        <Card className="w-full bg-inherit">
             <CardHeader>
                 <CardTitle>Data Sources</CardTitle>
             </CardHeader>

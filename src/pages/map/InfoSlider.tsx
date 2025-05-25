@@ -4,7 +4,7 @@ import { SheetClose, SheetContent } from "@/components/ui/sheet";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/types";
 import { Separator } from "@/components/ui/separator";
-import { XCircle, Bookmark, Download, BookmarkCheck } from "lucide-react";
+import { XCircle, Bookmark, BookmarkCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -15,7 +15,6 @@ export function InfoSlider({
     selectedProperty: Property;
     onViewPropertyDetails: () => void;
 }) {
-    console.log(selectedProperty);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
@@ -95,13 +94,13 @@ export function InfoSlider({
                             $
                             {selectedProperty.value
                                 ? selectedProperty.value?.toLocaleString()
-                                : "1.23M"}
+                                : "N/A"}
                         </p>
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Size</p>
                         <p className="text-lg font-medium">
-                            {selectedProperty.size || 2400} sq ft
+                            {selectedProperty.size || "NA"} sq ft
                         </p>
                     </div>
                 </div>
@@ -149,7 +148,25 @@ export function InfoSlider({
                     )}
                 </div>
 
-                <div className="space-y-3 mt-6">
+                <div className="grid grid-cols-2 gap-3">
+                    <Button
+                        variant={isBookmarked ? "default" : "outline"}
+                        className="flex items-center gap-2"
+                        tabIndex={-1}
+                        onClick={handleSaveProperty}
+                    >
+                        {isBookmarked ? (
+                            <>
+                                <BookmarkCheck size={16} />
+                                Saved
+                            </>
+                        ) : (
+                            <>
+                                <Bookmark size={16} />
+                                Save Property
+                            </>
+                        )}
+                    </Button>
                     <Button
                         tabIndex={-1}
                         variant="default"
@@ -158,37 +175,6 @@ export function InfoSlider({
                     >
                         View Detailed Report
                     </Button>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <Button
-                            variant={isBookmarked ? "default" : "outline"}
-                            size="sm"
-                            className="flex items-center gap-2"
-                            tabIndex={-1}
-                            onClick={handleSaveProperty}
-                        >
-                            {isBookmarked ? (
-                                <>
-                                    <BookmarkCheck size={16} />
-                                    Saved
-                                </>
-                            ) : (
-                                <>
-                                    <Bookmark size={16} />
-                                    Save Property
-                                </>
-                            )}
-                        </Button>
-                        <Button
-                            tabIndex={-1}
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-2"
-                        >
-                            <Download size={16} />
-                            Export Data
-                        </Button>
-                    </div>
                 </div>
             </div>
         </SheetContent>

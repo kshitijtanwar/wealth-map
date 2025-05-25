@@ -42,3 +42,10 @@ export function loadingReducer(
             return state;
     }
 }
+
+export const getPageTitle = (pageTitles: Record<string, string>) => {
+    if (location.pathname.includes("property-detail")) {
+        return "Detailed Overview";
+    }
+    return pageTitles[location.pathname] || "Dashboard";
+};

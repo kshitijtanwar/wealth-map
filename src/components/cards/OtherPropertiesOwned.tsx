@@ -11,14 +11,14 @@ import {
 
 const OtherPropertiesOwned = () => {
     return (
-        <Card>
+        <Card className="w-full bg-inherit">
             <CardHeader>
                 <CardTitle>Other Properties Owned</CardTitle>
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableCaption>
-                        A list of recent properties owned
+                        A list of recent properties owned. (Currently filled with mock data)
                     </TableCaption>
                     <TableHeader>
                         <TableRow>

@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -14,12 +16,17 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, Shield } from "lucide-react";
+import {
+    MoreVertical,
+    Shield,
+    ChevronDown,
+    PlusIcon,
+    ShieldAlert,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { authAPI } from "@/db/apiAuth";
 import { sendInvitationEmail } from "@/utils/emailService";
@@ -28,7 +35,6 @@ import { type Employee, type Invitation } from "@/types";
 import { Modal } from "@/components/utils/Modal";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { initialLoadingState, loadingReducer } from "@/utils/helper";
-import AccessDenied from "@/components/utils/AccessDenied";
 import {
     Card,
     CardDescription,
@@ -44,8 +50,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
 
-// TableRowSkeleton component for loading states
 const TableRowSkeleton = () => (
     <TableRow>
         <TableCell>
@@ -78,9 +84,9 @@ export default function Employees() {
         company_name: companyName,
         fullname: senderName,
         company_id: companyId,
-        permission_level: userPermissionLevel,
     } = session?.user?.user_metadata || {};
 
+    const [open, setOpen] = useState<true | false>(false);
     const [modalAction, setModalAction] = useState<{
         type: "revoke" | "remove" | null;
         id?: string;
@@ -214,10 +220,6 @@ export default function Employees() {
         }
     }, [companyId, fetchInvitations, fetchEmployees]);
 
-    // Prevent access if user is not an admin
-    if (userPermissionLevel !== "admin") {
-        return <AccessDenied />;
-    }
 
     const handleInvite = async () => {
         dispatch({ type: "INVITE_START" });
@@ -355,8 +357,8 @@ export default function Employees() {
     };
 
     return (
-        <Card className="border-none bg-inherit shadow-none ">
-            <div className="px-6 py-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
+        <Card className="border-none bg-inherit shadow-none">
+            <div className="px-6 pb-2 flex flex-col sm:flex-row gap-3 justify-between md:items-center border-b">
                 <CardHeader className="text-center sm:text-left flex-1 p-0">
                     <CardTitle className="text-2xl font-semibold">
                         Employee Management
@@ -367,13 +369,12 @@ export default function Employees() {
                 </CardHeader>
                 <Dialog
                     open={isInviteDialogOpen}
-                    onOpenChange={setIsInviteDialogOpen}
+                    onOpenChange={(open) => {
+                        setIsInviteDialogOpen(open);
+                        if (!open)
+                            setNewEmployee({ email: "", role: "Employee" });
+                    }}
                 >
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="h-4 w-4" /> Invite Employee
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                         <DialogHeader>
                             <DialogTitle>Invite a new employee</DialogTitle>
@@ -412,6 +413,33 @@ export default function Employees() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+                <DropdownMenu open={open} onOpenChange={setOpen}>
+                    <DropdownMenuTrigger asChild>
+                        <Button>
+                            Employee Actions{" "}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setIsInviteDialogOpen(true);
+                                    setOpen(false);
+                                }}
+                            >
+                                <PlusIcon className="mr-2" /> Invite Employee
+                            </DropdownMenuItem>
+                            <Link to={"/employees/revoked"}>
+                                <DropdownMenuItem>
+                                    <ShieldAlert className="mr-2" /> Revoked
+                                    Employees
+                                </DropdownMenuItem>
+                            </Link>
+                        </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="px-4">
                 {loadingState.fetchingEmployees ||
