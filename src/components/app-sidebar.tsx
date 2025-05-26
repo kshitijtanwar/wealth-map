@@ -143,7 +143,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                {userData && <NavUser user={userData} />}
+                {userData && (
+                    <NavUser user={userData} permission={userPermissionLevel} />
+                )}
             </SidebarFooter>
         </Sidebar>
     );
