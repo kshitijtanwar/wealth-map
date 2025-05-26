@@ -26,15 +26,18 @@ import {
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { authAPI } from "@/db/apiAuth";
 import { Modal } from "./utils/Modal";
+import { AnimatedGradientText } from "./magicui/animated-gradient-text";
 
 export function NavUser({
     user,
+    permission,
 }: {
     user: {
         name: string;
         email: string;
         avatar: string;
     };
+    permission: "admin" | "employee";
 }) {
     const { isMobile } = useSidebar();
 
@@ -64,6 +67,11 @@ export function NavUser({
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">
                                     {user.name}
+                                    {permission === "admin" && (
+                                        <AnimatedGradientText className="text-xs font-semibold px-2 ml-2 border rounded-full">
+                                            Admin
+                                        </AnimatedGradientText>
+                                    )}
                                 </span>
                                 <span className="truncate text-xs">
                                     {user.email}
